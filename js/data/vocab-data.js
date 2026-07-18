@@ -12,6 +12,7 @@ window.VOCAB_DATA = {
     { word: "大きい", reading: "おおきい", meaning: "big" },
     { word: "小さい", reading: "ちいさい", meaning: "small" },
     { word: "今日", reading: "きょう", meaning: "today" },
+    { word: "お花見", reading: "おはなみ", meaning: "flower viewing" },
   ],
   N4: [
     { word: "準備する", reading: "じゅんびする", meaning: "to prepare" },
