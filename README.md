@@ -10,7 +10,7 @@ A small static site with two tools:
 No build step, no dependencies. It's plain HTML/CSS/JS, so editing the data
 is just editing a JS file and refreshing the page.
 
-## Adding your own content
+## Adding your own content!
 
 **Vocab/kanji** — edit `js/data/vocab-data.js`. Each entry:
 
