@@ -151,6 +151,8 @@ main {
   font: inherit;
 }
 .card.flipped { transform: rotateY(180deg); }
+.card.no-anim,
+.card.no-anim .seal { transition: none !important; }
 .card-face {
   position: absolute;
   inset: 0;
@@ -269,6 +271,53 @@ main {
 .example-jp { font-family: var(--font-jp); font-size: 1.1rem; margin: 0 0 4px; }
 .example-en { font-family: var(--font-ui); font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
 .grammar-empty { color: var(--ink-soft); font-style: italic; }
+
+/* ---------- word list ---------- */
+.wordlist-group { margin-bottom: 32px; }
+.wordlist-level-heading {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--indigo);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin: 0 0 12px;
+}
+.wordlist-level-heading.n5 { background: var(--n5); }
+.wordlist-level-heading.n4 { background: var(--n4); }
+.wordlist-level-heading.n3 { background: var(--n3); }
+.wordlist-level-heading.n2 { background: var(--n2); }
+.wordlist-level-heading.n1 { background: var(--n1); }
+
+.wordlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.wordlist-table th,
+.wordlist-table td {
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.wordlist-table th {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  background: var(--paper-deep);
+}
+.wordlist-table tr:last-child td { border-bottom: none; }
+.wl-word { font-family: var(--font-jp); font-size: 1.1rem; }
+.wl-reading { font-family: var(--font-ui); color: var(--ink-soft); }
+.wl-meaning { font-family: var(--font-ui); }
 
 /* ---------- footer ---------- */
 .site-footer {
