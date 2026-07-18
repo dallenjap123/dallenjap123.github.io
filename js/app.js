@@ -1,6 +1,6 @@
 (function () {
   const state = {
-    flashcards: { direction: "word-meaning", deck: [], index: 0, flipped: false },
+    flashcards: { level: "all", lesson: "all", direction: "word-meaning", deck: [], index: 0, flipped: false },
     grammar: { items: [], selectedIndex: null },
   };
 
@@ -22,6 +22,7 @@
 
   // ---------- flashcards ----------
   const fcLevelChips = document.querySelectorAll("#fc-level-chips .chip");
+  const fcLessonChipsEl = document.getElementById("fc-lesson-chips");
   const dirBtns = document.querySelectorAll("#fc-direction-toggle .dir-btn");
   const cardEl = document.getElementById("flashcard");
   const frontTextEl = document.getElementById("card-front-text");
@@ -29,10 +30,14 @@
   const backReadingEl = document.getElementById("card-back-reading");
   const progressEl = document.getElementById("fc-progress");
 
-  function buildDeck(level) {
+  function buildDeck(level, lesson) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
-    return levels.flatMap((l) => (data[l] || []).map((item) => ({ ...item, level: l })));
+    let items = levels.flatMap((l) => (data[l] || []).map((item) => ({ ...item, level: l })));
+    if (lesson && lesson !== "all") {
+      items = items.filter((item) => String(item.lesson) === String(lesson));
+    }
+    return items;
   }
 
   function shuffle(arr) {
@@ -54,7 +59,7 @@
     fc.flipped = false;
     const item = fc.deck[fc.index];
     if (!item) {
-      frontTextEl.textContent = "no cards in this level yet";
+      frontTextEl.textContent = "no cards for this selection yet";
       backTextEl.textContent = "";
       backReadingEl.textContent = "";
     } else if (fc.direction === "word-meaning") {
@@ -72,17 +77,62 @@
     cardEl.classList.remove("no-anim");
   }
 
-  function loadDeck(level) {
-    state.flashcards.deck = shuffle(buildDeck(level));
-    state.flashcards.index = 0;
+  function loadDeck() {
+    // default order follows the order words are listed in vocab-data.js;
+    // only the explicit Shuffle button randomizes it
+    const fc = state.flashcards;
+    fc.deck = buildDeck(fc.level, fc.lesson);
+    fc.index = 0;
     renderCard();
+  }
+
+  function renderLessonChips(level) {
+    const data = window.VOCAB_DATA || {};
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    // Lessons are scoped to a single level (numbering can repeat across
+    // levels), so the lesson filter only appears once a specific level
+    // (not "All") is selected.
+    if (level === "all") {
+      fcLessonChipsEl.innerHTML = "";
+      fcLessonChipsEl.hidden = true;
+      return;
+    }
+    const items = data[level] || [];
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort(
+      (a, b) => a - b
+    );
+    if (!lessonNums.length) {
+      fcLessonChipsEl.innerHTML = "";
+      fcLessonChipsEl.hidden = true;
+      return;
+    }
+    fcLessonChipsEl.hidden = false;
+    const allChip = `<button class="chip lesson-chip active" data-lesson="all">All lessons</button>`;
+    const lessonChips = lessonNums
+      .map((n) => {
+        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        return `<button class="chip lesson-chip" data-lesson="${n}" title="${title}">${n}課</button>`;
+      })
+      .join("");
+    fcLessonChipsEl.innerHTML = allChip + lessonChips;
+    fcLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        fcLessonChipsEl.querySelectorAll(".lesson-chip").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        state.flashcards.lesson = chip.dataset.lesson;
+        loadDeck();
+      });
+    });
   }
 
   fcLevelChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       fcLevelChips.forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
-      loadDeck(chip.dataset.level);
+      state.flashcards.level = chip.dataset.level;
+      state.flashcards.lesson = "all";
+      renderLessonChips(chip.dataset.level);
+      loadDeck();
     });
   });
 
@@ -130,7 +180,8 @@
     if (e.code === "ArrowLeft") document.getElementById("fc-prev").click();
   });
 
-  loadDeck("all");
+  renderLessonChips(state.flashcards.level);
+  loadDeck();
 
   // ---------- grammar ----------
   const grLevelChips = document.querySelectorAll("#gr-level-chips .chip");
@@ -198,23 +249,49 @@
       .map((l) => {
         const items = data[l] || [];
         if (!items.length) return "";
-        const rows = items
-          .map(
-            (item) => `
-          <tr>
-            <td class="wl-word">${item.word}</td>
-            <td class="wl-reading">${item.reading}</td>
-            <td class="wl-meaning">${item.meaning}</td>
-          </tr>`
-          )
+        const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[l]) || {};
+        const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort(
+          (a, b) => a - b
+        );
+        // words without a lesson number (if any) get grouped at the end
+        const hasUnlabeled = items.some((item) => item.lesson === undefined);
+        const groups = hasUnlabeled ? [...lessonNums, undefined] : lessonNums;
+
+        const lessonBlocks = groups
+          .map((lessonNum) => {
+            const lessonItems = items.filter((item) => item.lesson === lessonNum);
+            if (!lessonItems.length) return "";
+            const heading =
+              lessonNum === undefined
+                ? "Other"
+                : lessonTitles[lessonNum]
+                ? `${lessonNum}課 ${lessonTitles[lessonNum]}`
+                : `${lessonNum}課`;
+            const rows = lessonItems
+              .map(
+                (item) => `
+              <tr>
+                <td class="wl-word">${item.word}</td>
+                <td class="wl-reading">${item.reading}</td>
+                <td class="wl-meaning">${item.meaning}</td>
+              </tr>`
+              )
+              .join("");
+            return `
+              <div class="wordlist-lesson-block">
+                <h4 class="wordlist-lesson-heading">${heading}</h4>
+                <table class="wordlist-table">
+                  <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th></tr></thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              </div>`;
+          })
           .join("");
+
         return `
           <div class="wordlist-group">
             <h3 class="wordlist-level-heading ${l.toLowerCase()}">${l}</h3>
-            <table class="wordlist-table">
-              <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th></tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
+            ${lessonBlocks}
           </div>`;
       })
       .join("");
