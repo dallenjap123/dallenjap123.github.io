@@ -46,6 +46,10 @@
 
   function renderCard() {
     const fc = state.flashcards;
+    // Freeze the flip transition while we reset + swap content, so a card
+    // that was showing its back never reveals the next card's content
+    // mid-rotation. Transition is switched back on right after.
+    cardEl.classList.add("no-anim");
     cardEl.classList.remove("flipped");
     fc.flipped = false;
     const item = fc.deck[fc.index];
@@ -53,10 +57,7 @@
       frontTextEl.textContent = "no cards in this level yet";
       backTextEl.textContent = "";
       backReadingEl.textContent = "";
-      progressEl.textContent = "0 / 0";
-      return;
-    }
-    if (fc.direction === "word-meaning") {
+    } else if (fc.direction === "word-meaning") {
       frontTextEl.textContent = item.word;
       backTextEl.textContent = item.meaning;
       backReadingEl.textContent = item.reading;
@@ -65,7 +66,10 @@
       backTextEl.textContent = item.word;
       backReadingEl.textContent = item.reading;
     }
-    progressEl.textContent = `${fc.index + 1} / ${fc.deck.length}`;
+    progressEl.textContent = item ? `${fc.index + 1} / ${fc.deck.length}` : "0 / 0";
+    // force layout so the reset is committed before transitions resume
+    void cardEl.offsetWidth;
+    cardEl.classList.remove("no-anim");
   }
 
   function loadDeck(level) {
@@ -182,4 +186,47 @@
   });
 
   renderGrammarList("N5");
+
+  // ---------- word list ----------
+  const wlLevelChips = document.querySelectorAll("#wl-level-chips .chip");
+  const wordlistContainer = document.getElementById("wordlist-container");
+
+  function renderWordList(level) {
+    const data = window.VOCAB_DATA || {};
+    const levels = level === "all" ? Object.keys(data) : [level];
+    wordlistContainer.innerHTML = levels
+      .map((l) => {
+        const items = data[l] || [];
+        if (!items.length) return "";
+        const rows = items
+          .map(
+            (item) => `
+          <tr>
+            <td class="wl-word">${item.word}</td>
+            <td class="wl-reading">${item.reading}</td>
+            <td class="wl-meaning">${item.meaning}</td>
+          </tr>`
+          )
+          .join("");
+        return `
+          <div class="wordlist-group">
+            <h3 class="wordlist-level-heading ${l.toLowerCase()}">${l}</h3>
+            <table class="wordlist-table">
+              <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`;
+      })
+      .join("");
+  }
+
+  wlLevelChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      wlLevelChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      renderWordList(chip.dataset.level);
+    });
+  });
+
+  renderWordList("all");
 })();
