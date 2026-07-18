@@ -18,6 +18,7 @@
     <nav class="view-tabs" role="tablist">
       <button class="tab active" data-view="flashcards" role="tab" aria-selected="true">Flashcards</button>
       <button class="tab" data-view="grammar" role="tab" aria-selected="false">Grammar</button>
+      <button class="tab" data-view="wordlist" role="tab" aria-selected="false">Word List</button>
     </nav>
   </header>
 
@@ -79,6 +80,20 @@
           <p class="grammar-empty">select a pattern from the list</p>
         </div>
       </div>
+    </section>
+
+    <section id="wordlist-view" class="view">
+      <div class="controls">
+        <div class="level-chips" id="wl-level-chips">
+          <button class="chip active" data-level="all">All</button>
+          <button class="chip n5" data-level="N5">N5</button>
+          <button class="chip n4" data-level="N4">N4</button>
+          <button class="chip n3" data-level="N3">N3</button>
+          <button class="chip n2" data-level="N2">N2</button>
+          <button class="chip n1" data-level="N1">N1</button>
+        </div>
+      </div>
+      <div id="wordlist-container"></div>
     </section>
   </main>
 
