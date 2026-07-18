@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語ノート — Kanji &amp; Grammar Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-jp">日本語ノート</span>
+      <span class="brand-en">kanji, vocab &amp; grammar</span>
+    </div>
+    <nav class="view-tabs" role="tablist">
+      <button class="tab active" data-view="flashcards" role="tab" aria-selected="true">Flashcards</button>
+      <button class="tab" data-view="grammar" role="tab" aria-selected="false">Grammar</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="flashcards-view" class="view active">
+      <div class="controls">
+        <div class="level-chips" id="fc-level-chips">
+          <button class="chip active" data-level="all">All</button>
+          <button class="chip n5" data-level="N5">N5</button>
+          <button class="chip n4" data-level="N4">N4</button>
+          <button class="chip n3" data-level="N3">N3</button>
+          <button class="chip n2" data-level="N2">N2</button>
+          <button class="chip n1" data-level="N1">N1</button>
+        </div>
+        <div class="direction-toggle" id="fc-direction-toggle">
+          <button class="dir-btn active" data-direction="word-meaning">word → meaning</button>
+          <button class="dir-btn" data-direction="meaning-word">meaning → word</button>
+        </div>
+      </div>
+
+      <div class="card-stage">
+        <button class="card" id="flashcard" aria-live="polite">
+          <div class="card-face card-front">
+            <span class="card-text" id="card-front-text"></span>
+          </div>
+          <div class="card-face card-back">
+            <span class="seal" aria-hidden="true">済</span>
+            <span class="card-reading" id="card-back-reading"></span>
+            <span class="card-text" id="card-back-text"></span>
+          </div>
+        </button>
+        <p class="card-hint">click the card, or press space, to flip</p>
+      </div>
+
+      <div class="deck-controls">
+        <button id="fc-shuffle" class="ghost-btn">shuffle</button>
+        <div class="nav-group">
+          <button id="fc-prev" class="ghost-btn" aria-label="Previous card">←</button>
+          <span id="fc-progress" class="progress">0 / 0</span>
+          <button id="fc-next" class="ghost-btn" aria-label="Next card">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="grammar-view" class="view">
+      <div class="controls">
+        <div class="level-chips" id="gr-level-chips">
+          <button class="chip n5 active" data-level="N5">N5</button>
+          <button class="chip n4" data-level="N4">N4</button>
+          <button class="chip n3" data-level="N3">N3</button>
+          <button class="chip n2" data-level="N2">N2</button>
+          <button class="chip n1" data-level="N1">N1</button>
+        </div>
+      </div>
+
+      <div class="grammar-layout">
+        <ul class="grammar-list" id="grammar-list"></ul>
+        <div class="grammar-detail" id="grammar-detail">
+          <p class="grammar-empty">select a pattern from the list</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>edit <code>js/data/vocab-data.js</code> and <code>js/data/grammar-data.js</code> to add your own entries — no build step needed.</p>
+  </footer>
+
+  <script src="js/data/vocab-data.js"></script>
+  <script src="js/data/grammar-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
