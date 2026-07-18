@@ -23,6 +23,11 @@
   --n2: #435284;
   --n1: #2B3A67;
 
+  --learning: #B98B3E;
+  --learning-bg: #F1E4C7;
+  --mastered: #4F7A5B;
+  --mastered-bg: #DCEAE0;
+
   --radius: 8px;
   --font-jp: 'Shippori Mincho', serif;
   --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
@@ -141,6 +146,25 @@ main {
 .lesson-chips .chip { font-size: 0.78rem; padding: 5px 12px; }
 .lesson-chips .chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
 
+.study-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.weak-chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
+.text-link {
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.text-link:hover { color: var(--seal); }
+
 /* ---------- flashcard ---------- */
 .card-stage {
   display: flex;
@@ -213,6 +237,24 @@ main {
 .card.flipped .seal { transform: rotate(-8deg) scale(1); }
 
 .card-hint { font-family: var(--font-ui); font-size: 0.8rem; color: var(--ink-soft); margin-top: 12px; }
+
+.grade-buttons { display: flex; gap: 12px; margin-top: 14px; }
+.grade-btn {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  background: var(--paper-alt);
+  color: var(--ink);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.grade-wrong { border-color: var(--seal); color: var(--seal); }
+.grade-wrong:hover { background: var(--seal); color: #fff; }
+.grade-right { border-color: var(--mastered); color: var(--mastered); }
+.grade-right:hover { background: var(--mastered); color: #fff; }
 
 .deck-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .nav-group { display: flex; align-items: center; gap: 12px; }
@@ -340,6 +382,19 @@ main {
 .wl-word { font-family: var(--font-jp); font-size: 1.1rem; }
 .wl-reading { font-family: var(--font-ui); color: var(--ink-soft); }
 .wl-meaning { font-family: var(--font-ui); }
+.wl-progress { text-align: right; }
+.wl-badge {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+}
+.wl-badge-new { background: var(--paper-deep); color: var(--ink-soft); }
+.wl-badge-learning { background: var(--learning-bg); color: var(--learning); }
+.wl-badge-mastered { background: var(--mastered-bg); color: var(--mastered); }
 
 /* ---------- footer ---------- */
 .site-footer {
