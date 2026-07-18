@@ -130,6 +130,17 @@ main {
 }
 .dir-btn.active { background: var(--indigo); color: #fff; }
 
+.lesson-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.lesson-chips .chip { font-size: 0.78rem; padding: 5px 12px; }
+.lesson-chips .chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
+
 /* ---------- flashcard ---------- */
 .card-stage {
   display: flex;
@@ -292,6 +303,17 @@ main {
 .wordlist-level-heading.n3 { background: var(--n3); }
 .wordlist-level-heading.n2 { background: var(--n2); }
 .wordlist-level-heading.n1 { background: var(--n1); }
+
+.wordlist-lesson-block { margin-bottom: 20px; }
+.wordlist-lesson-heading {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+}
 
 .wordlist-table {
   width: 100%;
