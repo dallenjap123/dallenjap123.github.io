@@ -40,6 +40,11 @@
       </div>
       <div class="lesson-chips" id="fc-lesson-chips" hidden></div>
 
+      <div class="study-options">
+        <button class="chip weak-chip" id="fc-weak-toggle">⚠ weak words only</button>
+        <button class="text-link" id="fc-reset-progress">reset progress</button>
+      </div>
+
       <div class="card-stage">
         <button class="card" id="flashcard" aria-live="polite">
           <div class="card-face card-front">
@@ -51,16 +56,19 @@
             <span class="card-text" id="card-back-text"></span>
           </div>
         </button>
-        <p class="card-hint">click the card, or press space, to flip</p>
+        <p class="card-hint" id="card-hint">click the card, or press space, to flip</p>
+        <div class="grade-buttons" id="grade-buttons" hidden>
+          <button class="grade-btn grade-wrong" id="grade-wrong">✗ didn't know</button>
+          <button class="grade-btn grade-right" id="grade-right">✓ knew it</button>
+        </div>
       </div>
 
       <div class="deck-controls">
-        <button id="fc-shuffle" class="ghost-btn">shuffle</button>
         <div class="nav-group">
-          <button id="fc-prev" class="ghost-btn" aria-label="Previous card">←</button>
-          <span id="fc-progress" class="progress">0 / 0</span>
-          <button id="fc-next" class="ghost-btn" aria-label="Next card">→</button>
+          <button id="fc-shuffle" class="ghost-btn">shuffle</button>
+          <button id="fc-skip" class="ghost-btn">skip</button>
         </div>
+        <span id="fc-progress" class="progress">0 / 0</span>
       </div>
     </section>
 
