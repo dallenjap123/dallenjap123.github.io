@@ -1,6 +1,54 @@
 (function () {
+  // ---------- persisted right/wrong progress (per word, per browser) ----------
+  const PROGRESS_KEY = "jpstudy_progress_v1";
+  let progressStore = {};
+  try {
+    progressStore = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
+  } catch (e) {
+    progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
+  }
+  function saveProgress() {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
+    } catch (e) {
+      /* ignore — progress simply won't persist this session */
+    }
+  }
+  // id is level+lesson+word, so progress survives level/lesson filter changes
+  // and only resets if you actually edit the word itself in vocab-data.js
+  function wordId(item) {
+    return `${item.level}::${item.lesson}::${item.word}`;
+  }
+  function getStats(item) {
+    return progressStore[wordId(item)] || { box: 1, correct: 0, wrong: 0 };
+  }
+  function recordGrade(item, isCorrect) {
+    const id = wordId(item);
+    const stats = progressStore[id] || { box: 1, correct: 0, wrong: 0 };
+    if (isCorrect) {
+      stats.correct += 1;
+      stats.box = Math.min(stats.box + 1, 5); // box 5 = well mastered
+    } else {
+      stats.wrong += 1;
+      stats.box = 1; // any miss drops it back to "needs practice"
+    }
+    stats.lastSeen = new Date().toISOString();
+    progressStore[id] = stats;
+    saveProgress();
+  }
+
   const state = {
-    flashcards: { level: "all", lesson: "all", direction: "word-meaning", deck: [], index: 0, flipped: false },
+    flashcards: {
+      level: "all",
+      lesson: "all",
+      weakOnly: false,
+      direction: "word-meaning",
+      queue: [], // words still to show this session
+      current: null, // word currently on screen
+      masteredCount: 0, // retired this session (2 correct answers in a row)
+      totalCount: 0,
+      flipped: false,
+    },
     grammar: { items: [], selectedIndex: null },
   };
 
@@ -17,6 +65,7 @@
       tab.setAttribute("aria-selected", "true");
       const target = tab.dataset.view;
       views.forEach((v) => v.classList.toggle("active", v.id === `${target}-view`));
+      if (target === "wordlist" && typeof refreshWordList === "function") refreshWordList();
     });
   });
 
@@ -24,18 +73,27 @@
   const fcLevelChips = document.querySelectorAll("#fc-level-chips .chip");
   const fcLessonChipsEl = document.getElementById("fc-lesson-chips");
   const dirBtns = document.querySelectorAll("#fc-direction-toggle .dir-btn");
+  const weakToggleBtn = document.getElementById("fc-weak-toggle");
+  const resetProgressBtn = document.getElementById("fc-reset-progress");
   const cardEl = document.getElementById("flashcard");
   const frontTextEl = document.getElementById("card-front-text");
   const backTextEl = document.getElementById("card-back-text");
   const backReadingEl = document.getElementById("card-back-reading");
+  const cardHintEl = document.getElementById("card-hint");
+  const gradeButtonsEl = document.getElementById("grade-buttons");
+  const gradeWrongBtn = document.getElementById("grade-wrong");
+  const gradeRightBtn = document.getElementById("grade-right");
   const progressEl = document.getElementById("fc-progress");
 
-  function buildDeck(level, lesson) {
+  function buildDeck(level, lesson, weakOnly) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
     let items = levels.flatMap((l) => (data[l] || []).map((item) => ({ ...item, level: l })));
     if (lesson && lesson !== "all") {
       items = items.filter((item) => String(item.lesson) === String(lesson));
+    }
+    if (weakOnly) {
+      items = items.filter((item) => getStats(item).box <= 2);
     }
     return items;
   }
@@ -49,20 +107,9 @@
     return a;
   }
 
-  function renderCard() {
+  function renderFace(item) {
     const fc = state.flashcards;
-    // Freeze the flip transition while we reset + swap content, so a card
-    // that was showing its back never reveals the next card's content
-    // mid-rotation. Transition is switched back on right after.
-    cardEl.classList.add("no-anim");
-    cardEl.classList.remove("flipped");
-    fc.flipped = false;
-    const item = fc.deck[fc.index];
-    if (!item) {
-      frontTextEl.textContent = "no cards for this selection yet";
-      backTextEl.textContent = "";
-      backReadingEl.textContent = "";
-    } else if (fc.direction === "word-meaning") {
+    if (fc.direction === "word-meaning") {
       frontTextEl.textContent = item.word;
       backTextEl.textContent = item.meaning;
       backReadingEl.textContent = item.reading;
@@ -71,19 +118,90 @@
       backTextEl.textContent = item.word;
       backReadingEl.textContent = item.reading;
     }
-    progressEl.textContent = item ? `${fc.index + 1} / ${fc.deck.length}` : "0 / 0";
-    // force layout so the reset is committed before transitions resume
-    void cardEl.offsetWidth;
+  }
+
+  function resetCardVisual() {
+    // Freeze the flip transition while we reset, so a card that was
+    // showing its back never reveals the next card's content mid-rotation.
+    cardEl.classList.add("no-anim");
+    cardEl.classList.remove("flipped");
+    state.flashcards.flipped = false;
+    gradeButtonsEl.hidden = true;
+    cardHintEl.hidden = false;
+    void cardEl.offsetWidth; // force layout before re-enabling transitions
     cardEl.classList.remove("no-anim");
   }
 
-  function loadDeck() {
-    // default order follows the order words are listed in vocab-data.js;
-    // only the explicit Shuffle button randomizes it
+  function updateProgress() {
     const fc = state.flashcards;
-    fc.deck = buildDeck(fc.level, fc.lesson);
-    fc.index = 0;
-    renderCard();
+    progressEl.textContent = fc.totalCount ? `${fc.masteredCount} / ${fc.totalCount} mastered` : "0 / 0";
+  }
+
+  // Redraws the CURRENT card (e.g. after a direction toggle) without
+  // advancing the queue.
+  function renderCurrentFace() {
+    const fc = state.flashcards;
+    resetCardVisual();
+    if (!fc.current) {
+      cardHintEl.hidden = true;
+      return;
+    }
+    renderFace(fc.current);
+  }
+
+  // Pulls the next word off the queue and shows it. Called on session
+  // start, after every grade, and after skip.
+  function showNextCard() {
+    const fc = state.flashcards;
+    resetCardVisual();
+    if (!fc.queue.length) {
+      fc.current = null;
+      frontTextEl.textContent = fc.totalCount ? "🎉 all mastered for now!" : "no cards for this selection yet";
+      backTextEl.textContent = "";
+      backReadingEl.textContent = "";
+      cardHintEl.hidden = true;
+      updateProgress();
+      return;
+    }
+    fc.current = fc.queue.shift();
+    renderFace(fc.current);
+    updateProgress();
+  }
+
+  // Builds a fresh study queue from the current level/lesson/weak filters
+  // and resets session progress (mastered count starts back at 0 — it's a
+  // per-session tally, separate from the persisted right/wrong stats).
+  function startSession() {
+    const fc = state.flashcards;
+    const items = buildDeck(fc.level, fc.lesson, fc.weakOnly).map((item) => ({ ...item, streak: 0 }));
+    fc.queue = items;
+    fc.totalCount = items.length;
+    fc.masteredCount = 0;
+    fc.current = null;
+    showNextCard();
+  }
+
+  // Wrong → reinsert a few cards ahead so it resurfaces soon.
+  // Right → push to the back; after 2 correct answers in a row this
+  // session, retire it instead of requeueing (mastered for now).
+  function gradeCurrent(isCorrect) {
+    const fc = state.flashcards;
+    const item = fc.current;
+    if (!item || !fc.flipped) return;
+    recordGrade(item, isCorrect);
+    if (isCorrect) {
+      item.streak = (item.streak || 0) + 1;
+      if (item.streak >= 2) {
+        fc.masteredCount += 1;
+      } else {
+        fc.queue.push(item);
+      }
+    } else {
+      item.streak = 0;
+      const insertPos = Math.min(3, fc.queue.length);
+      fc.queue.splice(insertPos, 0, item);
+    }
+    showNextCard();
   }
 
   function renderLessonChips(level) {
@@ -120,7 +238,7 @@
         fcLessonChipsEl.querySelectorAll(".lesson-chip").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
         state.flashcards.lesson = chip.dataset.lesson;
-        loadDeck();
+        startSession();
       });
     });
   }
@@ -132,7 +250,7 @@
       state.flashcards.level = chip.dataset.level;
       state.flashcards.lesson = "all";
       renderLessonChips(chip.dataset.level);
-      loadDeck();
+      startSession();
     });
   });
 
@@ -141,47 +259,61 @@
       dirBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       state.flashcards.direction = btn.dataset.direction;
-      renderCard();
+      renderCurrentFace();
     });
   });
 
-  cardEl.addEventListener("click", () => {
-    state.flashcards.flipped = !state.flashcards.flipped;
-    cardEl.classList.toggle("flipped", state.flashcards.flipped);
+  weakToggleBtn.addEventListener("click", () => {
+    state.flashcards.weakOnly = !state.flashcards.weakOnly;
+    weakToggleBtn.classList.toggle("active", state.flashcards.weakOnly);
+    startSession();
   });
+
+  resetProgressBtn.addEventListener("click", () => {
+    if (!window.confirm("This clears your right/wrong progress for every word. Continue?")) return;
+    progressStore = {};
+    saveProgress();
+    startSession();
+  });
+
+  cardEl.addEventListener("click", () => {
+    const fc = state.flashcards;
+    if (!fc.current) return;
+    fc.flipped = !fc.flipped;
+    cardEl.classList.toggle("flipped", fc.flipped);
+    gradeButtonsEl.hidden = !fc.flipped;
+    cardHintEl.hidden = fc.flipped;
+  });
+
+  gradeWrongBtn.addEventListener("click", () => gradeCurrent(false));
+  gradeRightBtn.addEventListener("click", () => gradeCurrent(true));
 
   document.getElementById("fc-shuffle").addEventListener("click", () => {
-    state.flashcards.deck = shuffle(state.flashcards.deck);
-    state.flashcards.index = 0;
-    renderCard();
+    state.flashcards.queue = shuffle(state.flashcards.queue);
   });
 
-  document.getElementById("fc-next").addEventListener("click", () => {
+  document.getElementById("fc-skip").addEventListener("click", () => {
     const fc = state.flashcards;
-    if (!fc.deck.length) return;
-    fc.index = (fc.index + 1) % fc.deck.length;
-    renderCard();
-  });
-
-  document.getElementById("fc-prev").addEventListener("click", () => {
-    const fc = state.flashcards;
-    if (!fc.deck.length) return;
-    fc.index = (fc.index - 1 + fc.deck.length) % fc.deck.length;
-    renderCard();
+    if (!fc.current) return;
+    fc.queue.push(fc.current);
+    showNextCard();
   });
 
   document.addEventListener("keydown", (e) => {
     if (!document.getElementById("flashcards-view").classList.contains("active")) return;
+    const fc = state.flashcards;
     if (e.code === "Space") {
       e.preventDefault();
       cardEl.click();
+    } else if (fc.flipped && e.code === "ArrowRight") {
+      gradeCurrent(true);
+    } else if (fc.flipped && e.code === "ArrowLeft") {
+      gradeCurrent(false);
     }
-    if (e.code === "ArrowRight") document.getElementById("fc-next").click();
-    if (e.code === "ArrowLeft") document.getElementById("fc-prev").click();
   });
 
   renderLessonChips(state.flashcards.level);
-  loadDeck();
+  startSession();
 
   // ---------- grammar ----------
   const grLevelChips = document.querySelectorAll("#gr-level-chips .chip");
@@ -241,6 +373,18 @@
   // ---------- word list ----------
   const wlLevelChips = document.querySelectorAll("#wl-level-chips .chip");
   const wordlistContainer = document.getElementById("wordlist-container");
+  let currentWordListLevel = "all";
+
+  function masteryBadge(item) {
+    const stats = getStats(item);
+    if (stats.correct === 0 && stats.wrong === 0) {
+      return '<span class="wl-badge wl-badge-new">new</span>';
+    }
+    if (stats.box >= 4) {
+      return '<span class="wl-badge wl-badge-mastered">mastered</span>';
+    }
+    return '<span class="wl-badge wl-badge-learning">learning</span>';
+  }
 
   function renderWordList(level) {
     const data = window.VOCAB_DATA || {};
@@ -274,6 +418,7 @@
                 <td class="wl-word">${item.word}</td>
                 <td class="wl-reading">${item.reading}</td>
                 <td class="wl-meaning">${item.meaning}</td>
+                <td class="wl-progress">${masteryBadge({ ...item, level: l })}</td>
               </tr>`
               )
               .join("");
@@ -281,7 +426,7 @@
               <div class="wordlist-lesson-block">
                 <h4 class="wordlist-lesson-heading">${heading}</h4>
                 <table class="wordlist-table">
-                  <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th></tr></thead>
+                  <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th><th>Progress</th></tr></thead>
                   <tbody>${rows}</tbody>
                 </table>
               </div>`;
@@ -301,9 +446,14 @@
     chip.addEventListener("click", () => {
       wlLevelChips.forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
-      renderWordList(chip.dataset.level);
+      currentWordListLevel = chip.dataset.level;
+      renderWordList(currentWordListLevel);
     });
   });
+
+  function refreshWordList() {
+    renderWordList(currentWordListLevel);
+  }
 
   renderWordList("all");
 })();
