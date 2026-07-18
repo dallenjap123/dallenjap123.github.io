@@ -1,16 +1,5 @@
-// Grammar reference data, grouped by JLPT level.
-// Add or edit entries here — each entry needs: pattern, meaning, usage,
-// and an optional list of examples ({ jp, en }).
+// Grammar reference data, intentionally left empty.
+// Previously this file contained JLPT-level lists; those have been removed
+// so the site won't render any grammar entries.
 
-window.GRAMMAR_DATA = {
-  N5: [
-  ],
-  N4: [
-  ],
-  N3: [
-  ],
-  N2: [
-  ],
-  N1: [
-  ],
-};
+window.GRAMMAR_DATA = {};
