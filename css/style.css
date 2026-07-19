@@ -16,6 +16,7 @@
   --indigo: #2B3A67;
   --indigo-deep: #17203B;
   --seal: #B23A2E;
+  --seal-bg: #F7E4E1;
 
   --n5: #A9B4CE;
   --n4: #8695BB;
@@ -160,7 +161,14 @@ main {
   align-items: center;
   margin-top: 10px;
 }
-.weak-chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
+.isolate-chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
+.isolate-note {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--seal);
+  margin: 10px 0 0;
+  font-style: italic;
+}
 .text-link {
   background: none;
   border: none;
@@ -224,6 +232,13 @@ main {
   font-family: var(--font-jp);
   font-size: clamp(1.5rem, 5vw, 2.4rem);
   color: var(--indigo-deep);
+}
+.card-stats {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: 10px;
+  letter-spacing: 0.02em;
 }
 .seal {
   position: absolute;
@@ -401,8 +416,16 @@ main {
   letter-spacing: 0.02em;
 }
 .wl-badge-new { background: var(--paper-deep); color: var(--ink-soft); }
-.wl-badge-learning { background: var(--learning-bg); color: var(--learning); }
-.wl-badge-mastered { background: var(--mastered-bg); color: var(--mastered); }
+.wl-counts {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.wl-count-right { color: var(--mastered); }
+.wl-count-wrong { color: var(--seal); }
+.wl-row-weak { background: var(--seal-bg); }
+.wl-row-weak .wl-word { color: var(--seal); font-weight: 700; }
 
 /* ---------- conjugation ---------- */
 .conj-mode { display: none; margin-top: 24px; }
