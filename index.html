@@ -81,20 +81,54 @@
     </section>
 
     <section id="grammar-view" class="view">
-      <div class="controls">
-        <div class="level-chips" id="gr-level-chips">
-          <button class="chip n5 active" data-level="N5">N5</button>
-          <button class="chip n4" data-level="N4">N4</button>
-          <button class="chip n3" data-level="N3">N3</button>
-          <button class="chip n2" data-level="N2">N2</button>
-          <button class="chip n1" data-level="N1">N1</button>
+      <div class="direction-toggle" id="gr-mode-toggle">
+        <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
+        <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
+      </div>
+
+      <div id="grammar-reference" class="conj-mode active">
+        <div class="controls">
+          <div class="level-chips" id="gr-level-chips">
+            <button class="chip n5 active" data-level="N5">N5</button>
+            <button class="chip n4" data-level="N4">N4</button>
+            <button class="chip n3" data-level="N3">N3</button>
+            <button class="chip n2" data-level="N2">N2</button>
+            <button class="chip n1" data-level="N1">N1</button>
+          </div>
+        </div>
+
+        <div class="grammar-layout">
+          <ul class="grammar-list" id="grammar-list"></ul>
+          <div class="grammar-detail" id="grammar-detail">
+            <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
+          </div>
         </div>
       </div>
 
-      <div class="grammar-layout">
-        <ul class="grammar-list" id="grammar-list"></ul>
-        <div class="grammar-detail" id="grammar-detail">
-          <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
+      <div id="grammar-practice" class="conj-mode">
+        <div class="lesson-chips" id="gp-lesson-chips"></div>
+
+        <div class="card-stage">
+          <div class="gp-card" id="gp-card">
+            <p class="gp-pattern-tag" id="gp-pattern-tag"></p>
+            <p class="gp-sentence" id="gp-sentence"></p>
+            <p class="gp-hint" id="gp-hint"></p>
+            <div class="gp-options" id="gp-options" hidden></div>
+            <button class="ghost-btn" id="gp-reveal" hidden data-i18n="showAnswer">show answer</button>
+            <p class="gp-answer" id="gp-answer" hidden></p>
+            <div class="grade-buttons" id="gp-grade-buttons" hidden>
+              <button class="grade-btn grade-wrong" id="gp-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+              <button class="grade-btn grade-right" id="gp-grade-right" data-i18n="knewIt">✓ knew it</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="deck-controls">
+          <div class="nav-group">
+            <button id="gp-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+            <button id="gp-skip" class="ghost-btn" data-i18n="skip">skip</button>
+          </div>
+          <span id="gp-progress" class="progress">0 / 0</span>
         </div>
       </div>
     </section>
@@ -132,6 +166,7 @@
         <div class="direction-toggle" id="conj-practice-mode-toggle">
           <button class="dir-btn active" data-practice-mode="by-form" data-i18n="byForm">By form</button>
           <button class="dir-btn" data-practice-mode="by-verb" data-i18n="byVerb">By verb</button>
+          <button class="dir-btn" data-practice-mode="sentences" data-i18n="bySentence">Sentences</button>
         </div>
 
         <div id="conj-practice-by-form" class="conj-practice-mode active">
@@ -210,6 +245,33 @@
             <span id="conj-verb-progress" class="progress">0 / 8</span>
           </div>
         </div>
+
+        <div id="conj-practice-sentences" class="conj-practice-mode">
+          <div class="level-chips" id="cs-form-chips"></div>
+
+          <div class="card-stage">
+            <div class="gp-card" id="cs-card">
+              <p class="gp-pattern-tag" id="cs-form-tag"></p>
+              <p class="gp-sentence" id="cs-sentence"></p>
+              <p class="gp-hint" id="cs-hint"></p>
+              <div class="gp-options" id="cs-options" hidden></div>
+              <button class="ghost-btn" id="cs-reveal" hidden data-i18n="showAnswer">show answer</button>
+              <p class="gp-answer" id="cs-answer" hidden></p>
+              <div class="grade-buttons" id="cs-grade-buttons" hidden>
+                <button class="grade-btn grade-wrong" id="cs-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+                <button class="grade-btn grade-right" id="cs-grade-right" data-i18n="knewIt">✓ knew it</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="deck-controls">
+            <div class="nav-group">
+              <button id="cs-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+              <button id="cs-skip" class="ghost-btn" data-i18n="skip">skip</button>
+            </div>
+            <span id="cs-progress" class="progress">0 / 0</span>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -220,7 +282,9 @@
 
   <script src="js/data/vocab-data.js"></script>
   <script src="js/data/grammar-data.js"></script>
+  <script src="js/data/grammar-practice-data.js"></script>
   <script src="js/data/conjugation-data.js"></script>
+  <script src="js/data/conjugation-sentences-data.js"></script>
   <script src="js/data/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
