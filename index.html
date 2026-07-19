@@ -122,44 +122,86 @@
       </div>
 
       <div id="conjugation-practice" class="conj-mode">
-        <div class="controls">
-          <div class="level-chips" id="conj-form-chips">
-            <button class="chip active" data-form="all">All forms</button>
-            <button class="chip" data-form="te">て形</button>
-            <button class="chip" data-form="ta">た形</button>
-            <button class="chip" data-form="potential">可能形</button>
-            <button class="chip" data-form="ba">ば形</button>
-            <button class="chip" data-form="volitional">う・よう形</button>
-            <button class="chip" data-form="passive">受身形</button>
-            <button class="chip" data-form="causative">使役形</button>
-            <button class="chip" data-form="causativePassive">使役受身形</button>
+        <div class="direction-toggle" id="conj-practice-mode-toggle">
+          <button class="dir-btn active" data-practice-mode="by-form">By form</button>
+          <button class="dir-btn" data-practice-mode="by-verb">By verb</button>
+        </div>
+
+        <div id="conj-practice-by-form" class="conj-practice-mode active">
+          <div class="controls">
+            <div class="level-chips" id="conj-form-chips">
+              <button class="chip active" data-form="all">All forms</button>
+              <button class="chip" data-form="te">て形</button>
+              <button class="chip" data-form="ta">た形</button>
+              <button class="chip" data-form="potential">可能形</button>
+              <button class="chip" data-form="ba">ば形</button>
+              <button class="chip" data-form="volitional">う・よう形</button>
+              <button class="chip" data-form="passive">受身形</button>
+              <button class="chip" data-form="causative">使役形</button>
+              <button class="chip" data-form="causativePassive">使役受身形</button>
+            </div>
+          </div>
+
+          <div class="card-stage">
+            <button class="card" id="conj-card" aria-live="polite">
+              <div class="card-face card-front">
+                <span class="conj-form-label" id="conj-form-label"></span>
+                <span class="conj-reading" id="conj-front-reading"></span>
+                <span class="card-text" id="conj-front-text"></span>
+                <span class="conj-meaning" id="conj-front-meaning"></span>
+              </div>
+              <div class="card-face card-back">
+                <span class="seal" aria-hidden="true">済</span>
+                <span class="card-text" id="conj-back-text"></span>
+              </div>
+            </button>
+            <p class="card-hint" id="conj-hint">click the card, or press space, to flip</p>
+            <div class="grade-buttons" id="conj-grade-buttons" hidden>
+              <button class="grade-btn grade-wrong" id="conj-grade-wrong">✗ didn't know</button>
+              <button class="grade-btn grade-right" id="conj-grade-right">✓ knew it</button>
+            </div>
+          </div>
+
+          <div class="deck-controls">
+            <div class="nav-group">
+              <button id="conj-shuffle" class="ghost-btn">shuffle</button>
+              <button id="conj-skip" class="ghost-btn">skip</button>
+            </div>
+            <span id="conj-progress" class="progress">0 / 0</span>
           </div>
         </div>
 
-        <div class="card-stage">
-          <button class="card" id="conj-card" aria-live="polite">
-            <div class="card-face card-front">
-              <span class="conj-form-label" id="conj-form-label"></span>
-              <span class="card-text" id="conj-front-text"></span>
-            </div>
-            <div class="card-face card-back">
-              <span class="seal" aria-hidden="true">済</span>
-              <span class="card-text" id="conj-back-text"></span>
-            </div>
-          </button>
-          <p class="card-hint" id="conj-hint">click the card, or press space, to flip</p>
-          <div class="grade-buttons" id="conj-grade-buttons" hidden>
-            <button class="grade-btn grade-wrong" id="conj-grade-wrong">✗ didn't know</button>
-            <button class="grade-btn grade-right" id="conj-grade-right">✓ knew it</button>
+        <div id="conj-practice-by-verb" class="conj-practice-mode">
+          <div class="controls">
+            <select class="verb-select" id="conj-verb-select" aria-label="Choose a verb"></select>
+            <button id="conj-verb-next" class="ghost-btn">next verb →</button>
           </div>
-        </div>
 
-        <div class="deck-controls">
-          <div class="nav-group">
-            <button id="conj-shuffle" class="ghost-btn">shuffle</button>
-            <button id="conj-skip" class="ghost-btn">skip</button>
+          <div class="form-breadcrumb" id="conj-form-breadcrumb"></div>
+
+          <div class="card-stage">
+            <button class="card" id="conj-verb-card" aria-live="polite">
+              <div class="card-face card-front">
+                <span class="conj-form-label" id="conj-verb-form-label"></span>
+                <span class="conj-reading" id="conj-verb-reading"></span>
+                <span class="card-text" id="conj-verb-front-text"></span>
+                <span class="conj-meaning" id="conj-verb-meaning"></span>
+              </div>
+              <div class="card-face card-back">
+                <span class="seal" aria-hidden="true">済</span>
+                <span class="card-text" id="conj-verb-back-text"></span>
+              </div>
+            </button>
+            <p class="card-hint" id="conj-verb-hint">click the card, or press space, to flip</p>
+            <div class="grade-buttons" id="conj-verb-grade-buttons" hidden>
+              <button class="grade-btn grade-wrong" id="conj-verb-grade-wrong">✗ didn't know</button>
+              <button class="grade-btn grade-right" id="conj-verb-grade-right">✓ knew it</button>
+            </div>
           </div>
-          <span id="conj-progress" class="progress">0 / 0</span>
+
+          <div class="deck-controls">
+            <span id="conj-verb-progress" class="progress">0 / 8</span>
+          </div>
         </div>
       </div>
     </section>
