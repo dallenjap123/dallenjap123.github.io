@@ -54,28 +54,33 @@
     return `${item.level}::${item.lesson}::${item.word}`;
   }
   function getStats(item) {
-    return progressStore[wordId(item)] || { box: 1, correct: 0, wrong: 0 };
+    return progressStore[wordId(item)] || { correct: 0, wrong: 0 };
   }
   function recordGrade(item, isCorrect) {
     const id = wordId(item);
-    const stats = progressStore[id] || { box: 1, correct: 0, wrong: 0 };
+    const stats = progressStore[id] || { correct: 0, wrong: 0 };
     if (isCorrect) {
       stats.correct += 1;
-      stats.box = Math.min(stats.box + 1, 5); // box 5 = well mastered
     } else {
       stats.wrong += 1;
-      stats.box = 1; // any miss drops it back to "needs practice"
     }
     stats.lastSeen = new Date().toISOString();
     progressStore[id] = stats;
     saveProgress();
+  }
+  // "Weak" is a pure right/wrong ratio: any word you've attempted at least
+  // once where wrongs outnumber corrects.
+  function isWeakByRatio(item) {
+    const stats = getStats(item);
+    if (stats.correct + stats.wrong === 0) return false; // no attempts yet
+    return stats.wrong > stats.correct;
   }
 
   const state = {
     flashcards: {
       level: "all",
       lessons: [], // empty array = no lesson filter (all lessons); otherwise a list of selected lesson numbers
-      weakOnly: false,
+      isolateMode: false, // when true: deck is limited to low-ratio words, and grading doesn't touch persisted stats
       direction: "word-meaning",
       queue: [], // words still to show this session
       current: null, // word currently on screen
@@ -107,27 +112,29 @@
   const fcLevelChips = document.querySelectorAll("#fc-level-chips .chip");
   const fcLessonChipsEl = document.getElementById("fc-lesson-chips");
   const dirBtns = document.querySelectorAll("#fc-direction-toggle .dir-btn");
-  const weakToggleBtn = document.getElementById("fc-weak-toggle");
+  const isolateToggleBtn = document.getElementById("fc-isolate-toggle");
+  const isolateNoteEl = document.getElementById("isolate-note");
   const resetProgressBtn = document.getElementById("fc-reset-progress");
   const cardEl = document.getElementById("flashcard");
   const frontTextEl = document.getElementById("card-front-text");
   const backTextEl = document.getElementById("card-back-text");
   const backReadingEl = document.getElementById("card-back-reading");
+  const backStatsEl = document.getElementById("card-back-stats");
   const cardHintEl = document.getElementById("card-hint");
   const gradeButtonsEl = document.getElementById("grade-buttons");
   const gradeWrongBtn = document.getElementById("grade-wrong");
   const gradeRightBtn = document.getElementById("grade-right");
   const progressEl = document.getElementById("fc-progress");
 
-  function buildDeck(level, lessons, weakOnly) {
+  function buildDeck(level, lessons, isolateMode) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
     let items = levels.flatMap((l) => (data[l] || []).map((item) => ({ ...item, level: l })));
     if (lessons && lessons.length) {
       items = items.filter((item) => lessons.includes(item.lesson));
     }
-    if (weakOnly) {
-      items = items.filter((item) => getStats(item).box <= 2);
+    if (isolateMode) {
+      items = items.filter((item) => isWeakByRatio(item));
     }
     return items;
   }
@@ -152,6 +159,9 @@
       backTextEl.textContent = item.word;
       backReadingEl.textContent = item.reading;
     }
+    const stats = getStats(item);
+    backStatsEl.textContent =
+      stats.correct + stats.wrong > 0 ? `✓${stats.correct}  ✗${stats.wrong}` : "";
   }
 
   function resetCardVisual() {
@@ -167,7 +177,9 @@
   }
 
   function flashcardEmptyText() {
-    return state.flashcards.totalCount ? t("allMastered") : t("noCards");
+    const fc = state.flashcards;
+    if (fc.totalCount) return t("allMastered");
+    return fc.isolateMode ? t("noWeakWords") : t("noCards");
   }
 
   function updateProgress() {
@@ -215,7 +227,7 @@
   // per-session tally, separate from the persisted right/wrong stats).
   function startSession() {
     const fc = state.flashcards;
-    const items = buildDeck(fc.level, fc.lessons, fc.weakOnly).map((item) => ({ ...item, streak: 0 }));
+    const items = buildDeck(fc.level, fc.lessons, fc.isolateMode).map((item) => ({ ...item, streak: 0 }));
     fc.queue = items;
     fc.totalCount = items.length;
     fc.masteredCount = 0;
@@ -226,11 +238,16 @@
   // Wrong → reinsert a few cards ahead so it resurfaces soon.
   // Right → push to the back; after 2 correct answers in a row this
   // session, retire it instead of requeueing (mastered for now).
+  // In isolate mode, the queue behavior is identical but recordGrade is
+  // skipped — this is deliberately extra practice on already-known-weak
+  // words, and shouldn't be able to move the ratio that got them flagged.
   function gradeCurrent(isCorrect) {
     const fc = state.flashcards;
     const item = fc.current;
     if (!item || !fc.flipped) return;
-    recordGrade(item, isCorrect);
+    if (!fc.isolateMode) {
+      recordGrade(item, isCorrect);
+    }
     if (isCorrect) {
       item.streak = (item.streak || 0) + 1;
       if (item.streak >= 2) {
@@ -320,9 +337,10 @@
     });
   });
 
-  weakToggleBtn.addEventListener("click", () => {
-    state.flashcards.weakOnly = !state.flashcards.weakOnly;
-    weakToggleBtn.classList.toggle("active", state.flashcards.weakOnly);
+  isolateToggleBtn.addEventListener("click", () => {
+    state.flashcards.isolateMode = !state.flashcards.isolateMode;
+    isolateToggleBtn.classList.toggle("active", state.flashcards.isolateMode);
+    isolateNoteEl.hidden = !state.flashcards.isolateMode;
     startSession();
   });
 
@@ -432,15 +450,12 @@
   const wordlistContainer = document.getElementById("wordlist-container");
   let currentWordListLevel = "all";
 
-  function masteryBadge(item) {
+  function wordStatsDisplay(item) {
     const stats = getStats(item);
     if (stats.correct === 0 && stats.wrong === 0) {
       return `<span class="wl-badge wl-badge-new">${t("badgeNew")}</span>`;
     }
-    if (stats.box >= 4) {
-      return `<span class="wl-badge wl-badge-mastered">${t("badgeMastered")}</span>`;
-    }
-    return `<span class="wl-badge wl-badge-learning">${t("badgeLearning")}</span>`;
+    return `<span class="wl-counts"><span class="wl-count-right">✓${stats.correct}</span> <span class="wl-count-wrong">✗${stats.wrong}</span></span>`;
   }
 
   function renderWordList(level) {
@@ -469,15 +484,17 @@
                 ? `${lessonNum}課 ${lessonTitles[lessonNum]}`
                 : `${lessonNum}課`;
             const rows = lessonItems
-              .map(
-                (item) => `
-              <tr>
+              .map((item) => {
+                const idItem = { ...item, level: l };
+                const rowClass = isWeakByRatio(idItem) ? ' class="wl-row-weak"' : "";
+                return `
+              <tr${rowClass}>
                 <td class="wl-word">${item.word}</td>
                 <td class="wl-reading">${item.reading}</td>
                 <td class="wl-meaning">${item.meaning}</td>
-                <td class="wl-progress">${masteryBadge({ ...item, level: l })}</td>
-              </tr>`
-              )
+                <td class="wl-progress">${wordStatsDisplay(idItem)}</td>
+              </tr>`;
+              })
               .join("");
             return `
               <div class="wordlist-lesson-block">
