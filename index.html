@@ -48,9 +48,10 @@
       <div class="lesson-chips" id="fc-lesson-chips" hidden></div>
 
       <div class="study-options">
-        <button class="chip weak-chip" id="fc-weak-toggle" data-i18n="weakOnly">⚠ weak words only</button>
+        <button class="chip isolate-chip" id="fc-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
         <button class="text-link" id="fc-reset-progress" data-i18n="resetProgress">reset progress</button>
       </div>
+      <p class="isolate-note" id="isolate-note" hidden data-i18n="isolateNote">practice mode — right/wrong here won't affect your stats</p>
 
       <div class="card-stage">
         <button class="card" id="flashcard" aria-live="polite">
@@ -61,6 +62,7 @@
             <span class="seal" aria-hidden="true">済</span>
             <span class="card-reading" id="card-back-reading"></span>
             <span class="card-text" id="card-back-text"></span>
+            <span class="card-stats" id="card-back-stats"></span>
           </div>
         </button>
         <p class="card-hint" id="card-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
