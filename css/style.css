@@ -352,6 +352,58 @@ main {
 .example-en { font-family: var(--font-ui); font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
 .grammar-empty { color: var(--ink-soft); font-style: italic; }
 
+/* ---------- grammar / sentence practice quiz card ---------- */
+.gp-card {
+  width: min(520px, 92vw);
+  min-height: 200px;
+  margin: 0 auto;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(23, 32, 59, .14);
+  padding: 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.gp-pattern-tag {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--indigo);
+  font-weight: 700;
+  margin: 0;
+}
+.gp-sentence {
+  font-family: var(--font-jp);
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  color: var(--ink);
+  line-height: 1.7;
+  margin: 6px 0;
+}
+.gp-hint { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); font-style: italic; margin: 0; }
+.gp-options { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; }
+.gp-option-btn {
+  font-family: var(--font-jp);
+  font-size: 1rem;
+  padding: 10px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, border-color .15s;
+}
+.gp-option-btn:hover:not(:disabled) { border-color: var(--indigo); }
+.gp-option-btn:disabled { cursor: default; }
+.gp-option-btn.correct { border-color: var(--mastered); background: var(--mastered-bg); color: var(--mastered); font-weight: 600; }
+.gp-option-btn.wrong { border-color: var(--seal); background: var(--seal-bg); color: var(--seal); font-weight: 600; }
+.gp-answer { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); font-weight: 700; margin-top: 4px; }
+
 /* ---------- word list ---------- */
 .wordlist-group { margin-bottom: 32px; }
 .wordlist-level-heading {
