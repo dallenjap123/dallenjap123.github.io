@@ -85,6 +85,14 @@ body {
   font-weight: 600;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.lang-toggle .dir-btn { font-size: 0.75rem; padding: 5px 12px; }
+
 /* ---------- main / views ---------- */
 main {
   max-width: 900px;
