@@ -1,4 +1,38 @@
 (function () {
+  // ---------- UI language (chrome only — not vocab/grammar content) ----------
+  const LANG_KEY = "jpstudy_lang_v1";
+  let currentLang = "en";
+  try {
+    currentLang = localStorage.getItem(LANG_KEY) || "en";
+  } catch (e) {
+    currentLang = "en";
+  }
+  if (!window.I18N || !window.I18N[currentLang]) currentLang = "en";
+
+  function t(key, vars) {
+    const dict = (window.I18N && window.I18N[currentLang]) || {};
+    let str = dict[key] || key;
+    if (vars) {
+      Object.keys(vars).forEach((k) => {
+        str = str.replace(`{${k}}`, vars[k]);
+      });
+    }
+    return str;
+  }
+
+  function applyTranslations() {
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      el.innerHTML = t(el.dataset.i18nHtml);
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      el.setAttribute("aria-label", t(el.dataset.i18nAria));
+    });
+  }
+
   // ---------- persisted right/wrong progress (per word, per browser) ----------
   const PROGRESS_KEY = "jpstudy_progress_v1";
   let progressStore = {};
@@ -132,9 +166,16 @@
     cardEl.classList.remove("no-anim");
   }
 
+  function flashcardEmptyText() {
+    return state.flashcards.totalCount ? t("allMastered") : t("noCards");
+  }
+
   function updateProgress() {
     const fc = state.flashcards;
-    progressEl.textContent = fc.totalCount ? `${fc.masteredCount} / ${fc.totalCount} mastered` : "0 / 0";
+    progressEl.textContent = fc.totalCount ? t("masteredProgress", { n: fc.masteredCount, total: fc.totalCount }) : "0 / 0";
+    if (!fc.current) {
+      frontTextEl.textContent = flashcardEmptyText();
+    }
   }
 
   // Redraws the CURRENT card (e.g. after a direction toggle) without
@@ -144,6 +185,7 @@
     resetCardVisual();
     if (!fc.current) {
       cardHintEl.hidden = true;
+      frontTextEl.textContent = flashcardEmptyText();
       return;
     }
     renderFace(fc.current);
@@ -156,7 +198,7 @@
     resetCardVisual();
     if (!fc.queue.length) {
       fc.current = null;
-      frontTextEl.textContent = fc.totalCount ? "🎉 all mastered for now!" : "no cards for this selection yet";
+      frontTextEl.textContent = flashcardEmptyText();
       backTextEl.textContent = "";
       backReadingEl.textContent = "";
       cardHintEl.hidden = true;
@@ -378,12 +420,12 @@
   function masteryBadge(item) {
     const stats = getStats(item);
     if (stats.correct === 0 && stats.wrong === 0) {
-      return '<span class="wl-badge wl-badge-new">new</span>';
+      return `<span class="wl-badge wl-badge-new">${t("badgeNew")}</span>`;
     }
     if (stats.box >= 4) {
-      return '<span class="wl-badge wl-badge-mastered">mastered</span>';
+      return `<span class="wl-badge wl-badge-mastered">${t("badgeMastered")}</span>`;
     }
-    return '<span class="wl-badge wl-badge-learning">learning</span>';
+    return `<span class="wl-badge wl-badge-learning">${t("badgeLearning")}</span>`;
   }
 
   function renderWordList(level) {
@@ -426,7 +468,7 @@
               <div class="wordlist-lesson-block">
                 <h4 class="wordlist-lesson-heading">${heading}</h4>
                 <table class="wordlist-table">
-                  <thead><tr><th>Word</th><th>Reading</th><th>Meaning</th><th>Progress</th></tr></thead>
+                  <thead><tr><th>${t("wlWord")}</th><th>${t("wlReading")}</th><th>${t("wlMeaning")}</th><th>${t("wlProgress")}</th></tr></thead>
                   <tbody>${rows}</tbody>
                 </table>
               </div>`;
@@ -609,8 +651,17 @@
     conjCardEl.classList.remove("no-anim");
   }
 
+  function conjEmptyText() {
+    return conjState.totalCount ? t("allMastered") : t("noVerbs");
+  }
+
   function updateConjProgress() {
-    conjProgressEl.textContent = conjState.totalCount ? `${conjState.masteredCount} / ${conjState.totalCount} mastered` : "0 / 0";
+    conjProgressEl.textContent = conjState.totalCount
+      ? t("masteredProgress", { n: conjState.masteredCount, total: conjState.totalCount })
+      : "0 / 0";
+    if (!conjState.current) {
+      conjFrontTextEl.textContent = conjEmptyText();
+    }
   }
 
   function showNextConjCard() {
@@ -619,7 +670,7 @@
       conjState.current = null;
       conjFormLabelEl.textContent = "";
       conjFrontReadingEl.textContent = "";
-      conjFrontTextEl.textContent = conjState.totalCount ? "🎉 all mastered for now!" : "no verbs for this selection yet";
+      conjFrontTextEl.textContent = conjEmptyText();
       conjFrontMeaningEl.textContent = "";
       conjBackTextEl.textContent = "";
       conjHintEl.hidden = true;
@@ -763,11 +814,11 @@
       const correctCount = conjVerbState.results.filter((r) => r === true).length;
       conjVerbFormLabelEl.textContent = "";
       conjVerbReadingEl.textContent = "";
-      conjVerbFrontTextEl.textContent = `🎉 done with ${verb.dict}! (${correctCount} / 8 correct)`;
+      conjVerbFrontTextEl.textContent = t("doneWithVerb", { verb: verb.dict, n: correctCount });
       conjVerbMeaningEl.textContent = "";
       conjVerbBackTextEl.textContent = "";
       conjVerbHintEl.hidden = true;
-      conjVerbProgressEl.textContent = `${correctCount} / 8 correct`;
+      conjVerbProgressEl.textContent = t("verbProgress", { n: correctCount });
       return;
     }
     const form = FORM_SEQUENCE[conjVerbState.formIndex];
@@ -858,4 +909,28 @@
       }
     }
   });
+
+  // ---------- language toggle ----------
+  // Switches UI chrome only; re-renders whatever's currently on screen so
+  // nobody has to reload or loses their place mid-session.
+  const langToggleBtns = document.querySelectorAll("#lang-toggle .dir-btn");
+  langToggleBtns.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.lang === currentLang);
+    btn.addEventListener("click", () => {
+      currentLang = btn.dataset.lang;
+      try {
+        localStorage.setItem(LANG_KEY, currentLang);
+      } catch (e) {
+        /* ignore — language choice just won't persist */
+      }
+      langToggleBtns.forEach((b) => b.classList.toggle("active", b === btn));
+      applyTranslations();
+      updateProgress();
+      updateConjProgress();
+      if (conjVerbState.verb) showVerbCard();
+      refreshWordList();
+    });
+  });
+
+  applyTranslations();
 })();
