@@ -74,7 +74,7 @@
   const state = {
     flashcards: {
       level: "all",
-      lesson: "all",
+      lessons: [], // empty array = no lesson filter (all lessons); otherwise a list of selected lesson numbers
       weakOnly: false,
       direction: "word-meaning",
       queue: [], // words still to show this session
@@ -119,12 +119,12 @@
   const gradeRightBtn = document.getElementById("grade-right");
   const progressEl = document.getElementById("fc-progress");
 
-  function buildDeck(level, lesson, weakOnly) {
+  function buildDeck(level, lessons, weakOnly) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
     let items = levels.flatMap((l) => (data[l] || []).map((item) => ({ ...item, level: l })));
-    if (lesson && lesson !== "all") {
-      items = items.filter((item) => String(item.lesson) === String(lesson));
+    if (lessons && lessons.length) {
+      items = items.filter((item) => lessons.includes(item.lesson));
     }
     if (weakOnly) {
       items = items.filter((item) => getStats(item).box <= 2);
@@ -215,7 +215,7 @@
   // per-session tally, separate from the persisted right/wrong stats).
   function startSession() {
     const fc = state.flashcards;
-    const items = buildDeck(fc.level, fc.lesson, fc.weakOnly).map((item) => ({ ...item, streak: 0 }));
+    const items = buildDeck(fc.level, fc.lessons, fc.weakOnly).map((item) => ({ ...item, streak: 0 }));
     fc.queue = items;
     fc.totalCount = items.length;
     fc.masteredCount = 0;
@@ -267,19 +267,34 @@
       return;
     }
     fcLessonChipsEl.hidden = false;
-    const allChip = `<button class="chip lesson-chip active" data-lesson="all">All lessons</button>`;
+    const selected = state.flashcards.lessons;
+    const allActive = selected.length === 0;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    // Each lesson chip toggles independently — click to add/remove it from
+    // the selection, so you can study several 課 together at once.
     const lessonChips = lessonNums
       .map((n) => {
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
-        return `<button class="chip lesson-chip" data-lesson="${n}" title="${title}">${n}課</button>`;
+        const isActive = selected.includes(n);
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}" title="${title}">${n}課</button>`;
       })
       .join("");
     fcLessonChipsEl.innerHTML = allChip + lessonChips;
     fcLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        fcLessonChipsEl.querySelectorAll(".lesson-chip").forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        state.flashcards.lesson = chip.dataset.lesson;
+        if (chip.dataset.lesson === "all") {
+          state.flashcards.lessons = [];
+        } else {
+          const n = Number(chip.dataset.lesson);
+          const idx = state.flashcards.lessons.indexOf(n);
+          if (idx === -1) {
+            state.flashcards.lessons.push(n);
+          } else {
+            state.flashcards.lessons.splice(idx, 1);
+          }
+          state.flashcards.lessons.sort((a, b) => a - b);
+        }
+        renderLessonChips(level);
         startSession();
       });
     });
@@ -290,7 +305,7 @@
       fcLevelChips.forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
       state.flashcards.level = chip.dataset.level;
-      state.flashcards.lesson = "all";
+      state.flashcards.lessons = [];
       renderLessonChips(chip.dataset.level);
       startSession();
     });
@@ -929,6 +944,7 @@
       updateConjProgress();
       if (conjVerbState.verb) showVerbCard();
       refreshWordList();
+      if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
     });
   });
 
