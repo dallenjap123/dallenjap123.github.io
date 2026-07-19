@@ -456,4 +456,238 @@
   }
 
   renderWordList("all");
+
+  // ---------- conjugation: reference ----------
+  const conjModeToggle = document.querySelectorAll("#conj-mode-toggle .dir-btn");
+  const conjReferenceEl = document.getElementById("conjugation-reference");
+  const conjPracticeEl = document.getElementById("conjugation-practice");
+  const conjugationListEl = document.getElementById("conjugation-list");
+  const conjugationDetailEl = document.getElementById("conjugation-detail");
+
+  function renderConjugationList() {
+    const topics = window.CONJUGATION_TOPICS || [];
+    conjugationListEl.innerHTML = "";
+    topics.forEach((topic, i) => {
+      const li = document.createElement("li");
+      li.className = "grammar-item";
+      li.textContent = `${topic.number}. ${topic.title}`;
+      li.tabIndex = 0;
+      li.addEventListener("click", () => selectConjugationTopic(i));
+      li.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") selectConjugationTopic(i);
+      });
+      conjugationListEl.appendChild(li);
+    });
+  }
+
+  function conjTableHtml(topic, group) {
+    if (topic.type === "classification") {
+      const rows = group.rows
+        .map(
+          (row) => `
+        <tr>
+          <td class="conj-rule">${row.masu} → ${row.dict}</td>
+          <td class="conj-examples">${row.examples.join("、")}</td>
+        </tr>`
+        )
+        .join("");
+      return `
+        <table class="conjugation-table">
+          <thead><tr><th>ます形 → 辞書形</th><th>例</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+    const headerCells = ["dictionary form", ...topic.columns].map((c) => `<th>${c}</th>`).join("");
+    const rows = group.examples
+      .map((ex) => {
+        const valueCells = ex.values.map((v) => `<td>${v}</td>`).join("");
+        return `<tr><td class="conj-dict">${ex.dict}</td>${valueCells}</tr>`;
+      })
+      .join("");
+    return `
+      <table class="conjugation-table">
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function selectConjugationTopic(i) {
+    const topics = window.CONJUGATION_TOPICS || [];
+    const topic = topics[i];
+    [...conjugationListEl.children].forEach((li, idx) => li.classList.toggle("active", idx === i));
+    const groupBlocks = topic.groups
+      .map(
+        (group) => `
+        <div class="conjugation-group">
+          <h4 class="conjugation-group-label">Group ${group.label}${group.rule ? ` <span class="conj-rule-note">(${group.rule})</span>` : ""}</h4>
+          ${conjTableHtml(topic, group)}
+        </div>`
+      )
+      .join("");
+    conjugationDetailEl.innerHTML = `
+      <p class="grammar-pattern">${topic.title}</p>
+      <p class="grammar-meaning">${topic.englishTitle}</p>
+      ${topic.intro ? `<p class="grammar-usage">${topic.intro}</p>` : ""}
+      ${groupBlocks}
+      ${topic.note ? `<p class="conjugation-note">${topic.note}</p>` : ""}
+    `;
+  }
+
+  conjModeToggle.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      conjModeToggle.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mode = btn.dataset.mode;
+      conjReferenceEl.classList.toggle("active", mode === "reference");
+      conjPracticeEl.classList.toggle("active", mode === "practice");
+      if (mode === "practice" && !conjPracticeStarted) {
+        conjPracticeStarted = true;
+        startConjPractice();
+      }
+    });
+  });
+
+  renderConjugationList();
+
+  // ---------- conjugation: practice drill ----------
+  // Session-only (not saved to localStorage) — this is a lighter-weight
+  // drill than the vocab flashcards, reusing the same wrong-requeues-soon /
+  // right-retires-after-two mechanic.
+  const FORM_LABELS = {
+    te: "て形",
+    ta: "た形",
+    potential: "可能形",
+    ba: "ば形",
+    volitional: "う・よう形",
+    passive: "受身形",
+    causative: "使役形",
+    causativePassive: "使役受身形",
+  };
+  const conjFormChips = document.querySelectorAll("#conj-form-chips .chip");
+  const conjCardEl = document.getElementById("conj-card");
+  const conjFormLabelEl = document.getElementById("conj-form-label");
+  const conjFrontTextEl = document.getElementById("conj-front-text");
+  const conjBackTextEl = document.getElementById("conj-back-text");
+  const conjHintEl = document.getElementById("conj-hint");
+  const conjGradeButtonsEl = document.getElementById("conj-grade-buttons");
+  const conjGradeWrongBtn = document.getElementById("conj-grade-wrong");
+  const conjGradeRightBtn = document.getElementById("conj-grade-right");
+  const conjProgressEl = document.getElementById("conj-progress");
+  let conjPracticeStarted = false;
+
+  const conjState = { form: "all", queue: [], current: null, flipped: false, masteredCount: 0, totalCount: 0 };
+
+  function buildConjDeck(form) {
+    const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
+    const forms = form === "all" ? Object.keys(FORM_LABELS) : [form];
+    const items = [];
+    verbs.forEach((verb) => {
+      forms.forEach((f) => {
+        items.push({ dict: verb.dict, group: verb.group, form: f, answer: verb[f] });
+      });
+    });
+    return items;
+  }
+
+  function resetConjCardVisual() {
+    conjCardEl.classList.add("no-anim");
+    conjCardEl.classList.remove("flipped");
+    conjState.flipped = false;
+    conjGradeButtonsEl.hidden = true;
+    conjHintEl.hidden = false;
+    void conjCardEl.offsetWidth;
+    conjCardEl.classList.remove("no-anim");
+  }
+
+  function updateConjProgress() {
+    conjProgressEl.textContent = conjState.totalCount ? `${conjState.masteredCount} / ${conjState.totalCount} mastered` : "0 / 0";
+  }
+
+  function showNextConjCard() {
+    resetConjCardVisual();
+    if (!conjState.queue.length) {
+      conjState.current = null;
+      conjFormLabelEl.textContent = "";
+      conjFrontTextEl.textContent = conjState.totalCount ? "🎉 all mastered for now!" : "no verbs for this selection yet";
+      conjBackTextEl.textContent = "";
+      conjHintEl.hidden = true;
+      updateConjProgress();
+      return;
+    }
+    conjState.current = conjState.queue.shift();
+    conjFormLabelEl.textContent = FORM_LABELS[conjState.current.form];
+    conjFrontTextEl.textContent = conjState.current.dict;
+    conjBackTextEl.textContent = conjState.current.answer;
+    updateConjProgress();
+  }
+
+  function startConjPractice() {
+    const items = buildConjDeck(conjState.form).map((item) => ({ ...item, streak: 0 }));
+    conjState.queue = shuffle(items);
+    conjState.totalCount = items.length;
+    conjState.masteredCount = 0;
+    conjState.current = null;
+    showNextConjCard();
+  }
+
+  function gradeConjCurrent(isCorrect) {
+    const item = conjState.current;
+    if (!item || !conjState.flipped) return;
+    if (isCorrect) {
+      item.streak = (item.streak || 0) + 1;
+      if (item.streak >= 2) {
+        conjState.masteredCount += 1;
+      } else {
+        conjState.queue.push(item);
+      }
+    } else {
+      item.streak = 0;
+      const insertPos = Math.min(3, conjState.queue.length);
+      conjState.queue.splice(insertPos, 0, item);
+    }
+    showNextConjCard();
+  }
+
+  conjFormChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      conjFormChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      conjState.form = chip.dataset.form;
+      startConjPractice();
+    });
+  });
+
+  conjCardEl.addEventListener("click", () => {
+    if (!conjState.current) return;
+    conjState.flipped = !conjState.flipped;
+    conjCardEl.classList.toggle("flipped", conjState.flipped);
+    conjGradeButtonsEl.hidden = !conjState.flipped;
+    conjHintEl.hidden = conjState.flipped;
+  });
+
+  conjGradeWrongBtn.addEventListener("click", () => gradeConjCurrent(false));
+  conjGradeRightBtn.addEventListener("click", () => gradeConjCurrent(true));
+
+  document.getElementById("conj-shuffle").addEventListener("click", () => {
+    conjState.queue = shuffle(conjState.queue);
+  });
+
+  document.getElementById("conj-skip").addEventListener("click", () => {
+    if (!conjState.current) return;
+    conjState.queue.push(conjState.current);
+    showNextConjCard();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (!document.getElementById("conjugation-view").classList.contains("active")) return;
+    if (!conjPracticeEl.classList.contains("active")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      conjCardEl.click();
+    } else if (conjState.flipped && e.code === "ArrowRight") {
+      gradeConjCurrent(true);
+    } else if (conjState.flipped && e.code === "ArrowLeft") {
+      gradeConjCurrent(false);
+    }
+  });
 })();
