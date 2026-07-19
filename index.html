@@ -13,21 +13,27 @@
   <header class="site-header">
     <div class="brand">
       <span class="brand-jp">日本語ノート</span>
-      <span class="brand-en">kanji, vocab &amp; grammar</span>
+      <span class="brand-en" data-i18n="subtitle">kanji, vocab &amp; grammar</span>
     </div>
-    <nav class="view-tabs" role="tablist">
-      <button class="tab active" data-view="flashcards" role="tab" aria-selected="true">Flashcards</button>
-      <button class="tab" data-view="grammar" role="tab" aria-selected="false">Grammar</button>
-      <button class="tab" data-view="wordlist" role="tab" aria-selected="false">Word List</button>
-      <button class="tab" data-view="conjugation" role="tab" aria-selected="false">Conjugation</button>
-    </nav>
+    <div class="header-right">
+      <nav class="view-tabs" role="tablist">
+        <button class="tab active" data-view="flashcards" role="tab" aria-selected="true" data-i18n="tabFlashcards">Flashcards</button>
+        <button class="tab" data-view="grammar" role="tab" aria-selected="false" data-i18n="tabGrammar">Grammar</button>
+        <button class="tab" data-view="wordlist" role="tab" aria-selected="false" data-i18n="tabWordlist">Word List</button>
+        <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
+      </nav>
+      <div class="direction-toggle lang-toggle" id="lang-toggle">
+        <button class="dir-btn active" data-lang="en">EN</button>
+        <button class="dir-btn" data-lang="ja">日本語</button>
+      </div>
+    </div>
   </header>
 
   <main>
     <section id="flashcards-view" class="view active">
       <div class="controls">
         <div class="level-chips" id="fc-level-chips">
-          <button class="chip active" data-level="all">All</button>
+          <button class="chip active" data-level="all" data-i18n="all">All</button>
           <button class="chip n5" data-level="N5">N5</button>
           <button class="chip n4" data-level="N4">N4</button>
           <button class="chip n3" data-level="N3">N3</button>
@@ -35,15 +41,15 @@
           <button class="chip n1" data-level="N1">N1</button>
         </div>
         <div class="direction-toggle" id="fc-direction-toggle">
-          <button class="dir-btn active" data-direction="word-meaning">word → meaning</button>
-          <button class="dir-btn" data-direction="meaning-word">meaning → word</button>
+          <button class="dir-btn active" data-direction="word-meaning" data-i18n="dirWordMeaning">word → meaning</button>
+          <button class="dir-btn" data-direction="meaning-word" data-i18n="dirMeaningWord">meaning → word</button>
         </div>
       </div>
       <div class="lesson-chips" id="fc-lesson-chips" hidden></div>
 
       <div class="study-options">
-        <button class="chip weak-chip" id="fc-weak-toggle">⚠ weak words only</button>
-        <button class="text-link" id="fc-reset-progress">reset progress</button>
+        <button class="chip weak-chip" id="fc-weak-toggle" data-i18n="weakOnly">⚠ weak words only</button>
+        <button class="text-link" id="fc-reset-progress" data-i18n="resetProgress">reset progress</button>
       </div>
 
       <div class="card-stage">
@@ -57,17 +63,17 @@
             <span class="card-text" id="card-back-text"></span>
           </div>
         </button>
-        <p class="card-hint" id="card-hint">click the card, or press space, to flip</p>
+        <p class="card-hint" id="card-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
         <div class="grade-buttons" id="grade-buttons" hidden>
-          <button class="grade-btn grade-wrong" id="grade-wrong">✗ didn't know</button>
-          <button class="grade-btn grade-right" id="grade-right">✓ knew it</button>
+          <button class="grade-btn grade-wrong" id="grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+          <button class="grade-btn grade-right" id="grade-right" data-i18n="knewIt">✓ knew it</button>
         </div>
       </div>
 
       <div class="deck-controls">
         <div class="nav-group">
-          <button id="fc-shuffle" class="ghost-btn">shuffle</button>
-          <button id="fc-skip" class="ghost-btn">skip</button>
+          <button id="fc-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+          <button id="fc-skip" class="ghost-btn" data-i18n="skip">skip</button>
         </div>
         <span id="fc-progress" class="progress">0 / 0</span>
       </div>
@@ -87,7 +93,7 @@
       <div class="grammar-layout">
         <ul class="grammar-list" id="grammar-list"></ul>
         <div class="grammar-detail" id="grammar-detail">
-          <p class="grammar-empty">select a pattern from the list</p>
+          <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
         </div>
       </div>
     </section>
@@ -95,7 +101,7 @@
     <section id="wordlist-view" class="view">
       <div class="controls">
         <div class="level-chips" id="wl-level-chips">
-          <button class="chip active" data-level="all">All</button>
+          <button class="chip active" data-level="all" data-i18n="all">All</button>
           <button class="chip n5" data-level="N5">N5</button>
           <button class="chip n4" data-level="N4">N4</button>
           <button class="chip n3" data-level="N3">N3</button>
@@ -108,29 +114,29 @@
 
     <section id="conjugation-view" class="view">
       <div class="direction-toggle" id="conj-mode-toggle">
-        <button class="dir-btn active" data-mode="reference">Reference</button>
-        <button class="dir-btn" data-mode="practice">Practice</button>
+        <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
+        <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
       </div>
 
       <div id="conjugation-reference" class="conj-mode active">
         <div class="grammar-layout">
           <ul class="grammar-list" id="conjugation-list"></ul>
           <div class="grammar-detail" id="conjugation-detail">
-            <p class="grammar-empty">select a form from the list</p>
+            <p class="grammar-empty" data-i18n="selectForm">select a form from the list</p>
           </div>
         </div>
       </div>
 
       <div id="conjugation-practice" class="conj-mode">
         <div class="direction-toggle" id="conj-practice-mode-toggle">
-          <button class="dir-btn active" data-practice-mode="by-form">By form</button>
-          <button class="dir-btn" data-practice-mode="by-verb">By verb</button>
+          <button class="dir-btn active" data-practice-mode="by-form" data-i18n="byForm">By form</button>
+          <button class="dir-btn" data-practice-mode="by-verb" data-i18n="byVerb">By verb</button>
         </div>
 
         <div id="conj-practice-by-form" class="conj-practice-mode active">
           <div class="controls">
             <div class="level-chips" id="conj-form-chips">
-              <button class="chip active" data-form="all">All forms</button>
+              <button class="chip active" data-form="all" data-i18n="allForms">All forms</button>
               <button class="chip" data-form="te">て形</button>
               <button class="chip" data-form="ta">た形</button>
               <button class="chip" data-form="potential">可能形</button>
@@ -155,17 +161,17 @@
                 <span class="card-text" id="conj-back-text"></span>
               </div>
             </button>
-            <p class="card-hint" id="conj-hint">click the card, or press space, to flip</p>
+            <p class="card-hint" id="conj-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
             <div class="grade-buttons" id="conj-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="conj-grade-wrong">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="conj-grade-right">✓ knew it</button>
+              <button class="grade-btn grade-wrong" id="conj-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+              <button class="grade-btn grade-right" id="conj-grade-right" data-i18n="knewIt">✓ knew it</button>
             </div>
           </div>
 
           <div class="deck-controls">
             <div class="nav-group">
-              <button id="conj-shuffle" class="ghost-btn">shuffle</button>
-              <button id="conj-skip" class="ghost-btn">skip</button>
+              <button id="conj-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+              <button id="conj-skip" class="ghost-btn" data-i18n="skip">skip</button>
             </div>
             <span id="conj-progress" class="progress">0 / 0</span>
           </div>
@@ -173,8 +179,8 @@
 
         <div id="conj-practice-by-verb" class="conj-practice-mode">
           <div class="controls">
-            <select class="verb-select" id="conj-verb-select" aria-label="Choose a verb"></select>
-            <button id="conj-verb-next" class="ghost-btn">next verb →</button>
+            <select class="verb-select" id="conj-verb-select" aria-label="Choose a verb" data-i18n-aria="chooseVerb"></select>
+            <button id="conj-verb-next" class="ghost-btn" data-i18n="nextVerb">next verb →</button>
           </div>
 
           <div class="form-breadcrumb" id="conj-form-breadcrumb"></div>
@@ -192,10 +198,10 @@
                 <span class="card-text" id="conj-verb-back-text"></span>
               </div>
             </button>
-            <p class="card-hint" id="conj-verb-hint">click the card, or press space, to flip</p>
+            <p class="card-hint" id="conj-verb-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
             <div class="grade-buttons" id="conj-verb-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="conj-verb-grade-wrong">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="conj-verb-grade-right">✓ knew it</button>
+              <button class="grade-btn grade-wrong" id="conj-verb-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+              <button class="grade-btn grade-right" id="conj-verb-grade-right" data-i18n="knewIt">✓ knew it</button>
             </div>
           </div>
 
@@ -208,12 +214,13 @@
   </main>
 
   <footer class="site-footer">
-    <p>edit <code>js/data/vocab-data.js</code>, <code>js/data/grammar-data.js</code>, and <code>js/data/conjugation-data.js</code> to add your own entries — no build step needed.</p>
+    <p data-i18n-html="footer">edit <code>js/data/vocab-data.js</code>, <code>js/data/grammar-data.js</code>, and <code>js/data/conjugation-data.js</code> to add your own entries — no build step needed.</p>
   </footer>
 
   <script src="js/data/vocab-data.js"></script>
   <script src="js/data/grammar-data.js"></script>
   <script src="js/data/conjugation-data.js"></script>
+  <script src="js/data/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
