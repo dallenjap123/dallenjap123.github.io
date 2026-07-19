@@ -563,10 +563,13 @@
     causative: "使役形",
     causativePassive: "使役受身形",
   };
+  const FORM_SEQUENCE = Object.keys(FORM_LABELS); // fixed teaching order, used by "By verb" mode
   const conjFormChips = document.querySelectorAll("#conj-form-chips .chip");
   const conjCardEl = document.getElementById("conj-card");
   const conjFormLabelEl = document.getElementById("conj-form-label");
+  const conjFrontReadingEl = document.getElementById("conj-front-reading");
   const conjFrontTextEl = document.getElementById("conj-front-text");
+  const conjFrontMeaningEl = document.getElementById("conj-front-meaning");
   const conjBackTextEl = document.getElementById("conj-back-text");
   const conjHintEl = document.getElementById("conj-hint");
   const conjGradeButtonsEl = document.getElementById("conj-grade-buttons");
@@ -583,7 +586,14 @@
     const items = [];
     verbs.forEach((verb) => {
       forms.forEach((f) => {
-        items.push({ dict: verb.dict, group: verb.group, form: f, answer: verb[f] });
+        items.push({
+          dict: verb.dict,
+          reading: verb.reading,
+          meaning: verb.meaning,
+          group: verb.group,
+          form: f,
+          answer: verb[f],
+        });
       });
     });
     return items;
@@ -608,7 +618,9 @@
     if (!conjState.queue.length) {
       conjState.current = null;
       conjFormLabelEl.textContent = "";
+      conjFrontReadingEl.textContent = "";
       conjFrontTextEl.textContent = conjState.totalCount ? "🎉 all mastered for now!" : "no verbs for this selection yet";
+      conjFrontMeaningEl.textContent = "";
       conjBackTextEl.textContent = "";
       conjHintEl.hidden = true;
       updateConjProgress();
@@ -616,7 +628,9 @@
     }
     conjState.current = conjState.queue.shift();
     conjFormLabelEl.textContent = FORM_LABELS[conjState.current.form];
+    conjFrontReadingEl.textContent = conjState.current.reading;
     conjFrontTextEl.textContent = conjState.current.dict;
+    conjFrontMeaningEl.textContent = conjState.current.meaning;
     conjBackTextEl.textContent = conjState.current.answer;
     updateConjProgress();
   }
@@ -678,16 +692,170 @@
     showNextConjCard();
   });
 
+  // ---------- conjugation: practice by verb ----------
+  // Cycles ONE verb through all 8 forms in a fixed order, so you always
+  // know what's coming next (the breadcrumb shows the whole sequence,
+  // with the current form highlighted and finished ones marked ✓/✗).
+  const conjPracticeModeToggle = document.querySelectorAll("#conj-practice-mode-toggle .dir-btn");
+  const conjPracticeByFormEl = document.getElementById("conj-practice-by-form");
+  const conjPracticeByVerbEl = document.getElementById("conj-practice-by-verb");
+  const conjVerbSelectEl = document.getElementById("conj-verb-select");
+  const conjVerbNextBtn = document.getElementById("conj-verb-next");
+  const conjFormBreadcrumbEl = document.getElementById("conj-form-breadcrumb");
+  const conjVerbCardEl = document.getElementById("conj-verb-card");
+  const conjVerbFormLabelEl = document.getElementById("conj-verb-form-label");
+  const conjVerbReadingEl = document.getElementById("conj-verb-reading");
+  const conjVerbFrontTextEl = document.getElementById("conj-verb-front-text");
+  const conjVerbMeaningEl = document.getElementById("conj-verb-meaning");
+  const conjVerbBackTextEl = document.getElementById("conj-verb-back-text");
+  const conjVerbHintEl = document.getElementById("conj-verb-hint");
+  const conjVerbGradeButtonsEl = document.getElementById("conj-verb-grade-buttons");
+  const conjVerbGradeWrongBtn = document.getElementById("conj-verb-grade-wrong");
+  const conjVerbGradeRightBtn = document.getElementById("conj-verb-grade-right");
+  const conjVerbProgressEl = document.getElementById("conj-verb-progress");
+  let conjVerbPracticeStarted = false;
+
+  const conjVerbState = { verb: null, formIndex: 0, results: [], flipped: false };
+
+  function populateVerbSelect() {
+    const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
+    const byGroup = { I: [], II: [], III: [] };
+    verbs.forEach((v, i) => {
+      if (byGroup[v.group]) byGroup[v.group].push(i);
+    });
+    conjVerbSelectEl.innerHTML = ["I", "II", "III"]
+      .filter((g) => byGroup[g].length)
+      .map((g) => {
+        const options = byGroup[g]
+          .map((i) => `<option value="${i}">${verbs[i].dict}（${verbs[i].reading}）— ${verbs[i].meaning}</option>`)
+          .join("");
+        return `<optgroup label="Group ${g}">${options}</optgroup>`;
+      })
+      .join("");
+  }
+
+  function renderVerbBreadcrumb() {
+    conjFormBreadcrumbEl.innerHTML = FORM_SEQUENCE.map((f, i) => {
+      let cls = "breadcrumb-item";
+      if (i === conjVerbState.formIndex) cls += " current";
+      else if (conjVerbState.results[i] === true) cls += " done-correct";
+      else if (conjVerbState.results[i] === false) cls += " done-wrong";
+      else cls += " upcoming";
+      return `<span class="${cls}">${FORM_LABELS[f]}</span>`;
+    }).join("");
+  }
+
+  function resetVerbCardVisual() {
+    conjVerbCardEl.classList.add("no-anim");
+    conjVerbCardEl.classList.remove("flipped");
+    conjVerbState.flipped = false;
+    conjVerbGradeButtonsEl.hidden = true;
+    conjVerbHintEl.hidden = false;
+    void conjVerbCardEl.offsetWidth;
+    conjVerbCardEl.classList.remove("no-anim");
+  }
+
+  function showVerbCard() {
+    resetVerbCardVisual();
+    renderVerbBreadcrumb();
+    const verb = conjVerbState.verb;
+    if (conjVerbState.formIndex >= FORM_SEQUENCE.length) {
+      const correctCount = conjVerbState.results.filter((r) => r === true).length;
+      conjVerbFormLabelEl.textContent = "";
+      conjVerbReadingEl.textContent = "";
+      conjVerbFrontTextEl.textContent = `🎉 done with ${verb.dict}! (${correctCount} / 8 correct)`;
+      conjVerbMeaningEl.textContent = "";
+      conjVerbBackTextEl.textContent = "";
+      conjVerbHintEl.hidden = true;
+      conjVerbProgressEl.textContent = `${correctCount} / 8 correct`;
+      return;
+    }
+    const form = FORM_SEQUENCE[conjVerbState.formIndex];
+    conjVerbFormLabelEl.textContent = FORM_LABELS[form];
+    conjVerbReadingEl.textContent = verb.reading;
+    conjVerbFrontTextEl.textContent = verb.dict;
+    conjVerbMeaningEl.textContent = verb.meaning;
+    conjVerbBackTextEl.textContent = verb[form];
+    conjVerbProgressEl.textContent = `${conjVerbState.formIndex + 1} / 8`;
+  }
+
+  function startVerbPractice(verbIndex) {
+    const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
+    conjVerbState.verb = verbs[verbIndex];
+    conjVerbState.formIndex = 0;
+    conjVerbState.results = FORM_SEQUENCE.map(() => null);
+    showVerbCard();
+  }
+
+  function gradeVerbCurrent(isCorrect) {
+    if (!conjVerbState.verb || !conjVerbState.flipped) return;
+    if (conjVerbState.formIndex >= FORM_SEQUENCE.length) return;
+    conjVerbState.results[conjVerbState.formIndex] = isCorrect;
+    conjVerbState.formIndex += 1;
+    showVerbCard();
+  }
+
+  conjPracticeModeToggle.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      conjPracticeModeToggle.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mode = btn.dataset.practiceMode;
+      conjPracticeByFormEl.classList.toggle("active", mode === "by-form");
+      conjPracticeByVerbEl.classList.toggle("active", mode === "by-verb");
+      if (mode === "by-verb" && !conjVerbPracticeStarted) {
+        conjVerbPracticeStarted = true;
+        populateVerbSelect();
+        startVerbPractice(0);
+      }
+    });
+  });
+
+  conjVerbSelectEl.addEventListener("change", () => {
+    startVerbPractice(Number(conjVerbSelectEl.value));
+  });
+
+  conjVerbNextBtn.addEventListener("click", () => {
+    const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
+    if (!verbs.length) return;
+    const currentIdx = verbs.indexOf(conjVerbState.verb);
+    const nextIdx = (currentIdx + 1) % verbs.length;
+    conjVerbSelectEl.value = String(nextIdx);
+    startVerbPractice(nextIdx);
+  });
+
+  conjVerbCardEl.addEventListener("click", () => {
+    if (!conjVerbState.verb || conjVerbState.formIndex >= FORM_SEQUENCE.length) return;
+    conjVerbState.flipped = !conjVerbState.flipped;
+    conjVerbCardEl.classList.toggle("flipped", conjVerbState.flipped);
+    conjVerbGradeButtonsEl.hidden = !conjVerbState.flipped;
+    conjVerbHintEl.hidden = conjVerbState.flipped;
+  });
+
+  conjVerbGradeWrongBtn.addEventListener("click", () => gradeVerbCurrent(false));
+  conjVerbGradeRightBtn.addEventListener("click", () => gradeVerbCurrent(true));
+
   document.addEventListener("keydown", (e) => {
     if (!document.getElementById("conjugation-view").classList.contains("active")) return;
     if (!conjPracticeEl.classList.contains("active")) return;
-    if (e.code === "Space") {
-      e.preventDefault();
-      conjCardEl.click();
-    } else if (conjState.flipped && e.code === "ArrowRight") {
-      gradeConjCurrent(true);
-    } else if (conjState.flipped && e.code === "ArrowLeft") {
-      gradeConjCurrent(false);
+    const byVerbActive = conjPracticeByVerbEl.classList.contains("active");
+    if (byVerbActive) {
+      if (e.code === "Space") {
+        e.preventDefault();
+        conjVerbCardEl.click();
+      } else if (conjVerbState.flipped && e.code === "ArrowRight") {
+        gradeVerbCurrent(true);
+      } else if (conjVerbState.flipped && e.code === "ArrowLeft") {
+        gradeVerbCurrent(false);
+      }
+    } else {
+      if (e.code === "Space") {
+        e.preventDefault();
+        conjCardEl.click();
+      } else if (conjState.flipped && e.code === "ArrowRight") {
+        gradeConjCurrent(true);
+      } else if (conjState.flipped && e.code === "ArrowLeft") {
+        gradeConjCurrent(false);
+      }
     }
   });
 })();
