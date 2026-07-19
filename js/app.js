@@ -443,6 +443,225 @@
 
   renderGrammarList("N5");
 
+  const grModeToggle = document.querySelectorAll("#gr-mode-toggle .dir-btn");
+  const grammarReferenceEl = document.getElementById("grammar-reference");
+  const grammarPracticeEl = document.getElementById("grammar-practice");
+  let grammarPracticeStarted = false;
+
+  grModeToggle.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      grModeToggle.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mode = btn.dataset.mode;
+      grammarReferenceEl.classList.toggle("active", mode === "reference");
+      grammarPracticeEl.classList.toggle("active", mode === "practice");
+      if (mode === "practice" && !grammarPracticeStarted) {
+        grammarPracticeStarted = true;
+        renderGpLessonChips();
+        gpQuiz.start(gpBuildDeck);
+      }
+    });
+  });
+
+  // ---------- reusable quiz engine ----------
+  // Shared by Grammar Practice and Conjugation "Sentences" mode: both show a
+  // Japanese sentence (fill-in-the-blank or multiple-choice), let the user
+  // self-grade or pick an answer, and reuse the same wrong-requeues-soon /
+  // right-retires-after-two mastery queue as everywhere else in the app.
+  function setupQuizMode(ids) {
+    const cardEl = document.getElementById(ids.card);
+    const tagEl = document.getElementById(ids.tag);
+    const sentenceEl = document.getElementById(ids.sentence);
+    const hintEl = document.getElementById(ids.hint);
+    const optionsEl = document.getElementById(ids.options);
+    const revealBtn = document.getElementById(ids.reveal);
+    const answerEl = document.getElementById(ids.answer);
+    const gradeButtonsEl = document.getElementById(ids.gradeButtons);
+    const gradeWrongBtn = document.getElementById(ids.gradeWrong);
+    const gradeRightBtn = document.getElementById(ids.gradeRight);
+    const progressEl = document.getElementById(ids.progress);
+    const shuffleBtn = document.getElementById(ids.shuffle);
+    const skipBtn = document.getElementById(ids.skip);
+
+    const qs = { queue: [], current: null, revealed: false, masteredCount: 0, totalCount: 0 };
+
+    function updateProgress() {
+      progressEl.textContent = qs.totalCount ? t("masteredProgress", { n: qs.masteredCount, total: qs.totalCount }) : "0 / 0";
+    }
+
+    function resetCardUI() {
+      qs.revealed = false;
+      optionsEl.hidden = true;
+      optionsEl.innerHTML = "";
+      revealBtn.hidden = true;
+      answerEl.hidden = true;
+      answerEl.textContent = "";
+      gradeButtonsEl.hidden = true;
+    }
+
+    function showNext() {
+      resetCardUI();
+      if (!qs.queue.length) {
+        qs.current = null;
+        tagEl.textContent = "";
+        sentenceEl.textContent = qs.totalCount ? t("allMastered") : t("noQuestions");
+        hintEl.textContent = "";
+        updateProgress();
+        return;
+      }
+      const item = qs.queue.shift();
+      qs.current = item;
+      tagEl.textContent = item.tag || "";
+      sentenceEl.textContent = item.jp;
+      hintEl.textContent = item.en || "";
+      if (item.type === "choice") {
+        optionsEl.hidden = false;
+        item.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "gp-option-btn";
+          btn.textContent = opt;
+          btn.addEventListener("click", () => handleChoice(idx));
+          optionsEl.appendChild(btn);
+        });
+      } else {
+        revealBtn.hidden = false;
+      }
+      updateProgress();
+    }
+
+    function grade(isCorrect) {
+      const item = qs.current;
+      if (!item) return;
+      if (isCorrect) {
+        item.streak = (item.streak || 0) + 1;
+        if (item.streak >= 2) qs.masteredCount += 1;
+        else qs.queue.push(item);
+      } else {
+        item.streak = 0;
+        const pos = Math.min(3, qs.queue.length);
+        qs.queue.splice(pos, 0, item);
+      }
+      showNext();
+    }
+
+    function handleChoice(idx) {
+      if (qs.revealed || !qs.current) return;
+      qs.revealed = true;
+      const item = qs.current;
+      const buttons = [...optionsEl.children];
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === item.correct) b.classList.add("correct");
+        else if (i === idx) b.classList.add("wrong");
+      });
+      const isCorrect = idx === item.correct;
+      setTimeout(() => grade(isCorrect), 700);
+    }
+
+    revealBtn.addEventListener("click", () => {
+      if (qs.revealed || !qs.current) return;
+      qs.revealed = true;
+      answerEl.hidden = false;
+      answerEl.textContent = qs.current.answer;
+      revealBtn.hidden = true;
+      gradeButtonsEl.hidden = false;
+    });
+
+    gradeWrongBtn.addEventListener("click", () => grade(false));
+    gradeRightBtn.addEventListener("click", () => grade(true));
+
+    if (shuffleBtn) shuffleBtn.addEventListener("click", () => { qs.queue = shuffle(qs.queue); });
+    if (skipBtn)
+      skipBtn.addEventListener("click", () => {
+        if (!qs.current) return;
+        qs.queue.push(qs.current);
+        showNext();
+      });
+
+    function start(buildFn) {
+      const items = buildFn().map((q) => ({ ...q, streak: 0 }));
+      qs.queue = items;
+      qs.totalCount = items.length;
+      qs.masteredCount = 0;
+      qs.current = null;
+      showNext();
+    }
+
+    return { start, state: qs, cardEl };
+  }
+
+  // ---------- grammar: practice ----------
+  const gpLessonChipsEl = document.getElementById("gp-lesson-chips");
+  const gpState = { lessons: [] }; // empty = all lessons
+
+  function patternLessonMap() {
+    const map = {};
+    ((window.GRAMMAR_DATA && window.GRAMMAR_DATA.N4) || []).forEach((e) => {
+      if (e.lesson !== undefined) map[e.pattern] = e.lesson;
+    });
+    return map;
+  }
+
+  function gpBuildDeck() {
+    const bank = window.GRAMMAR_PRACTICE || {};
+    const lessonMap = patternLessonMap();
+    const items = [];
+    Object.keys(bank).forEach((pattern) => {
+      const lesson = lessonMap[pattern];
+      if (gpState.lessons.length && !gpState.lessons.includes(lesson)) return;
+      bank[pattern].forEach((q) => {
+        items.push({ ...q, tag: pattern });
+      });
+    });
+    return items;
+  }
+
+  function renderGpLessonChips() {
+    const lessonMap = patternLessonMap();
+    const lessonNums = [...new Set(Object.values(lessonMap))].sort((a, b) => a - b);
+    const selected = gpState.lessons;
+    const allActive = selected.length === 0;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    const chips = lessonNums
+      .map((n) => {
+        const isActive = selected.includes(n);
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}">${n}課</button>`;
+      })
+      .join("");
+    gpLessonChipsEl.innerHTML = allChip + chips;
+    gpLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        if (chip.dataset.lesson === "all") {
+          gpState.lessons = [];
+        } else {
+          const n = Number(chip.dataset.lesson);
+          const idx = gpState.lessons.indexOf(n);
+          if (idx === -1) gpState.lessons.push(n);
+          else gpState.lessons.splice(idx, 1);
+          gpState.lessons.sort((a, b) => a - b);
+        }
+        renderGpLessonChips();
+        gpQuiz.start(gpBuildDeck);
+      });
+    });
+  }
+
+  const gpQuiz = setupQuizMode({
+    card: "gp-card",
+    tag: "gp-pattern-tag",
+    sentence: "gp-sentence",
+    hint: "gp-hint",
+    options: "gp-options",
+    reveal: "gp-reveal",
+    answer: "gp-answer",
+    gradeButtons: "gp-grade-buttons",
+    gradeWrong: "gp-grade-wrong",
+    gradeRight: "gp-grade-right",
+    progress: "gp-progress",
+    shuffle: "gp-shuffle",
+    skip: "gp-skip",
+  });
+
   // ---------- word list ----------
   const wlLevelChips = document.querySelectorAll("#wl-level-chips .chip");
   const wordlistContainer = document.getElementById("wordlist-container");
@@ -867,6 +1086,9 @@
     showVerbCard();
   }
 
+  const conjPracticeSentencesEl = document.getElementById("conj-practice-sentences");
+  let csPracticeStarted = false;
+
   conjPracticeModeToggle.forEach((btn) => {
     btn.addEventListener("click", () => {
       conjPracticeModeToggle.forEach((b) => b.classList.remove("active"));
@@ -874,12 +1096,66 @@
       const mode = btn.dataset.practiceMode;
       conjPracticeByFormEl.classList.toggle("active", mode === "by-form");
       conjPracticeByVerbEl.classList.toggle("active", mode === "by-verb");
+      conjPracticeSentencesEl.classList.toggle("active", mode === "sentences");
       if (mode === "by-verb" && !conjVerbPracticeStarted) {
         conjVerbPracticeStarted = true;
         populateVerbSelect();
         startVerbPractice(0);
       }
+      if (mode === "sentences" && !csPracticeStarted) {
+        csPracticeStarted = true;
+        renderCsFormChips();
+        csQuiz.start(csBuildDeck);
+      }
     });
+  });
+
+  // ---------- conjugation: sentence-based practice ----------
+  const csFormChipsEl = document.getElementById("cs-form-chips");
+  const csState = { form: "all" };
+
+  function csBuildDeck() {
+    const bank = window.CONJUGATION_SENTENCES || {};
+    const forms = csState.form === "all" ? Object.keys(bank) : [csState.form];
+    const items = [];
+    forms.forEach((f) => {
+      (bank[f] || []).forEach((q) => items.push({ ...q, tag: FORM_LABELS[f] || f }));
+    });
+    return items;
+  }
+
+  function renderCsFormChips() {
+    const bank = window.CONJUGATION_SENTENCES || {};
+    const forms = Object.keys(FORM_LABELS).filter((f) => bank[f] && bank[f].length);
+    const allChip = `<button class="chip${csState.form === "all" ? " active" : ""}" data-form="all">${t("allForms")}</button>`;
+    const chips = forms
+      .map((f) => `<button class="chip${csState.form === f ? " active" : ""}" data-form="${f}">${FORM_LABELS[f]}</button>`)
+      .join("");
+    csFormChipsEl.innerHTML = allChip + chips;
+    csFormChipsEl.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        csFormChipsEl.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        csState.form = chip.dataset.form;
+        csQuiz.start(csBuildDeck);
+      });
+    });
+  }
+
+  const csQuiz = setupQuizMode({
+    card: "cs-card",
+    tag: "cs-form-tag",
+    sentence: "cs-sentence",
+    hint: "cs-hint",
+    options: "cs-options",
+    reveal: "cs-reveal",
+    answer: "cs-answer",
+    gradeButtons: "cs-grade-buttons",
+    gradeWrong: "cs-grade-wrong",
+    gradeRight: "cs-grade-right",
+    progress: "cs-progress",
+    shuffle: "cs-shuffle",
+    skip: "cs-skip",
   });
 
   conjVerbSelectEl.addEventListener("change", () => {
