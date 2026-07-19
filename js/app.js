@@ -119,7 +119,6 @@
   const frontTextEl = document.getElementById("card-front-text");
   const backTextEl = document.getElementById("card-back-text");
   const backReadingEl = document.getElementById("card-back-reading");
-  const backStatsEl = document.getElementById("card-back-stats");
   const cardHintEl = document.getElementById("card-hint");
   const gradeButtonsEl = document.getElementById("grade-buttons");
   const gradeWrongBtn = document.getElementById("grade-wrong");
@@ -159,9 +158,6 @@
       backTextEl.textContent = item.word;
       backReadingEl.textContent = item.reading;
     }
-    const stats = getStats(item);
-    backStatsEl.textContent =
-      stats.correct + stats.wrong > 0 ? `✓${stats.correct}  ✗${stats.wrong}` : "";
   }
 
   function resetCardVisual() {
@@ -450,14 +446,6 @@
   const wordlistContainer = document.getElementById("wordlist-container");
   let currentWordListLevel = "all";
 
-  function wordStatsDisplay(item) {
-    const stats = getStats(item);
-    if (stats.correct === 0 && stats.wrong === 0) {
-      return `<span class="wl-badge wl-badge-new">${t("badgeNew")}</span>`;
-    }
-    return `<span class="wl-counts"><span class="wl-count-right">✓${stats.correct}</span> <span class="wl-count-wrong">✗${stats.wrong}</span></span>`;
-  }
-
   function renderWordList(level) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
@@ -492,7 +480,6 @@
                 <td class="wl-word">${item.word}</td>
                 <td class="wl-reading">${item.reading}</td>
                 <td class="wl-meaning">${item.meaning}</td>
-                <td class="wl-progress">${wordStatsDisplay(idItem)}</td>
               </tr>`;
               })
               .join("");
@@ -500,7 +487,7 @@
               <div class="wordlist-lesson-block">
                 <h4 class="wordlist-lesson-heading">${heading}</h4>
                 <table class="wordlist-table">
-                  <thead><tr><th>${t("wlWord")}</th><th>${t("wlReading")}</th><th>${t("wlMeaning")}</th><th>${t("wlProgress")}</th></tr></thead>
+                  <thead><tr><th>${t("wlWord")}</th><th>${t("wlReading")}</th><th>${t("wlMeaning")}</th></tr></thead>
                   <tbody>${rows}</tbody>
                 </table>
               </div>`;
