@@ -396,6 +396,49 @@ main {
 .wl-badge-learning { background: var(--learning-bg); color: var(--learning); }
 .wl-badge-mastered { background: var(--mastered-bg); color: var(--mastered); }
 
+/* ---------- conjugation ---------- */
+.conj-mode { display: none; margin-top: 24px; }
+.conj-mode.active { display: block; }
+
+.conjugation-group { margin-bottom: 22px; }
+.conjugation-group:last-child { margin-bottom: 0; }
+.conjugation-group-label {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--indigo-deep);
+  margin: 0 0 8px;
+}
+.conj-rule-note { font-weight: 400; color: var(--ink-soft); font-size: 0.8rem; }
+
+.conjugation-table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; }
+.conjugation-table th, .conjugation-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+.conjugation-table th { font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); background: var(--paper-deep); }
+.conjugation-table td { font-family: var(--font-jp); }
+.conjugation-table td.conj-rule, .conjugation-table td.conj-dict { font-family: var(--font-ui); color: var(--ink-soft); font-size: 0.82rem; }
+.conjugation-table tr:last-child td { border-bottom: none; }
+
+.conjugation-note {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border-left: 3px solid var(--indigo);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  border-radius: 2px;
+}
+
+.conj-form-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
 /* ---------- footer ---------- */
 .site-footer {
   max-width: 900px;
