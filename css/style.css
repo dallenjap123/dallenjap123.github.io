@@ -233,13 +233,6 @@ main {
   font-size: clamp(1.5rem, 5vw, 2.4rem);
   color: var(--indigo-deep);
 }
-.card-stats {
-  font-family: var(--font-ui);
-  font-size: 0.75rem;
-  color: var(--ink-soft);
-  margin-top: 10px;
-  letter-spacing: 0.02em;
-}
 .seal {
   position: absolute;
   top: 16px;
@@ -332,6 +325,17 @@ main {
   padding: 24px;
   min-height: 280px;
 }
+.grammar-lesson-tag {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--indigo);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
 .grammar-pattern { font-family: var(--font-jp); font-size: 1.8rem; color: var(--indigo-deep); margin: 0 0 6px; }
 .grammar-meaning {
   font-family: var(--font-ui);
@@ -405,25 +409,6 @@ main {
 .wl-word { font-family: var(--font-jp); font-size: 1.1rem; }
 .wl-reading { font-family: var(--font-ui); color: var(--ink-soft); }
 .wl-meaning { font-family: var(--font-ui); }
-.wl-progress { text-align: right; }
-.wl-badge {
-  font-family: var(--font-ui);
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 999px;
-  display: inline-block;
-  letter-spacing: 0.02em;
-}
-.wl-badge-new { background: var(--paper-deep); color: var(--ink-soft); }
-.wl-counts {
-  font-family: var(--font-ui);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-.wl-count-right { color: var(--mastered); }
-.wl-count-wrong { color: var(--seal); }
 .wl-row-weak { background: var(--seal-bg); }
 .wl-row-weak .wl-word { color: var(--seal); font-weight: 700; }
 
