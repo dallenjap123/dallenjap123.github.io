@@ -36,6 +36,8 @@ window.I18N = {
     selectForm: "select a form from the list",
     byForm: "By form",
     byVerb: "By verb",
+    bySentence: "Sentences",
+    showAnswer: "show answer",
     allForms: "All forms",
     chooseVerb: "Choose a verb",
     nextVerb: "next verb →",
@@ -43,6 +45,7 @@ window.I18N = {
     wlReading: "Reading",
     wlMeaning: "Meaning",
     noVerbs: "no verbs for this selection yet",
+    noQuestions: "no questions for this selection yet",
     verbProgress: "{n} / 8 correct",
     doneWithVerb: "🎉 done with {verb}! ({n} / 8 correct)",
     footer:
@@ -76,6 +79,8 @@ window.I18N = {
     selectForm: "リストから活用形を選んでください",
     byForm: "形で練習",
     byVerb: "動詞で練習",
+    bySentence: "文で練習",
+    showAnswer: "答えを見る",
     allForms: "すべての形",
     chooseVerb: "動詞を選ぶ",
     nextVerb: "次の動詞→",
@@ -83,6 +88,7 @@ window.I18N = {
     wlReading: "読み方",
     wlMeaning: "意味",
     noVerbs: "この条件の動詞はまだありません",
+    noQuestions: "この条件の問題はまだありません",
     verbProgress: "{n} ／ 8 正解",
     doneWithVerb: "🎉 {verb}　終了！（{n} ／ 8 正解）",
     footer:
