@@ -399,7 +399,7 @@
     items.forEach((item, i) => {
       const li = document.createElement("li");
       li.className = "grammar-item";
-      li.textContent = item.pattern;
+      li.textContent = item.lesson !== undefined ? `${item.lesson}課　${item.pattern}` : item.pattern;
       li.tabIndex = 0;
       li.addEventListener("click", () => selectGrammarItem(i));
       li.addEventListener("keydown", (e) => {
@@ -407,7 +407,7 @@
       });
       grammarListEl.appendChild(li);
     });
-    grammarDetailEl.innerHTML = '<p class="grammar-empty">select a pattern from the list</p>';
+    grammarDetailEl.innerHTML = `<p class="grammar-empty">${t("selectPattern")}</p>`;
   }
 
   function selectGrammarItem(i) {
@@ -423,7 +423,9 @@
       </div>`
       )
       .join("");
+    const lessonTag = item.lesson !== undefined ? `<span class="grammar-lesson-tag">${item.lesson}課</span>` : "";
     grammarDetailEl.innerHTML = `
+      ${lessonTag}
       <p class="grammar-pattern">${item.pattern}</p>
       <p class="grammar-meaning">${item.meaning}</p>
       <p class="grammar-usage">${item.usage}</p>
