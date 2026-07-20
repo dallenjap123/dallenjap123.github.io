@@ -491,6 +491,7 @@
 
     function resetCardUI() {
       qs.revealed = false;
+      tagEl.hidden = true;
       optionsEl.hidden = true;
       optionsEl.innerHTML = "";
       revealBtn.hidden = true;
@@ -511,7 +512,7 @@
       }
       const item = qs.queue.shift();
       qs.current = item;
-      tagEl.textContent = item.tag || "";
+      tagEl.textContent = item.tag || ""; // set now, but stays hidden (resetCardUI) until answered — avoids spoiling the question
       sentenceEl.textContent = item.jp;
       hintEl.textContent = item.en || "";
       if (item.type === "choice") {
@@ -547,6 +548,7 @@
     function handleChoice(idx) {
       if (qs.revealed || !qs.current) return;
       qs.revealed = true;
+      tagEl.hidden = false;
       const item = qs.current;
       const buttons = [...optionsEl.children];
       buttons.forEach((b, i) => {
@@ -561,6 +563,7 @@
     revealBtn.addEventListener("click", () => {
       if (qs.revealed || !qs.current) return;
       qs.revealed = true;
+      tagEl.hidden = false;
       answerEl.hidden = false;
       answerEl.textContent = qs.current.answer;
       revealBtn.hidden = true;
