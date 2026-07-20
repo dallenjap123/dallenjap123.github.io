@@ -94,6 +94,48 @@ body {
 }
 .lang-toggle .dir-btn { font-size: 0.75rem; padding: 5px 12px; }
 
+.sync-status { font-family: var(--font-ui); font-size: 0.75rem; }
+.sync-active-status { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-soft); }
+.sync-dot { color: var(--mastered); font-size: 0.6rem; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 59, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal-box {
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(23, 32, 59, 0.25);
+  padding: 28px;
+  width: min(360px, 100%);
+  text-align: left;
+}
+.modal-box h3 { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); margin: 0 0 8px; }
+.modal-note { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 18px; line-height: 1.5; }
+.modal-box input {
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+.modal-error { font-family: var(--font-ui); font-size: 0.8rem; color: var(--seal); margin: 0 0 10px; }
+.modal-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+.modal-actions .ghost-btn { flex: 1; text-align: center; }
+.modal-box .text-link { display: block; text-align: center; width: 100%; }
+
 /* ---------- main / views ---------- */
 main {
   max-width: 900px;
