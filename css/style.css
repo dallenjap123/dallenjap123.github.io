@@ -36,6 +36,15 @@
 
 * { box-sizing: border-box; }
 
+/* The [hidden] attribute must always win over any class's own `display`
+   value — otherwise a class like `.modal-overlay { display: flex; }` (author
+   CSS) silently overrides the browser's built-in `[hidden] { display: none }`
+   (user-agent CSS), since author rules beat user-agent rules regardless of
+   selector specificity. This bit several elements toggled via `el.hidden`
+   in app.js/sync.js (modal, grade buttons, multiple-choice options, lesson
+   chips) — this single rule is the fix for all of them, present and future. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--paper);
