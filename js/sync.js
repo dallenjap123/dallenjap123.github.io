@@ -24,11 +24,8 @@
   const syncActiveEmail = document.getElementById("sync-active-email");
   const syncSignoutBtn = document.getElementById("sync-signout-btn");
   const syncModal = document.getElementById("sync-modal");
-  const syncEmailInput = document.getElementById("sync-email");
-  const syncPasswordInput = document.getElementById("sync-password");
-  const syncSigninBtn = document.getElementById("sync-signin-btn");
-  const syncSignupBtn = document.getElementById("sync-signup-btn");
-  const syncGuestBtn = document.getElementById("sync-guest-btn");
+  const syncGoogleBtn = document.getElementById("sync-google-btn");
+  const syncCloseX = document.getElementById("sync-close-x");
   const syncErrorEl = document.getElementById("sync-error");
 
   let auth, db;
@@ -45,10 +42,7 @@
 
   function openModal() {
     clearError();
-    syncEmailInput.value = "";
-    syncPasswordInput.value = "";
     syncModal.hidden = false;
-    syncEmailInput.focus();
   }
   function closeModal() {
     syncModal.hidden = true;
@@ -61,74 +55,57 @@
     syncErrorEl.hidden = true;
     syncErrorEl.textContent = "";
   }
+  // These two just mean the user closed the Google popup or opened a
+  // second one — not real errors, so no need to alarm them with red text.
+  const SILENT_CODES = ["auth/popup-closed-by-user", "auth/cancelled-popup-request"];
   function friendlyError(err) {
     const map = {
-      "auth/email-already-in-use": "syncErrEmailInUse",
-      "auth/invalid-email": "syncErrInvalidEmail",
-      "auth/weak-password": "syncErrWeakPassword",
-      "auth/user-not-found": "syncErrWrongCreds",
-      "auth/wrong-password": "syncErrWrongCreds",
-      "auth/invalid-credential": "syncErrWrongCreds",
-      "auth/missing-password": "syncErrWrongCreds",
+      "auth/popup-blocked": "syncErrPopupBlocked",
+      "auth/unauthorized-domain": "syncErrUnauthorizedDomain",
     };
     const key = map[err && err.code];
     if (key) return t(key);
     // Unmapped error: show the raw code/message rather than nothing, so a
-    // setup problem (e.g. Email/Password provider not enabled in the
-    // Firebase console) is visible instead of silently doing nothing.
+    // setup problem (e.g. Google sign-in not enabled in the Firebase
+    // console) is visible instead of silently doing nothing.
     return (err && (err.code ? `${err.code}: ${err.message}` : err.message)) || String(err);
   }
 
-  // Wraps a sign-in/sign-up click: shows a loading state on the button so
-  // "did anything happen?" always has a visible answer, disables both
-  // buttons during the request, catches BOTH thrown errors and promise
+  // Shows a loading state on the button so "did anything happen?" always
+  // has a visible answer, catches BOTH thrown errors and promise
   // rejections (a bad Firebase setup can do either), and always restores
-  // the button whether it succeeds or fails.
-  function withLoadingState(btn, otherBtn, action) {
-    return () => {
-      clearError();
-      const email = syncEmailInput.value.trim();
-      const password = syncPasswordInput.value;
-      if (!email || !password) {
-        showError(t("syncErrMissingFields"));
-        return;
-      }
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      otherBtn.disabled = true;
-      btn.textContent = "…";
-      Promise.resolve()
-        .then(() => action(email, password))
-        .then(() => {
-          closeModal();
-        })
-        .catch((e) => {
+  // the button whether it succeeds, fails, or the user just closes the
+  // Google popup without finishing.
+  function handleGoogleSignIn() {
+    clearError();
+    const originalText = syncGoogleBtn.textContent;
+    syncGoogleBtn.disabled = true;
+    syncGoogleBtn.textContent = "…";
+    const provider = new firebase.auth.GoogleAuthProvider();
+    Promise.resolve()
+      .then(() => auth.signInWithPopup(provider))
+      .then(() => {
+        closeModal();
+      })
+      .catch((e) => {
+        if (!SILENT_CODES.includes(e && e.code)) {
           console.error("jp-study cloud sync error:", e);
           showError(friendlyError(e));
-        })
-        .finally(() => {
-          btn.disabled = false;
-          otherBtn.disabled = false;
-          btn.textContent = originalText;
-        });
-    };
+        }
+      })
+      .finally(() => {
+        syncGoogleBtn.disabled = false;
+        syncGoogleBtn.textContent = originalText;
+      });
   }
 
   syncOpenBtn.addEventListener("click", openModal);
-  syncGuestBtn.addEventListener("click", closeModal);
+  syncCloseX.addEventListener("click", closeModal);
   syncModal.addEventListener("click", (e) => {
     if (e.target === syncModal) closeModal(); // click outside the box closes it
   });
 
-  syncSigninBtn.addEventListener(
-    "click",
-    withLoadingState(syncSigninBtn, syncSignupBtn, (email, password) => auth.signInWithEmailAndPassword(email, password))
-  );
-
-  syncSignupBtn.addEventListener(
-    "click",
-    withLoadingState(syncSignupBtn, syncSigninBtn, (email, password) => auth.createUserWithEmailAndPassword(email, password))
-  );
+  syncGoogleBtn.addEventListener("click", handleGoogleSignIn);
 
   syncSignoutBtn.addEventListener("click", () => auth.signOut());
 
