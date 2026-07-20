@@ -24,7 +24,7 @@
         <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
       </nav>
       <div class="sync-status" id="sync-status" hidden>
-        <button class="text-link" id="sync-open-btn" data-i18n="signInToSync">sign in to sync progress</button>
+        <button class="sync-signin-pill" id="sync-open-btn" data-i18n="signInToSync">☁ Sign in</button>
         <span class="sync-active-status" id="sync-active-status" hidden>
           <span class="sync-dot" aria-hidden="true">●</span>
           <span id="sync-active-email"></span>
@@ -40,32 +40,23 @@
 
   <main>
     <section id="home-view" class="view active">
-      <div class="dash-summary">
-        <div class="dash-summary-stat">
-          <span class="dash-summary-number" id="dash-vocab-number">0 / 0</span>
-          <span class="dash-summary-label" data-i18n="dashVocabStudied">words studied</span>
-        </div>
-        <div class="dash-summary-stat">
-          <span class="dash-summary-number" id="dash-grammar-number">0 / 0</span>
-          <span class="dash-summary-label" data-i18n="dashGrammarStudied">grammar points practiced</span>
-        </div>
-        <div class="dash-summary-stat">
-          <span class="dash-summary-number" id="dash-streak-number">0</span>
-          <span class="dash-summary-label" data-i18n="dashStreak">day streak</span>
-        </div>
-      </div>
-
-      <div class="dash-quick-actions">
-        <button class="dash-action-btn" id="dash-action-flashcards" data-i18n="dashContinueStudying">Continue studying →</button>
-        <button class="dash-action-btn" id="dash-action-weak" data-i18n="dashPracticeWeak">Practice weak words →</button>
-        <button class="dash-action-btn" id="dash-action-grammar" data-i18n="dashPracticeGrammar">Practice grammar →</button>
+      <div class="dash-streak-hero">
+        <span class="dash-streak-number" id="dash-streak-number">0</span>
+        <span class="dash-streak-label" data-i18n="dashStreak">day streak</span>
       </div>
 
       <h3 class="dash-section-title" data-i18n="dashLevelsTitle">Progress by level</h3>
-      <div class="dash-levels" id="dash-levels"></div>
+      <div class="level-chips" id="dash-level-tabs">
+        <button class="chip n5" data-level="N5">N5</button>
+        <button class="chip n4 active" data-level="N4">N4</button>
+        <button class="chip n3" data-level="N3">N3</button>
+        <button class="chip n2" data-level="N2">N2</button>
+        <button class="chip n1" data-level="N1">N1</button>
+      </div>
+      <div id="dash-lesson-breakdown"></div>
 
       <div class="dash-weak-section">
-        <h3 class="dash-section-title" data-i18n="dashWeakTitle">Words and grammar to review</h3>
+        <h3 class="dash-section-title" data-i18n="dashWeakTitle">Words to review</h3>
         <div id="dash-weak-list"></div>
       </div>
     </section>
