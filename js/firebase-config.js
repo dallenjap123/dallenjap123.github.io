@@ -13,10 +13,11 @@
 // like the object below — just copy yours in as-is.
 
 window.FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyA-Kz0s1VenaTB90LwTl5xc240uaCeifio",
+  authDomain: "japanese-learning-50cca.firebaseapp.com",
+  projectId: "japanese-learning-50cca",
+  storageBucket: "japanese-learning-50cca.firebasestorage.app",
+  messagingSenderId: "830977664015",
+  appId: "1:830977664015:web:4b0581657dc9ab2f452f7a",
+  measurementId: "G-6DBEMXHCD1"
 };
