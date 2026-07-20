@@ -125,17 +125,40 @@
   }
 
   let pushTimer = null;
-  function pushToCloud(data) {
+  let pendingPushData = null;
+  function doPush(data) {
     const user = auth.currentUser;
     if (!user) return;
+    db.collection("users")
+      .doc(user.uid)
+      .set({ progress: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch((e) => console.warn("Cloud sync push failed:", e));
+  }
+  function pushToCloud(data) {
+    if (!auth.currentUser) return;
+    pendingPushData = data;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => {
-      db.collection("users")
-        .doc(user.uid)
-        .set({ progress: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
-        .catch((e) => console.warn("Cloud sync push failed:", e));
+      pushTimer = null;
+      doPush(pendingPushData);
+      pendingPushData = null;
     }, 1500); // small debounce so rapid grading doesn't spam writes
   }
+  // If the tab closes or gets backgrounded (switching apps on mobile, etc.)
+  // while a debounced push is still pending, fire it immediately instead of
+  // losing that update — otherwise the last few seconds of a study session
+  // could silently never reach the cloud.
+  function flushPendingPush() {
+    if (pushTimer === null || pendingPushData === null) return;
+    clearTimeout(pushTimer);
+    pushTimer = null;
+    doPush(pendingPushData);
+    pendingPushData = null;
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushPendingPush();
+  });
+  window.addEventListener("beforeunload", flushPendingPush);
 
   if (window.JPStudyProgress) {
     window.JPStudyProgress.onLocalChange = pushToCloud;

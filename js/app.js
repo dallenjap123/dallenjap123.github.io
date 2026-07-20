@@ -1327,115 +1327,53 @@
   });
 
   // ---------- dashboard (home) ----------
-  // Vocab + grammar only, by design — conjugation stays out of this view.
-  // Reads directly from the same progress stores used everywhere else, so
-  // there's nothing new to keep in sync; it just aggregates what already
-  // exists into level-by-level totals plus a couple of home-page extras
-  // (streak, quick actions, a short "weakest right now" list).
+  // Vocab only, by design — grammar and conjugation both stay out of this
+  // view. Organized by level (tabs) then by lesson within that level,
+  // matching how the vocab data itself is structured. Reads from the same
+  // progress store used everywhere else — nothing new to keep in sync.
   const ALL_LEVELS = ["N5", "N4", "N3", "N2", "N1"];
+  let dashSelectedLevel = "N4"; // the only populated level today; will still work once others are added
 
-  function levelVocabSummary(level) {
+  function renderDashLessonBreakdown(level) {
     const items = (window.VOCAB_DATA && window.VOCAB_DATA[level]) || [];
-    let studied = 0,
-      correctSum = 0,
-      totalSum = 0,
-      weak = 0;
-    items.forEach((item) => {
-      const idItem = { ...item, level };
-      const stats = getStats(idItem);
-      const attempts = stats.correct + stats.wrong;
-      if (attempts > 0) {
-        studied += 1;
-        correctSum += stats.correct;
-        totalSum += attempts;
-        if (isWeakByRatio(idItem)) weak += 1;
-      }
-    });
-    return {
-      total: items.length,
-      studied,
-      accuracy: totalSum ? Math.round((correctSum / totalSum) * 100) : null,
-      weak,
-    };
-  }
-
-  function levelGrammarSummary(level) {
-    const items = (window.GRAMMAR_DATA && window.GRAMMAR_DATA[level]) || [];
-    let studied = 0,
-      correctSum = 0,
-      totalSum = 0,
-      weak = 0;
-    items.forEach((item) => {
-      const stats = getGrammarStats(item.pattern);
-      const attempts = stats.correct + stats.wrong;
-      if (attempts > 0) {
-        studied += 1;
-        correctSum += stats.correct;
-        totalSum += attempts;
-        if (stats.wrong > stats.correct) weak += 1;
-      }
-    });
-    return {
-      total: items.length,
-      studied,
-      accuracy: totalSum ? Math.round((correctSum / totalSum) * 100) : null,
-      weak,
-    };
-  }
-
-  function dashSubsectionHtml(label, summary) {
-    const pct = summary.total ? Math.round((summary.studied / summary.total) * 100) : 0;
-    let meta;
-    if (summary.studied === 0) {
-      meta = t("dashNotStartedYet");
-    } else {
-      const parts = [];
-      if (summary.accuracy !== null) parts.push(t("dashAccuracyLine", { pct: summary.accuracy }));
-      if (summary.weak) parts.push(t("dashWeakLine", { n: summary.weak }));
-      meta = parts.join(" · ");
+    const container = document.getElementById("dash-lesson-breakdown");
+    if (!items.length) {
+      container.innerHTML = `<p class="dash-empty-note">${t("dashNoVocabYet")}</p>`;
+      return;
     }
-    return `
-      <div class="dash-subsection">
-        <div class="dash-subsection-header">
-          <span>${label}</span>
-          <span class="dash-subsection-count">${summary.studied} / ${summary.total}</span>
-        </div>
-        <div class="dash-progress-track"><div class="dash-progress-fill" style="width:${pct}%"></div></div>
-        <p class="dash-subsection-meta">${meta}</p>
-      </div>`;
-  }
-
-  function renderDashSummary() {
-    let vocabTotal = 0,
-      vocabStudied = 0,
-      grammarTotal = 0,
-      grammarStudied = 0;
-    ALL_LEVELS.forEach((level) => {
-      const v = levelVocabSummary(level);
-      const g = levelGrammarSummary(level);
-      vocabTotal += v.total;
-      vocabStudied += v.studied;
-      grammarTotal += g.total;
-      grammarStudied += g.studied;
-    });
-    document.getElementById("dash-vocab-number").textContent = `${vocabStudied} / ${vocabTotal}`;
-    document.getElementById("dash-grammar-number").textContent = `${grammarStudied} / ${grammarTotal}`;
-    document.getElementById("dash-streak-number").textContent = streakStore.current;
-  }
-
-  function renderDashLevels() {
-    const container = document.getElementById("dash-levels");
-    container.innerHTML = ALL_LEVELS.map((level) => {
-      const v = levelVocabSummary(level);
-      const g = levelGrammarSummary(level);
-      const badge = `<span class="dash-level-badge ${level.toLowerCase()}">${level}</span>`;
-      if (v.total === 0 && g.total === 0) {
-        return `<div class="dash-level-card empty">${badge}<p class="dash-empty-note">${t("dashNoContent")}</p></div>`;
-      }
-      const vocabHtml = v.total ? dashSubsectionHtml(t("dashVocabLabel"), v) : `<p class="dash-empty-note">${t("dashNoVocabYet")}</p>`;
-      const grammarHtml = g.total ? dashSubsectionHtml(t("dashGrammarLabel"), g) : `<p class="dash-empty-note">${t("dashNoGrammarYet")}</p>`;
-      return `<div class="dash-level-card">${badge}${vocabHtml}${grammarHtml}</div>`;
-    }).join("");
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+    const rows = lessonNums
+      .map((n) => {
+        const lessonItems = items.filter((item) => item.lesson === n);
+        let studied = 0,
+          correctSum = 0,
+          totalSum = 0;
+        lessonItems.forEach((item) => {
+          const stats = getStats({ ...item, level });
+          const attempts = stats.correct + stats.wrong;
+          if (attempts > 0) {
+            studied += 1;
+            correctSum += stats.correct;
+            totalSum += attempts;
+          }
+        });
+        const total = lessonItems.length;
+        const pct = total ? Math.round((studied / total) * 100) : 0;
+        const meta = totalSum ? t("dashAccuracyLine", { pct: Math.round((correctSum / totalSum) * 100) }) : t("dashNotStartedYet");
+        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        return `
+        <div class="dash-lesson-row">
+          <div class="dash-lesson-row-header">
+            <span class="dash-lesson-title">${title}</span>
+            <span class="dash-lesson-count">${studied} / ${total}</span>
+          </div>
+          <div class="dash-progress-track"><div class="dash-progress-fill" style="width:${pct}%"></div></div>
+          <p class="dash-subsection-meta">${meta}</p>
+        </div>`;
+      })
+      .join("");
+    container.innerHTML = `<div class="dash-lesson-list">${rows}</div>`;
   }
 
   function renderDashWeakList() {
@@ -1445,56 +1383,38 @@
         const idItem = { ...item, level };
         const stats = getStats(idItem);
         if (stats.correct + stats.wrong > 0 && stats.wrong > stats.correct) {
-          weakVocab.push({ label: item.word, meaning: item.meaning, gap: stats.wrong - stats.correct });
+          weakVocab.push({ word: item.word, meaning: item.meaning, gap: stats.wrong - stats.correct });
         }
       });
     });
     weakVocab.sort((a, b) => b.gap - a.gap);
 
-    const weakGrammar = [];
-    ALL_LEVELS.forEach((level) => {
-      ((window.GRAMMAR_DATA && window.GRAMMAR_DATA[level]) || []).forEach((item) => {
-        const stats = getGrammarStats(item.pattern);
-        if (stats.correct + stats.wrong > 0 && stats.wrong > stats.correct) {
-          weakGrammar.push({ label: item.pattern, meaning: item.meaning, gap: stats.wrong - stats.correct });
-        }
-      });
-    });
-    weakGrammar.sort((a, b) => b.gap - a.gap);
-
     const listEl = document.getElementById("dash-weak-list");
-    if (!weakVocab.length && !weakGrammar.length) {
+    if (!weakVocab.length) {
       listEl.innerHTML = `<p class="dash-empty-note">${t("dashNoWeak")}</p>`;
       return;
     }
-    const col = (title, items) =>
-      !items.length
-        ? ""
-        : `<div class="dash-weak-col"><h4>${title}</h4><ul>${items
-            .slice(0, 6)
-            .map((i) => `<li><span class="dash-weak-word">${i.label}</span><span class="dash-weak-meaning">${i.meaning}</span></li>`)
-            .join("")}</ul></div>`;
-    listEl.innerHTML = col(t("dashWeakVocab"), weakVocab) + col(t("dashWeakGrammar"), weakGrammar);
+    listEl.innerHTML = `<ul class="dash-weak-simple-list">${weakVocab
+      .slice(0, 10)
+      .map((w) => `<li><span class="dash-weak-word">${w.word}</span><span class="dash-weak-meaning">${w.meaning}</span></li>`)
+      .join("")}</ul>`;
   }
+
+  const dashLevelTabs = document.querySelectorAll("#dash-level-tabs .chip");
+  dashLevelTabs.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      dashLevelTabs.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      dashSelectedLevel = chip.dataset.level;
+      renderDashLessonBreakdown(dashSelectedLevel);
+    });
+  });
 
   function renderDashboard() {
-    renderDashSummary();
-    renderDashLevels();
+    document.getElementById("dash-streak-number").textContent = streakStore.current;
+    renderDashLessonBreakdown(dashSelectedLevel);
     renderDashWeakList();
   }
-
-  document.getElementById("dash-action-flashcards").addEventListener("click", () => {
-    document.querySelector('.tab[data-view="flashcards"]').click();
-  });
-  document.getElementById("dash-action-weak").addEventListener("click", () => {
-    document.querySelector('.tab[data-view="flashcards"]').click();
-    if (!state.flashcards.isolateMode) isolateToggleBtn.click();
-  });
-  document.getElementById("dash-action-grammar").addEventListener("click", () => {
-    document.querySelector('.tab[data-view="grammar"]').click();
-    const practiceBtn = [...document.querySelectorAll("#gr-mode-toggle .dir-btn")].find((b) => b.dataset.mode === "practice");
-    if (practiceBtn) practiceBtn.click();
-  });
 
   renderDashboard();
 
