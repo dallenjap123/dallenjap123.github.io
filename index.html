@@ -17,7 +17,8 @@
     </div>
     <div class="header-right">
       <nav class="view-tabs" role="tablist">
-        <button class="tab active" data-view="flashcards" role="tab" aria-selected="true" data-i18n="tabFlashcards">Flashcards</button>
+        <button class="tab active" data-view="home" role="tab" aria-selected="true" data-i18n="tabHome">Home</button>
+        <button class="tab" data-view="flashcards" role="tab" aria-selected="false" data-i18n="tabFlashcards">Flashcards</button>
         <button class="tab" data-view="grammar" role="tab" aria-selected="false" data-i18n="tabGrammar">Grammar</button>
         <button class="tab" data-view="wordlist" role="tab" aria-selected="false" data-i18n="tabWordlist">Word List</button>
         <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
@@ -38,7 +39,38 @@
   </header>
 
   <main>
-    <section id="flashcards-view" class="view active">
+    <section id="home-view" class="view active">
+      <div class="dash-summary">
+        <div class="dash-summary-stat">
+          <span class="dash-summary-number" id="dash-vocab-number">0 / 0</span>
+          <span class="dash-summary-label" data-i18n="dashVocabStudied">words studied</span>
+        </div>
+        <div class="dash-summary-stat">
+          <span class="dash-summary-number" id="dash-grammar-number">0 / 0</span>
+          <span class="dash-summary-label" data-i18n="dashGrammarStudied">grammar points practiced</span>
+        </div>
+        <div class="dash-summary-stat">
+          <span class="dash-summary-number" id="dash-streak-number">0</span>
+          <span class="dash-summary-label" data-i18n="dashStreak">day streak</span>
+        </div>
+      </div>
+
+      <div class="dash-quick-actions">
+        <button class="dash-action-btn" id="dash-action-flashcards" data-i18n="dashContinueStudying">Continue studying →</button>
+        <button class="dash-action-btn" id="dash-action-weak" data-i18n="dashPracticeWeak">Practice weak words →</button>
+        <button class="dash-action-btn" id="dash-action-grammar" data-i18n="dashPracticeGrammar">Practice grammar →</button>
+      </div>
+
+      <h3 class="dash-section-title" data-i18n="dashLevelsTitle">Progress by level</h3>
+      <div class="dash-levels" id="dash-levels"></div>
+
+      <div class="dash-weak-section">
+        <h3 class="dash-section-title" data-i18n="dashWeakTitle">Words and grammar to review</h3>
+        <div id="dash-weak-list"></div>
+      </div>
+    </section>
+
+    <section id="flashcards-view" class="view">
       <div class="controls">
         <div class="level-chips" id="fc-level-chips">
           <button class="chip active" data-level="all" data-i18n="all">All</button>
