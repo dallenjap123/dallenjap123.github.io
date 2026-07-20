@@ -31,6 +31,9 @@
     document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
       el.setAttribute("aria-label", t(el.dataset.i18nAria));
     });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
+    });
   }
 
   // ---------- persisted right/wrong progress (per word, per browser) ----------
@@ -41,13 +44,37 @@
   } catch (e) {
     progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
   }
-  function saveProgress() {
+  function saveProgress(skipSyncHook) {
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
     } catch (e) {
       /* ignore — progress simply won't persist this session */
     }
+    // js/sync.js (optional, loaded after this file) can set onLocalChange
+    // to push every local update to the cloud. skipSyncHook=true is used
+    // when WE are the ones applying data that just came FROM the cloud, so
+    // we don't immediately push it right back (see set() below).
+    if (!skipSyncHook && window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+      window.JPStudyProgress.onLocalChange(progressStore);
+    }
   }
+  // Minimal API surface for optional cloud sync (js/sync.js). If that file
+  // isn't present, or Firebase isn't configured, nothing calls into this
+  // and the app behaves exactly as it does today — local-only.
+  window.JPStudyProgress = {
+    get() {
+      return JSON.parse(JSON.stringify(progressStore));
+    },
+    set(data) {
+      progressStore = data && typeof data === "object" ? data : {};
+      saveProgress(true);
+      updateProgress();
+      refreshWordList();
+      if (state.flashcards.current) renderFace(state.flashcards.current);
+    },
+    onLocalChange: null,
+    t: t, // t() is already defined above — exposed so js/sync.js can translate its own UI text
+  };
   // id is level+lesson+word, so progress survives level/lesson filter changes
   // and only resets if you actually edit the word itself in vocab-data.js
   function wordId(item) {
