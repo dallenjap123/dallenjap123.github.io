@@ -118,6 +118,7 @@ body {
   padding: 20px;
 }
 .modal-box {
+  position: relative;
   background: var(--paper-alt);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -128,29 +129,32 @@ body {
 }
 .modal-box h3 { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); margin: 0 0 8px; }
 .modal-note { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 18px; line-height: 1.5; }
-.modal-box input {
-  width: 100%;
-  font-family: var(--font-ui);
-  font-size: 0.9rem;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--paper);
-  color: var(--ink);
-  margin-bottom: 10px;
-  box-sizing: border-box;
-}
-.modal-error { font-family: var(--font-ui); font-size: 0.8rem; color: var(--seal); margin: 0 0 10px; }
-.modal-actions { display: flex; gap: 10px; margin-bottom: 14px; }
-.modal-actions .ghost-btn { flex: 1; text-align: center; }
-.modal-guest-btn {
+.modal-error { font-family: var(--font-ui); font-size: 0.8rem; color: var(--seal); margin: 0 0 14px; }
+.modal-google-btn {
   display: block;
   width: 100%;
   text-align: center;
-  background: var(--paper);
-  font-size: 0.78rem;
-  color: var(--ink-soft);
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+  font-weight: 600;
+  padding: 12px;
+  margin-bottom: 10px;
 }
+.modal-google-btn:hover { background: var(--indigo-deep); border-color: var(--indigo-deep); color: #fff; }
+.modal-close-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.modal-close-x:hover { color: var(--ink); }
 
 /* ---------- main / views ---------- */
 main {
