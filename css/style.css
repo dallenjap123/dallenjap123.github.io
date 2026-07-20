@@ -134,7 +134,14 @@ body {
 .modal-error { font-family: var(--font-ui); font-size: 0.8rem; color: var(--seal); margin: 0 0 10px; }
 .modal-actions { display: flex; gap: 10px; margin-bottom: 14px; }
 .modal-actions .ghost-btn { flex: 1; text-align: center; }
-.modal-box .text-link { display: block; text-align: center; width: 100%; }
+.modal-guest-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--paper);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
 
 /* ---------- main / views ---------- */
 main {
@@ -327,6 +334,8 @@ main {
   cursor: pointer;
 }
 .ghost-btn:hover { border-color: var(--indigo); color: var(--indigo-deep); }
+.ghost-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.ghost-btn:disabled:hover { border-color: var(--line); color: var(--ink); }
 .progress { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); min-width: 60px; text-align: center; }
 
 /* ---------- grammar ---------- */
