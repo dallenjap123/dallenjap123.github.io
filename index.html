@@ -290,16 +290,11 @@
 
   <div class="modal-overlay" id="sync-modal" hidden>
     <div class="modal-box">
+      <button class="modal-close-x" id="sync-close-x" aria-label="Close">×</button>
       <h3 data-i18n="syncModalTitle">Sync your progress</h3>
       <p class="modal-note" data-i18n="syncModalNote">Sign in to save your progress to the cloud and access it from any device.</p>
-      <input type="email" id="sync-email" data-i18n-placeholder="email" placeholder="email" autocomplete="email">
-      <input type="password" id="sync-password" data-i18n-placeholder="password" placeholder="password" autocomplete="current-password">
       <p class="modal-error" id="sync-error" hidden></p>
-      <div class="modal-actions">
-        <button id="sync-signin-btn" class="ghost-btn" data-i18n="signIn">Sign In</button>
-        <button id="sync-signup-btn" class="ghost-btn" data-i18n="signUp">Create Account</button>
-      </div>
-      <button id="sync-guest-btn" class="ghost-btn modal-guest-btn" data-i18n="continueAsGuest">Continue as guest (no account, nothing saved to the cloud)</button>
+      <button id="sync-google-btn" class="ghost-btn modal-google-btn" data-i18n="signInGoogle">Sign in with Google</button>
     </div>
   </div>
 
