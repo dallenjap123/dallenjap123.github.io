@@ -1,6 +1,6 @@
 # 日本語ノート — Japanese Study Site
 
-A static site with four tools:
+A static site with five tools:
 
 - **Flashcards** — vocab, filterable by JLPT level and lesson (multi-select),
   quizzable word→meaning or meaning→word, with a mastery queue (wrong
@@ -16,6 +16,14 @@ A static site with four tools:
   three Practice modes: **By form** (drill one form across 50 verbs),
   **By verb** (cycle one verb through all 8 forms in order), and
   **Sentences** (each form tested inside a real sentence).
+- **Exam** — Gemini-generated mock tests, scoped to whichever level/lessons
+  (or, for Conjugation, forms) you select. See "Exam tab (Gemini mock
+  tests)" below for how it works and how to set up your API key.
+
+The **Home** dashboard tracks *mastered* words per lesson (words you've
+gotten right twice in a row, most recently) — not just words you've
+attempted — so the progress bars reflect what you actually know, not what
+you've merely touched.
 
 Everything supports an **EN / 日本語 UI toggle** (top right) — translates
 navigation and progress messages only, not your study content.
@@ -31,6 +39,7 @@ css/
   style.css
 js/
   app.js
+  exam.js                         (Gemini mock-test tab — see below)
   sync.js                        (optional cloud sync — see below)
   firebase-config.js              (optional cloud sync — see below)
   data/
@@ -107,6 +116,62 @@ restricting Pages access to your org. If you want this genuinely private for
 free, the more reliable route is Cloudflare Pages + Cloudflare Zero Trust
 Access (free for up to 50 users), which puts a login in front of the whole
 site. Otherwise, an unlisted GitHub Pages URL is "private by obscurity" only.
+
+## Exam tab (Gemini mock tests)
+
+The Exam tab generates a mock test on demand from Google's Gemini API, using
+your own real vocab/grammar/conjugation data as the source content — so the
+test content matches whatever's in your `js/data/*.js` files.
+
+**How each exam type works:**
+
+- **Vocab** — pick a level and lesson(s), then generate a two-phase exam:
+  - *Phase 1* — multiple-choice, testing word/meaning recognition. Wrong
+    options are real words from your own vocab bank, chosen because they
+    look/sound similar to the target word or have an easily-confused
+    meaning (JLPT-style distractors) — Gemini only picks *which* real words
+    are confusable, it never invents a meaning. Needs **95%** to pass.
+  - *Phase 2* — open-ended: type the furigana (hiragana reading) for every
+    word in your selection, one at a time. Needs **100%** — a single
+    mistake fails the phase immediately and it restarts from the top
+    (reshuffled, no new Gemini call needed since this phase is just your
+    own verified reading data).
+  - Failing phase 1 regenerates a fresh set of questions via Gemini and
+    restarts that phase.
+- **Grammar** — pick a level and lesson(s); Gemini writes new fill-in-the-
+  blank and multiple-choice questions grounded in that pattern's real
+  meaning/usage/examples from `grammar-data.js`. Single phase, needs **80%**
+  to pass; failing regenerates a fresh set.
+- **Conjugation** — pick which forms to include (defaults to all); Gemini
+  wraps your hand-checked, verified conjugated forms
+  (`CONJUGATION_PRACTICE_VERBS`) into new example sentences and multiple-
+  choice distractors. The correct answer is always your own verified data,
+  never something Gemini generated — if Gemini's own options don't contain
+  the verified form character-for-character, the app silently replaces them
+  with safe distractors built from your own data instead. Single phase,
+  needs **80%** to pass; failing regenerates a fresh set.
+
+All three reuse the same self/auto-grading conventions as the rest of the
+app: multiple-choice is graded automatically, fill-in-the-blank is graded on
+your own honesty (reveal → "✓ knew it" / "✗ didn't know"), same as Grammar
+Practice.
+
+### Setting up your Gemini API key
+
+1. Get a free key from **[Google AI Studio](https://aistudio.google.com/app/apikey)**
+   (Google account required, no credit card).
+2. On the Exam tab, click **⚙ set Gemini API key**, paste it in, and Save.
+
+That key is saved **only in this browser's `localStorage`** — it is never
+committed to the repo, never written to any file, and never included in the
+optional cloud-sync snapshot described below (so signing in to sync on a
+different device does NOT bring your key with it — you'd set it again
+there). It's sent directly from your browser to Google's Gemini API only.
+Click **clear saved key** any time to remove it.
+
+**On cost:** Gemini's API has a free tier; generating one exam is a single
+request. If you hit a quota/rate-limit error, wait a bit and try again, or
+check your usage at [Google AI Studio](https://aistudio.google.com/).
 
 ## Optional: sync progress across devices
 
