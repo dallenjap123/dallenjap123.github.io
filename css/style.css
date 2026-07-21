@@ -487,10 +487,19 @@ main {
   font-family: var(--font-jp);
   font-size: clamp(1.15rem, 4vw, 1.5rem);
   color: var(--ink);
-  line-height: 1.7;
+  line-height: 2.4; /* extra room for furigana sitting above the kanji */
   margin: 6px 0;
 }
+.gp-sentence ruby { ruby-position: over; }
+.gp-sentence rt {
+  font-family: var(--font-ui);
+  font-size: 0.55em;
+  color: var(--ink-soft);
+  font-weight: 400;
+  user-select: none;
+}
 .gp-hint { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); font-style: italic; margin: 0; }
+.exam-audio-btn { margin: 4px 0; font-size: 0.8rem; padding: 6px 14px; }
 .gp-options { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; }
 .gp-option-btn {
   font-family: var(--font-jp);

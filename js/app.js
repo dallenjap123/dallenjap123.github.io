@@ -289,6 +289,19 @@
     return a;
   }
 
+  // ---------- pronunciation audio (Web Speech API — no key, no backend) ----------
+  function speakJapanese(text) {
+    if (!text || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
+    try {
+      window.speechSynthesis.cancel(); // don't stack up overlapping utterances
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ja-JP";
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      /* speech synthesis unavailable on this browser — silently skip */
+    }
+  }
+
   function renderFace(item) {
     const fc = state.flashcards;
     if (fc.direction === "word-meaning") {
@@ -519,6 +532,7 @@ resetProgressBtn.addEventListener("click", () => {
     cardEl.classList.toggle("flipped", fc.flipped);
     gradeButtonsEl.hidden = !fc.flipped;
     cardHintEl.hidden = fc.flipped;
+    speakJapanese(fc.current.reading || fc.current.word);
   });
 
   gradeWrongBtn.addEventListener("click", () => gradeCurrent(false));

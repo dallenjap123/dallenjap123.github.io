@@ -30,6 +30,45 @@
     return a;
   }
 
+  // ---------- furigana rendering ----------
+  // Gemini is asked to annotate every kanji run with bracket notation,
+  // e.g. "毎日[まいにち]". Escape the raw text FIRST (it's externally
+  // generated), then turn our own bracket syntax into <ruby> — so the only
+  // HTML ever inserted is markup we control, never anything from Gemini's
+  // own output.
+  const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
+  }
+  function furiganaToHtml(text) {
+    return escapeHtml(text).replace(/([一-龯々〆〇]+)\[([^\]<>]+)\]/g, "<ruby>$1<rt>$2</rt></ruby>");
+  }
+  function stripFuriganaBrackets(text) {
+    return String(text).replace(/\[[^\]]+\]/g, "");
+  }
+
+  // ---------- pronunciation audio (Web Speech API — no key, no backend) ----------
+  // Speaks the sentence but NOT the answer: splitting on the blank marker
+  // and queuing each half as its own utterance leaves a natural silent gap
+  // where the blank goes, since speechSynthesis plays queued utterances
+  // back to back with a brief pause between them.
+  function speakExamSentence(rawJp) {
+    if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
+    const clean = stripFuriganaBrackets(rawJp);
+    window.speechSynthesis.cancel();
+    clean.split("＿＿").forEach((part) => {
+      const trimmed = part.trim();
+      if (!trimmed) return;
+      try {
+        const utter = new SpeechSynthesisUtterance(trimmed);
+        utter.lang = "ja-JP";
+        window.speechSynthesis.speak(utter);
+      } catch (e) {
+        /* speech synthesis unavailable — silently skip */
+      }
+    });
+  }
+
   // ---------- Gemini API key (local-only — deliberately kept out of getSyncSnapshot) ----------
   const GEMINI_KEY_STORAGE = "jpstudy_gemini_key_v1";
   function getGeminiKey() {
@@ -170,6 +209,7 @@
     phaseTag: document.getElementById("exam-phase-tag"),
     tag: document.getElementById("exam-card-tag"),
     sentence: document.getElementById("exam-card-sentence"),
+    audioBtn: document.getElementById("exam-audio-btn"),
     hint: document.getElementById("exam-card-hint"),
     optionsWrap: document.getElementById("exam-card-options"),
     furiganaWrap: document.getElementById("exam-furigana-input"),
@@ -359,7 +399,9 @@
   let runnerCtx = null;
 
   function resetRunnerCardUI() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
     runnerEls.tag.hidden = true;
+    runnerEls.audioBtn.hidden = true;
     runnerEls.optionsWrap.hidden = true;
     runnerEls.optionsWrap.innerHTML = "";
     runnerEls.furiganaWrap.hidden = true;
@@ -395,7 +437,14 @@
     }
     const item = ctx.queue[ctx.index];
     runnerEls.tag.textContent = item.tag || "";
-    runnerEls.sentence.textContent = item.jp;
+    if (item.type === "furigana") {
+      // Plain text, no furigana rendering and no audio button — this phase
+      // IS the reading test, so nothing here can give the reading away.
+      runnerEls.sentence.textContent = item.jp;
+    } else {
+      runnerEls.sentence.innerHTML = furiganaToHtml(item.jp);
+      runnerEls.audioBtn.hidden = false;
+    }
     runnerEls.hint.textContent = item.en || "";
     if (item.type === "choice") {
       runnerEls.optionsWrap.hidden = false;
@@ -449,6 +498,12 @@
       e.preventDefault();
       handleFuriganaSubmit();
     }
+  });
+
+  runnerEls.audioBtn.addEventListener("click", () => {
+    const ctx = runnerCtx;
+    if (!ctx || ctx.index >= ctx.total) return;
+    speakExamSentence(ctx.queue[ctx.index].jp);
   });
 
   runnerEls.revealBtn.addEventListener("click", () => {
@@ -530,7 +585,7 @@
   // words looked up from the candidate pool below, never Gemini-authored
   // text — see buildVocabClozeQuestions.
   const CLOZE_DISTRACTOR_COUNT = 4; // 5 options total — this is meant to be a real mastery check, not a coin flip
-  async function requestVocabClozeData(words, pool) {
+  async function requestVocabClozeData(words, pool, level) {
     const targetList = words.map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`).join("\n");
     const poolList = cappedPool(pool, 500)
       .map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`)
@@ -543,9 +598,10 @@ ${targetList}
 CANDIDATE WORD POOL (one per line, "word|reading|meaning") — pick distractors ONLY from this exact list, copying the "word" field character-for-character:
 ${poolList}
 
-For EVERY target word, do two things:
-1. Write ONE natural, moderately complex Japanese example sentence (native-level, not a beginner textbook sentence) that uses the target word in a context that genuinely requires understanding its precise nuance to resolve — not just topic/category matching. Replace the target word itself with a blank marked "＿＿". Do not spell the target word out anywhere else in the sentence. Do not include an English translation.
-2. Choose exactly ${CLOZE_DISTRACTOR_COUNT} distractor words from the candidate pool (never the target word itself, never duplicated within one target's list). Make these as deceptive as possible: prioritize words that are the SAME part of speech and would be grammatically valid in that exact blank, and are near-synonyms or commonly confused with the target by learners (differ only in nuance, formality, collocation, or degree) — NOT words that are trivially wrong from grammar or topic alone. Avoid easy throwaway options; every distractor should require real knowledge of the target word to correctly rule out.
+For EVERY target word, do these things:
+1. Write ONE natural, moderately complex Japanese example sentence that uses the target word in a context that genuinely requires understanding its precise nuance to resolve — not just topic/category matching. Replace the target word itself with a blank marked "＿＿". Do not spell the target word out anywhere else in the sentence. Do not include an English translation.
+2. IMPORTANT — the difficulty must come ONLY from distinguishing the target word from its distractors, never from the surrounding sentence being hard to read or understand. So: keep every other word/grammar pattern in the sentence at or below JLPT ${level} level (this learner's current level) — no rare or advanced vocabulary outside the target word itself. And annotate EVERY run of kanji characters in the sentence (in both the sentence text and, separately, nowhere else) with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — for example "毎日[まいにち]の生活[せいかつ]". Do not put brackets around the blank marker "＿＿", and do not annotate kana-only words.
+3. Choose exactly ${CLOZE_DISTRACTOR_COUNT} distractor words from the candidate pool (never the target word itself, never duplicated within one target's list). Make these as deceptive as possible: prioritize words that are the SAME part of speech and would be grammatically valid in that exact blank, and are near-synonyms or commonly confused with the target by learners (differ only in nuance, formality, collocation, or degree) — NOT words that are trivially wrong from grammar or topic alone. Avoid easy throwaway options; every distractor should require real knowledge of the target word to correctly rule out.
 Return exactly one entry per target word, in the same order as the target list.`;
     const schema = {
       type: "array",
@@ -701,7 +757,7 @@ Return exactly one entry per target word, in the same order as the target list.`
     showPanel("loading");
     try {
       const pool = vocabWordPool();
-      const clozeMap = await requestVocabClozeData(words, pool);
+      const clozeMap = await requestVocabClozeData(words, pool, examState.vocab.level);
       const questions = buildVocabClozeQuestions(words, pool, clozeMap);
       if (!questions.length) throw { friendly: t("examErrEmpty") };
       runExam(shuffle(questions), {
@@ -730,7 +786,7 @@ Return exactly one entry per target word, in the same order as the target list.`
     return lessons.length ? items.filter((i) => lessons.includes(i.lesson)) : items;
   }
 
-  async function requestGrammarQuestions(patterns) {
+  async function requestGrammarQuestions(patterns, level) {
     const QUESTIONS_PER_PATTERN = 3;
     const bank = window.GRAMMAR_PRACTICE || {};
     const patternBlocks = patterns
@@ -750,7 +806,7 @@ ${patternBlocks}
 For EACH pattern above, write exactly ${QUESTIONS_PER_PATTERN} NEW practice questions (don't copy the style reference verbatim), mixing two types:
 - "fill": a Japanese sentence with a blank marked "＿＿", an English translation, and the exact text that fills the blank as "answer".
 - "choice": a Japanese sentence with a blank marked "＿＿", an English translation, exactly 4 short options, and the zero-based "correct" index of the right option.
-Only test the pattern given for each block; keep sentences natural and at the same difficulty as the reference examples. Set "pattern" to the exact pattern string given.`;
+Only test the pattern given for each block. Keep the vocabulary (everything other than the grammar pattern itself) at or below JLPT ${level} level so the sentence stays readable — the difficulty should come from the grammar pattern, not obscure words. In the "jp" field ONLY (never in "en" or "options"), annotate every run of kanji characters with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — e.g. "毎日[まいにち]の生活[せいかつ]". Do not bracket the blank marker "＿＿" or kana-only words. Set "pattern" to the exact pattern string given.`;
     const schema = {
       type: "array",
       items: {
@@ -799,7 +855,7 @@ Only test the pattern given for each block; keep sentences natural and at the sa
   async function runGrammarExam(patterns) {
     showPanel("loading");
     try {
-      const questions = await requestGrammarQuestions(patterns);
+      const questions = await requestGrammarQuestions(patterns, examState.grammar.level);
       if (!questions.length) throw { friendly: t("examErrEmpty") };
       runExam(shuffle(questions), {
         phaseTagText: t("examGrammarTag"),
@@ -852,7 +908,7 @@ Only test the pattern given for each block; keep sentences natural and at the sa
 
 ${lines}
 
-For EACH numbered item, write one natural Japanese example sentence using the verb's meaning in context, with a blank marked "＿＿" where the conjugated form (CORRECT_CONJUGATED_FORM) belongs, plus an English translation of the full sentence (with the blank filled in). Make roughly half the items type "choice" with exactly 4 options where one option is EXACTLY the given CORRECT_CONJUGATED_FORM and the other 3 are plausible-but-wrong conjugations of the SAME verb; the rest type "fill" with no options. Always return the item's "index" so answers can be matched back up.`;
+For EACH numbered item, write one natural Japanese example sentence using the verb's meaning in context, with a blank marked "＿＿" where the conjugated form (CORRECT_CONJUGATED_FORM) belongs, plus an English translation of the full sentence (with the blank filled in). Keep every word other than the verb itself simple and common (early-intermediate level) so the sentence stays easy to read — the difficulty should come from the conjugation, not obscure vocabulary. In the "jp" field ONLY (never in "en" or "options" — those must stay plain, unannotated text since "options" needs to exactly match real conjugated forms), annotate every run of kanji characters with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — e.g. "毎日[まいにち]は忙[いそが]しいです". Do not bracket the blank marker "＿＿" or kana-only words. Make roughly half the items type "choice" with exactly 4 options where one option is EXACTLY the given CORRECT_CONJUGATED_FORM and the other 3 are plausible-but-wrong conjugations of the SAME verb; the rest type "fill" with no options. Always return the item's "index" so answers can be matched back up.`;
     const schema = {
       type: "array",
       items: {
