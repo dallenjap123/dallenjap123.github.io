@@ -870,6 +870,361 @@ window.GRAMMAR_DATA = {
         { jp: "子どもがおそくまで帰ってこなくて、しんぱいさせられました。", en: "My child didn't come home until late, and I was made to worry." },
       ],
     },
+
+    // 26課 で・に
+    {
+      pattern: "で・に",
+      meaning: "で: location of an action, means/cause; に: location of existence, target of movement/action",
+      usage:
+        "に marks a fixed point: where something exists (人がいます／本があります), the time something happens (7時に起きます), or the goal/direction of a movement or action (学校に行きます／友達に電話します／先生に聞きます). で marks the place where an action takes place (図書館で勉強します), the means or tool used to do something (バスで行きます／ペンで書きます), the material something is made from (木で作った机), or the cause/reason behind a state (病気で休みました). A useful test: if the sentence describes something 'happening at/using X,' use で; if it describes 'existing at X' or 'heading toward/receiving from X,' use に.",
+      lesson: 26,
+      examples: [
+        { jp: "公園に子供たちがいます。", en: "There are children in the park." },
+        { jp: "公園で子供たちが遊んでいます。", en: "Children are playing in the park." },
+        { jp: "毎朝7時に起きます。", en: "I get up at 7 every morning." },
+        { jp: "友達に手紙を書きました。", en: "I wrote a letter to my friend." },
+        { jp: "電車で会社に行きます。", en: "I go to work by train." },
+        { jp: "風邪で学校を休みました。", en: "I was absent from school because of a cold." },
+      ],
+    },
+
+    // 27課 を・と
+    {
+      pattern: "を・と",
+      meaning: "を: direct object / a place passed through or left; と: a quotation, 'together with', or a reciprocal partner",
+      usage:
+        "を most commonly marks the direct object of a transitive verb (パンを食べます). It's also used with certain intransitive motion verbs to mark the space or point being passed through or left (公園を散歩する、道を渡る、電車を降りる). と marks the content of a quotation or thought before verbs like 言う／思う／書く (「行きます」と言いました), and it also marks a companion for actions that inherently involve two people, i.e. reciprocal verbs such as 会う, 話す, 相談する, 結婚する (友達と話す、彼女と結婚する) — with these verbs, using に instead of と would be a mistake, since the action is mutual rather than one-directional.",
+      lesson: 27,
+      examples: [
+        { jp: "毎朝、公園を散歩します。", en: "I take a walk through the park every morning." },
+        { jp: "次の駅で電車を降ります。", en: "I'll get off the train at the next station." },
+        { jp: "「明日は休みます」と部長に言いました。", en: "I told the manager, \"I'll be off tomorrow.\"" },
+        { jp: "週末、友達と映画を見に行きます。", en: "I'm going to see a movie with a friend this weekend." },
+        { jp: "田中さんと結婚することにしました。", en: "I decided to marry Tanaka." },
+      ],
+    },
+
+    // 28課 も・しか
+    {
+      pattern: "も・しか",
+      meaning: "も: also / even / as much as (emphasizes a large or surprising amount); しか〜ない: only ~ (emphasizes a small amount; requires a negative verb)",
+      usage:
+        "も after a number or quantity emphasizes that the amount is large or surprising (三時間も待ちました – I waited as long as three hours). しか always requires a negative verb at the end of the sentence, and stresses that the amount is small or insufficient (三時間しかありません – there are only three hours). Both can replace が／を／は after a noun, but neither ever appears together with を or が. A common mistake is forgetting the negative verb with しか, or reaching for しか when an emphatic large-quantity nuance (も) was actually intended.",
+      lesson: 28,
+      examples: [
+        { jp: "このケーキ、一つ食べてもいいですか。", en: "May I eat one of these cakes, too?" },
+        { jp: "宿題がまだ半分もできていません。", en: "I haven't even finished half of my homework yet." },
+        { jp: "財布に千円しかありません。", en: "I only have 1000 yen in my wallet." },
+        { jp: "この問題が分かる人はクラスに一人しかいません。", en: "There's only one person in the class who understands this problem." },
+        { jp: "三日間しか休みがありませんでした。", en: "I only had three days off." },
+      ],
+    },
+
+    // 29課 だけ・でも
+    {
+      pattern: "だけ・でも",
+      meaning: "だけ: only, just (a plain, factual limitation); でも: even ~ / ~ or something (a soft suggestion or an extreme example)",
+      usage:
+        "だけ narrows something down to an exact, factual limit — 'nothing more than this' — and unlike しか it does NOT require a negative verb (三日だけ休みました – I only took three days off, stated as a neutral fact). でも has two common uses: attached to a noun to offer a mild example among other options, often to soften a suggestion (お茶でも飲みませんか – Would you like some tea or something?), and attached to an extreme example to mean 'even' (子供でもできます – Even a child can do this). Because だけ is neutral/factual while でも(example) is a soft, non-committal suggestion, swapping them can noticeably change the tone of a sentence.",
+      lesson: 29,
+      examples: [
+        { jp: "会議には田中さんだけ来ませんでした。", en: "Only Tanaka didn't come to the meeting." },
+        { jp: "少しだけ休ませてください。", en: "Please let me rest just a little." },
+        { jp: "疲れたでしょう。コーヒーでも飲みませんか。", en: "You must be tired. Won't you have some coffee or something?" },
+        { jp: "この漢字は簡単なので、子供でも読めます。", en: "This kanji is easy, so even a child can read it." },
+        { jp: "分からないことがあったら、いつでも聞いてください。", en: "If there's something you don't understand, please ask anytime." },
+      ],
+    },
+
+    // 30課 は・が
+    {
+      pattern: "は・が",
+      meaning: "は: marks the topic of the sentence (what's being talked about); が: marks the grammatical subject (new/specific information, or with certain verbs/adjectives of state)",
+      usage:
+        "は introduces what the rest of the sentence is about, often something already known to speaker and listener, and is also used to set up a contrast (象は鼻が長いです – as for elephants, their trunks are long). が is used when introducing new information for the first time — especially in answer to a 'who/what' question — or when the subject itself is the focus of emphasis (だれが来ましたか。田中さんが来ました — 'Who came?' 'TANAKA came' — the answer must use が because 田中さん is the new, emphasized information). が is also required with certain adjectives and verbs of feeling, ability, and existence, such as 好き, ほしい, 分かる, できる, ある／いる (わたしはコーヒーが好きです). Word order can help decide: if the question asks 'what is X?', X gets は; if it asks 'what/who is doing the action?', the answer gets が.",
+      lesson: 30,
+      examples: [
+        { jp: "わたしは学生です。", en: "As for me, I'm a student." },
+        { jp: "だれが窓を割りましたか。ケンさんが割りました。", en: "\"Who broke the window?\" \"Ken did.\"" },
+        { jp: "象は鼻が長いです。", en: "Elephants have long trunks." },
+        { jp: "わたしは日本語が分かります。", en: "I understand Japanese." },
+        { jp: "部屋に猫がいます。", en: "There's a cat in the room." },
+        { jp: "今日は天気がいいですね。", en: "The weather's nice today, isn't it." },
+      ],
+    },
+
+    // 31課 の・こと
+    {
+      pattern: "の・こと",
+      meaning: "の / こと: turns a plain-form verb or clause into a noun phrase ('the act of ~ing' / 'the fact that ~')",
+      usage:
+        "Both の and こと can attach to a plain-form clause to make it function as a noun, but they aren't always interchangeable. の is preferred when the nominalized clause is the direct object of a perception verb — something seen or heard directly, like 見る, 聞く, 手伝う (子供が歌っているのを見ました – I watched the child singing). こと is preferred with verbs of speech, thought, and communication — 言う, 思う, 伝える, 説明する — and is required (の cannot be used) before ができる meaning ability, and when stating a fact or a general rule/piece of advice (毎日運動することは体にいいです reads naturally as a general rule). As a rough guideline: use の for something concretely observed with the senses in the moment; use こと for something abstract, reported secondhand, or a general ability/rule.",
+      lesson: 31,
+      examples: [
+        { jp: "電車が来るのを待っています。", en: "I'm waiting for the train to come." },
+        { jp: "子供が公園で遊んでいるのを見ました。", en: "I saw the children playing in the park." },
+        { jp: "彼が引っ越したことを知りませんでした。", en: "I didn't know that he had moved." },
+        { jp: "わたしの趣味は写真をとることです。", en: "My hobby is taking photos." },
+        { jp: "漢字を読むことができますか。", en: "Can you read kanji?" },
+        { jp: "毎日運動することは体にいいです。", en: "Exercising every day is good for your health." },
+      ],
+    },
+
+    // 32課 て…・ないで…
+    {
+      pattern: "〜て…・〜ないで…",
+      meaning: "〜て…: and then ~ / by ~ing (sequential action or accompanying manner); 〜ないで…: without ~ing / instead of ~ing",
+      usage:
+        "The て form links two actions that both happen — either one after another (朝起きて、顔を洗います – I get up, then wash my face), or simultaneously as the manner of the second action (電気をつけて勉強します – I study with the light on). 〜ないで attaches to a verb's nai-stem and means the second action happens in the ABSENCE of the first — either 'without doing A' (電気をつけないで勉強します – I study without turning on the light) or, with a pair of mutually exclusive actions, 'B instead of A' (朝ごはんを食べないで、学校に行きました – I went to school without eating breakfast / instead of eating breakfast). A common confusion is with 〜なくて, which gives a REASON for the second clause rather than describing how the second action was carried out — 〜ないで describes an accompanying manner or absence, while 〜なくて explains a cause.",
+      lesson: 32,
+      examples: [
+        { jp: "朝、シャワーを浴びて、会社に行きます。", en: "In the morning, I take a shower and then go to work." },
+        { jp: "傘をささないで、雨の中を歩きました。", en: "I walked in the rain without opening an umbrella." },
+        { jp: "昨日は疲れていたので、晩ご飯を食べないで寝てしまいました。", en: "I was tired yesterday, so I went to sleep without eating dinner." },
+        { jp: "砂糖を入れないで、コーヒーを飲みます。", en: "I drink my coffee without sugar." },
+      ],
+    },
+
+    // 33課 他動詞・自動詞
+    {
+      pattern: "他動詞・自動詞",
+      meaning: "他動詞 (transitive verbs) take a direct object marked by を and focus on an agent's deliberate action; 自動詞 (intransitive verbs) have no direct object (the thing affected is marked by が) and focus on the resulting state or a spontaneous occurrence",
+      usage:
+        "Many Japanese verbs come in transitive/intransitive pairs describing the same change of state from two different angles. The transitive pattern is [agent]は／が＋[object]を＋[transitive verb], and it focuses on who did the action to the object — 動作主の行為に注目する (わたしは火をけしました – I put out the fire). The intransitive pattern is [thing]が＋[intransitive verb], and it focuses only on the change happening to the thing itself, with no agent mentioned — 物の動きに注目する (火がきえました – the fire went out). Many common verb pairs follow this pattern: 電気をつける／電気がつく (turn on / come on), かぎをしめる／かぎがしまる (lock / be locked), ごみをおとす／ごみがおちる (drop / fall), いすをならべる／いすがならぶ (arrange / be arranged), 仕事を見つける／仕事が見つかる (find / be found), 話をつづける／話がつづく (continue / go on), ねだんを上げる／ねだんが上がる (raise / rise), ねだんを下げる／ねだんが下がる (lower / go down), えだをおる／えだがおれる (break / get broken), 家をこわす／家がこわれる (demolish / collapse), 子どもを起こす／子どもが起きる (wake someone / wake up), パンをやく／パンがやける (bake / get baked), 車を止める／車が止まる (stop a car / come to a stop), じゅぎょうを始める／じゅぎょうが始まる (start a class / begin), ねこを家に入れる／ねこが家に入る (let the cat in / the cat goes in), きっぷをなくす／きっぷがなくなる (lose a ticket / a ticket goes missing), 自転車をなおす／自転車がなおる (repair a bike / a bike gets fixed), 病気をなおす／病気がなおる (cure an illness / an illness gets cured), 名前をかえる／名前がかわる (change a name / a name changes), へやをあたたかくする／へやがあたたかくなる (make a room warm / a room becomes warm). Because the transitive verb always implies an agent's deliberate action while the intransitive verb describes a spontaneous or natural-seeming change, choosing the wrong one — 車のドアが開きました (the car door opened, by itself) vs わたしが車のドアを開けました (I opened the car door) — changes whether responsibility or intention is implied.",
+      lesson: 33,
+      examples: [
+        { jp: "暑いので、まどを開けます。", en: "It's hot, so I'll open the window." },
+        { jp: "車のドアが急に開きました。", en: "The car door suddenly opened." },
+        { jp: "へやにいた虫を外に出しました。", en: "I put the bug that was in the room outside." },
+        { jp: "学生は後ろのドアから出ます。", en: "Students go out through the back door." },
+        { jp: "トムは古いおもちゃを集めています。", en: "Tom is collecting old toys." },
+        { jp: "みんなが集まって、旅行のそうだんをします。", en: "Everyone gathers and discusses the trip." },
+      ],
+    },
+
+    // 34課 ています・てあります
+    {
+      pattern: "〜ています・〜てあります",
+      meaning: "自動詞＋ている: the resulting state of something, with no focus on who caused it; 他動詞＋てある: the resulting state of something someone deliberately did or prepared, with a purpose in mind",
+      usage:
+        "〜ている after an intransitive verb describes a state that resulted from a change, without mentioning or caring about an agent — まどが開いています simply reports 'the window is open' as an observed fact. 〜てある after a transitive verb describes a state that was created ON PURPOSE by somebody, for some purpose, and the affected thing is still marked with が (or sometimes は) rather than を — まどが開けてあります means 'the window has been opened [and left that way deliberately, e.g. for ventilation]', implying someone's intentional action and the resulting purposeful state. Because 〜てある always implies deliberate preparation, it's frequently used to describe things set up in advance, like table settings, decorations, or prepared documents (資料はもう準備してあります – The materials have already been prepared).",
+      lesson: 34,
+      examples: [
+        { jp: "まどが開いています。", en: "The window is open." },
+        { jp: "暑いので、まどが開けてあります。", en: "It's hot, so the window has been left open on purpose." },
+        { jp: "かべにきれいな絵がかかっています。", en: "There's a beautiful picture hanging on the wall." },
+        { jp: "パーティーのために、かべに絵がかけてあります。", en: "A picture has been hung on the wall for the party." },
+        { jp: "電気が消えています。", en: "The light is off." },
+        { jp: "会議室にお茶が用意してあります。", en: "Tea has been prepared in the meeting room." },
+      ],
+    },
+
+    // 35課 てきます・ていきます
+    {
+      pattern: "〜てきます・〜ていきます",
+      meaning: "〜てきます: an action/change moves toward the present moment or the speaker's location/viewpoint; 〜ていきます: an action/change moves away from the present moment or the speaker's location/viewpoint, into the future",
+      usage:
+        "Attached to a motion verb, 行ってきます／帰ってきます describe going somewhere and RETURNING to the speaker's base (行ってきます – I'll go, and come back), while 出ていきます describes leaving and moving away, without returning to that reference point. Attached to a verb describing gradual change, 〜てきます frames the change as having been approaching or building up to NOW, from the past up to the present (だんだん寒くなってきました – it's been gradually getting cold, and now it is), while 〜ていきます frames the change as continuing onward FROM now into the future (これから寒くなっていくでしょう – from now on, it will likely keep getting colder). A simple way to remember it: 来る＝come (toward here/now), 行く＝go (away from here/now) — てくる pulls the action toward the present/here, ていく pushes it away toward there/later.",
+      lesson: 35,
+      examples: [
+        { jp: "ちょっとコンビニに行ってきます。", en: "I'm just going to the convenience store, and I'll be back." },
+        { jp: "雨がだんだん強くなってきました。", en: "The rain has been gradually getting stronger." },
+        { jp: "これから日本語をもっと勉強していきたいです。", en: "From now on, I want to keep studying Japanese more." },
+        { jp: "子どもたちは元気に育っていくでしょう。", en: "The children will likely keep growing up healthy." },
+        { jp: "財布を忘れたので、家に取りに帰ってきます。", en: "I forgot my wallet, so I'll go home to get it and come back." },
+        { jp: "空が明るくなってきました。", en: "The sky has been getting brighter." },
+      ],
+    },
+
+    // 36課 こ・そ・あ
+    {
+      pattern: "こ・そ・あ",
+      meaning: "こ〜: near the speaker; そ〜: near the listener, or something already mentioned; あ〜: far from both speaker and listener, or something both already know about",
+      usage:
+        "The こ／そ／あ／ど series builds a full set of demonstrative words depending on the part of speech needed: これ／それ／あれ／どれ (this/that/that over there/which one — a noun, standing alone), この／その／あの／どの (this/that/that/which — modifying a noun directly, この本), ここ／そこ／あそこ／どこ (here/there/over there/where — places), こちら／そちら／あちら／どちら (this way/that way/that way/which way — a politer form for direction, place, or person), こう／そう／ああ／どう (like this/like that/like that/how — manner). こ〜 is used for something physically near the speaker, そ〜 for something near the listener OR something the listener just mentioned in conversation, and あ〜 for something far from both speakers, or — importantly — something BOTH speakers already know about or remember, even if it isn't physically present (あの映画、おもしろかったね – that movie [we both saw] was interesting, wasn't it). そ〜 is also the default choice for referring back to something the other person just said that you don't have direct knowledge of yourself.",
+      lesson: 36,
+      examples: [
+        { jp: "これはわたしのかさです。", en: "This is my umbrella." },
+        { jp: "そのシャツ、どこで買いましたか。", en: "Where did you buy that shirt you're wearing?" },
+        { jp: "あそこに大きい木がありますね。", en: "There's a big tree over there, isn't there." },
+        { jp: "A「新しいレストランができたんですよ。」B「そうですか。今度行ってみましょう。」", en: "A: \"A new restaurant opened.\" B: \"Is that so? Let's try going sometime.\"" },
+        { jp: "あの映画、二人で見に行ったの覚えてる？", en: "Do you remember that movie we went to see together?" },
+        { jp: "どちらのバッグにしますか。", en: "Which bag will you choose?" },
+      ],
+    },
+
+    // 37課 接続の言葉
+    {
+      pattern: "ですから・だから",
+      meaning: "so, therefore (draws a conclusion, judgment, or call to action from what was just said)",
+      usage:
+        "Introduces a conclusion — a fact, judgment, or piece of advice/inducement — that follows logically from the preceding statement. ですから is the more polite/formal form; だから is casual.",
+      lesson: 37,
+      examples: [
+        { jp: "これは一つ100円です。ですから、三つで300円です。", en: "This is 100 yen each. So three of them is 300 yen." },
+        { jp: "もう夜8時だ。だから、教室にはだれもいないと思う。", en: "It's already 8pm. So I think no one's in the classroom." },
+        { jp: "ここは人がよく通るんだ。だから、ここに物をおかないで。", en: "People often pass through here. So don't leave things here." },
+      ],
+    },
+    {
+      pattern: "それで",
+      meaning: "so, because of that (draws a conclusion specifically from a factual statement)",
+      usage:
+        "Similar to ですから／だから, but それで specifically connects a factual circumstance to its natural consequence, rather than a judgment or command — it isn't used to introduce a request or invitation.",
+      lesson: 37,
+      examples: [
+        { jp: "小さい字が見えなくなりました。それで、新しいめがねを買いました。", en: "I could no longer see small print. So I bought new glasses." },
+        { jp: "会社が遠い。それで、毎朝早く家を出る。", en: "The office is far. So I leave home early every morning." },
+      ],
+    },
+    {
+      pattern: "けれど(も)",
+      meaning: "but, although (introduces something that contrasts with or opposes the preceding statement)",
+      usage:
+        "Used when the following statement contrasts with, or stands in opposition to, the preceding one — similar to でも／しかし, but commonly used to link within or between sentences in conversation. けれども is slightly more formal than けれど.",
+      lesson: 37,
+      examples: [
+        { jp: "とてもがんばりました。けれども、いいてんはとれませんでした。", en: "I tried very hard. But I couldn't get a good grade." },
+        { jp: "このカメラはいい。けれど、少し重い。", en: "This camera is good. But it's a little heavy." },
+      ],
+    },
+    {
+      pattern: "それに",
+      meaning: "moreover, on top of that (adds another point that reinforces what was just said)",
+      usage:
+        "Expands on or adds to the content of the preceding statement — used when the added information supports or reinforces the same point, unlike けれど, which contrasts.",
+      lesson: 37,
+      examples: [
+        { jp: "バナナはおいしいです。それに、安いです。", en: "Bananas are tasty. What's more, they're cheap." },
+        { jp: "雨がふっているし、それに、風もある。", en: "It's raining, and on top of that, it's windy too." },
+      ],
+    },
+    {
+      pattern: "たとえば",
+      meaning: "for example (introduces a specific example of something just mentioned)",
+      usage: "Introduces a concrete example that illustrates the word or statement just made.",
+      lesson: 37,
+      examples: [
+        { jp: "日本のスポーツ、たとえば、じゅうどうをやってみたいです。", en: "I'd like to try a Japanese sport — judo, for example." },
+        { jp: "山田さんはいつもおそく帰る。たとえば、きのうは11時に帰った。", en: "Yamada always comes home late. For example, yesterday he came home at 11." },
+      ],
+    },
+    {
+      pattern: "(それ)では・じゃ",
+      meaning: "well then, in that case (reacts to the preceding statement by moving things forward)",
+      usage:
+        "Introduces a reaction to what was just said — the English equivalent is roughly 'in that case' or 'well then' — and the reaction can be an inference, a call to action, or an intention on the part of the speaker. じゃ is the casual, spoken-language contraction of それでは.",
+      lesson: 37,
+      examples: [
+        { jp: "トム「ぼくは兄がいます。」先生「じゃ、二人兄弟ですね。」", en: "Tom: \"I have an older brother.\" Teacher: \"Well then, there are two of you siblings.\"" },
+        { jp: "じゅんびはできましたか。それでは、始めましょう。", en: "Are you ready? Well then, let's begin." },
+        { jp: "えっ？サラはパーティーに来ない？じゃ、ぼくもやめようかな。", en: "Huh? Sara's not coming to the party? Well then, maybe I'll skip it too." },
+      ],
+    },
+
+    // 38課 副詞
+    {
+      pattern: "まだ・もう",
+      meaning: "まだ: still / not yet; もう: already",
+      usage:
+        "もう indicates that a state has been reached or a process has been completed. まだ indicates that a state has not yet been reached, or a process is not yet complete. もう is also used with '1 + counter suffix' or もう少し to mean 'a little more,' adding a further amount on top of what's already there.",
+      lesson: 38,
+      examples: [
+        { jp: "トム「昼ご飯はもう食べた？」サラ「ううん、まだ食べていない。」", en: "Tom: \"Have you already eaten lunch?\" Sara: \"No, not yet.\"" },
+        { jp: "トム「銀行はまだ開いていますか。」山田「4時だから、もうしまっていますよ。」", en: "Tom: \"Is the bank still open?\" Yamada: \"It's 4 o'clock, so it's already closed.\"" },
+        { jp: "これ、おいしい。もう一つ食べてもいい？", en: "This is delicious. Can I have one more?" },
+        { jp: "スープにもう少ししおを入れてください。", en: "Please add a little more salt to the soup." },
+      ],
+    },
+    {
+      pattern: "なかなか・やっと・とうとう",
+      meaning: "なかなか〜ない: not easily, not readily; やっと: finally, at last (after difficulty); とうとう: finally, in the end (after a long time)",
+      usage:
+        "なかなか, paired with a negative verb, suggests that something is or was difficult to realize or achieve. やっと〜た suggests that something was completed only after a long time and with difficulty, equivalent to 'at last' in English. とうとう〜た／なかった, equivalent to 'in the end' in English, indicates that something finally happened, or finally failed to happen, after a long wait.",
+      lesson: 38,
+      examples: [
+        { jp: "バスがなかなか来ません。", en: "The bus just won't come." },
+        { jp: "やっと仕事が終わりました。", en: "I finally finished the work, after a struggle." },
+        { jp: "テレビがとうとうこわれてしまった。", en: "The TV finally broke down, after a long time." },
+      ],
+    },
+    {
+      pattern: "かならず・きっと・ぜひ",
+      meaning: "かならず: without exception, definitely; きっと: surely, probably; ぜひ: by all means, please (a strong wish or request)",
+      usage:
+        "かならず expresses that something is without exception — a strong determination, or something asked of the listener with strong conviction. きっと has slightly less conviction than かならず, and expresses the speaker's own intention or a fairly strong prediction/inducement toward the listener. ぜひ expresses a strong wish or hope, most often used when inviting someone or requesting something enthusiastically.",
+      lesson: 38,
+      examples: [
+        { jp: "わたしはご飯の後で、かならずはをみがいている。", en: "I always brush my teeth without fail after meals." },
+        { jp: "あしたの試合はかならずかつぞ！", en: "We will definitely win tomorrow's match!" },
+        { jp: "今度のテストではきっといいてんがとれるでしょう。", en: "You'll surely get a good grade on the next test." },
+        { jp: "トム「ぜひわたしの国へあそびに来てください。」山田「ええ、ぜひ行きたいです。」", en: "Tom: \"Please, by all means, come visit my country.\" Yamada: \"Yes, I'd love to go.\"" },
+      ],
+    },
+
+    // 39課 すぎます・にくいです・やすいです
+    {
+      pattern: "〜すぎます・〜にくいです・〜やすいです",
+      meaning: "〜すぎる: too much ~ (excessive); 〜にくい: hard to ~; 〜やすい: easy to ~",
+      usage:
+        "All three attach to a verb's ます-stem and describe qualities of an action. 〜すぎる means the action or state goes beyond an appropriate or comfortable degree — 食べすぎる (to eat too much), 高すぎる (too expensive) — and conjugates as a regular る-verb (食べすぎました). 〜にくい means the action is physically or practically hard/awkward to perform — 読みにくい字 (handwriting that's hard to read) — and conjugates as an i-adjective. 〜やすい is the opposite, meaning the action is easy or comfortable to perform — 分かりやすい説明 (an explanation that's easy to understand) — and also conjugates as an i-adjective. These describe an inherent property of the thing/action, distinct from できる (ability) — a book can be 読みやすい (easy to read) regardless of whether a particular person is currently able to read it.",
+      lesson: 39,
+      examples: [
+        { jp: "昨日の夜、食べすぎて、おなかが痛いです。", en: "I ate too much last night, and my stomach hurts." },
+        { jp: "この漢字は画数が多くて、覚えにくいです。", en: "This kanji has a lot of strokes, so it's hard to remember." },
+        { jp: "この靴は軽くて、歩きやすいです。", en: "These shoes are light and easy to walk in." },
+        { jp: "話しすぎて、のどが痛くなりました。", en: "I talked too much, and my throat started to hurt." },
+        { jp: "先生の説明はいつも分かりやすいです。", en: "The teacher's explanations are always easy to understand." },
+        { jp: "この道は暗くて、夜は歩きにくいです。", en: "This road is dark, so it's hard to walk at night." },
+      ],
+    },
+
+    // 40課 品詞
+    {
+      pattern: "名詞⇔動詞",
+      meaning: "verbs can be treated as nouns in a limited range of cases, dropping the conjugated ending and taking particles like の instead",
+      usage:
+        "Verbs (動詞) are sometimes used as nouns (名詞), but only in a habitually limited set of cases — 習慣的に限られた動詞だけ. For example, 山にのぼります (to climb a mountain) can become 山のぼり (mountain-climbing) as a noun, dropping the conjugated ending and taking の instead of に. Suru-verbs like 料理する／そうじする are already nouns at their core (料理, そうじ) — 料理 itself is a noun, and する simply verb-ifies it.",
+      lesson: 40,
+      examples: [
+        { jp: "料理は好きですが、そうじは好きではありません。", en: "I like cooking, but I don't like cleaning. (⇔料理します、そうじします)" },
+        { jp: "帰りのきっぷはもう買いました。", en: "I've already bought the return ticket. (⇔帰ります)" },
+        { jp: "山のぼりは楽しいですよ。", en: "Mountain climbing is fun. (⇔山にのぼります)" },
+      ],
+    },
+    {
+      pattern: "名詞⇔形容詞",
+      meaning: "adding さ to an i-adjective or na-adjective stem turns it into a noun expressing the degree of that quality",
+      usage:
+        "Adding さ to an い-adjective (dropping the final い) turns it into a noun representing the measurable degree of that quality — 高い→高さ (height/tallness), with the exception いい→よさ. Adding さ to a な-adjective stem works the same way — べんりな→べんりさ (convenience).",
+      lesson: 40,
+      examples: [
+        { jp: "東京スカイツリーの高さは634メートルです。", en: "The height of the Tokyo Skytree is 634 meters. (⇔高い)" },
+        { jp: "場所のべんりさを考えて、ホテルをえらびます。", en: "I'll choose the hotel considering the convenience of the location. (⇔べんりな)" },
+      ],
+    },
+    {
+      pattern: "副詞⇔形容詞",
+      meaning: "adding く to an i-adjective stem, or に to a na-adjective, turns it into an adverb",
+      usage:
+        "Adding く to an い-adjective (dropping the final い) turns it into an adverb describing how a verb is done — 楽しい→楽しく (in a fun/enjoyable way), with the exception いい→よく. Adding に to a な-adjective does the same job — きれいな→きれいに (in a neat/tidy way).",
+      lesson: 40,
+      examples: [
+        { jp: "みんなで楽しく話しましょう。", en: "Let's all chat happily together. (⇔楽しい)" },
+        { jp: "手をきれいにあらってください。", en: "Please wash your hands thoroughly. (⇔きれいな)" },
+      ],
+    },
+    {
+      pattern: "名詞⇔文",
+      meaning: "adding の or こと to a plain-form statement turns the whole clause into a noun phrase",
+      usage:
+        "A plain-form statement (普通形) followed by の or こと becomes a noun phrase that can be used as the subject or object of a larger sentence — see 31課（の・こと）for when each of the two is preferred.",
+      lesson: 40,
+      examples: [
+        { jp: "友だちと話すの/ことは楽しいです。", en: "Talking with friends is fun. (⇔友だちと話す)" },
+        { jp: "トムさんと会うやくそくをしたの/ことをわすれていました。", en: "I had forgotten that I'd made a promise to meet Tom. (⇔会うやくそくをした)" },
+      ],
+    },
   ],
   N3: [
   ],
