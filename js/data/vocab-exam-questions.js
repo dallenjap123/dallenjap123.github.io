@@ -524,6 +524,83 @@ window.VOCAB_EXAM_QUESTIONS = {
       { type: "kanji", sentence: "「＿＿します。」と言[い]って部屋[へや]に入[はい]りました。", distractors: ["無礼", "お礼", "敬礼"] },
       { type: "usage", sentence: "「失礼」の正しい使い方はどれですか。", answer: "お先に失礼します。", distractors: ["お先に失礼です。", "お先に失礼をします。", "お先に失礼くします。"] },
       { type: "collocation", sentence: "話[はなし]の途中[とちゅう]ですが、お先[さき]に＿＿します。", answer: "失礼", distractors: ["すみません", "ごめん", "どうも"] }
+    ],
+
+    // ---------- 8課 町① ----------
+    "建物": [
+      { type: "kanji", sentence: "駅前[えきまえ]の高[たか]い＿＿は何[なん]ですか。", distractors: ["建築", "建設", "荷物"] },
+      { type: "usage", sentence: "「建物」の正しい使い方はどれですか。", answer: "あの建物は何ですか。", distractors: ["あの建物が何ですか、あれは。", "あの建物を何ですか。", "あの建物は何でございましたか、あれ。"] },
+      { type: "particle", sentence: "あの建物[たてもの]＿＿何[なん]ですか。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "交差点": [
+      { type: "kanji", sentence: "あの＿＿を右[みぎ]に曲[ま]がってください。", distractors: ["交番", "交通", "横断歩道"] },
+      { type: "usage", sentence: "「交差点」の正しい使い方はどれですか。", answer: "その交差点を右に曲がってください。", distractors: ["その交差点で右に曲がってください。", "その交差点が右に曲がってください。", "その交差点に右へ曲がられてください。"] },
+      { type: "particle", sentence: "交差点[こうさてん]＿＿右[みぎ]に曲[ま]がってください。", answer: "を", distractors: ["に", "で", "が"] }
+    ],
+    "駐車場": [
+      { type: "kanji", sentence: "この建物[たてもの]の＿＿は地下[ちか]にあります。", distractors: ["駐輪場", "売り場", "会場"] },
+      { type: "usage", sentence: "「駐車場」の正しい使い方はどれですか。", answer: "車を駐車場に止めました。", distractors: ["車を駐車場を止めました。", "車は駐車場が止めました。", "車を駐車場で止められました、私は。"] },
+      { type: "particle", sentence: "駐車場[ちゅうしゃじょう]＿＿車[くるま]を止[と]めました。", answer: "に", distractors: ["で", "を", "が"] }
+    ],
+    "角": [
+      { type: "kanji", sentence: "あの＿＿を左[ひだり]に曲[ま]がってください。", distractors: ["隅", "端", "横"] },
+      { type: "usage", sentence: "「角」の正しい使い方はどれですか。", answer: "次の角を左に曲がってください。", distractors: ["次の角で左に曲がってください。", "次の角が左に曲がってください。", "次の角に左へ曲がられてください。"] },
+      { type: "particle", sentence: "角[かど]＿＿左[ひだり]に曲[ま]がってください。", answer: "を", distractors: ["に", "で", "が"] }
+    ],
+    "(お)寺": [
+      { type: "kanji", sentence: "京都[きょうと]には有名[ゆうめい]な＿＿がたくさんあります。", distractors: ["神社", "教会", "仏像"] },
+      { type: "usage", sentence: "「(お)寺」の正しい使い方はどれですか。", answer: "京都には有名なお寺がたくさんあります。", distractors: ["京都には有名なお寺をたくさんあります。", "京都には有名なお寺がたくさんいます。", "京都は有名なお寺がたくさんありました、昔から。"] },
+      { type: "particle", sentence: "京都[きょうと]には有名[ゆうめい]な(お)寺[てら]＿＿たくさんあります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "歯医者": [
+      { type: "kanji", sentence: "歯[は]が痛[いた]いので、＿＿に行[い]きました。", distractors: ["医者", "看護師", "薬剤師"] },
+      { type: "usage", sentence: "「歯医者」の正しい使い方はどれですか。", answer: "歯が痛いので、歯医者に行きました。", distractors: ["歯が痛いので、歯医者を行きました。", "歯が痛いので、歯医者が行きました。", "歯が痛いので、歯医者で行かれました、私は。"] },
+      { type: "particle", sentence: "歯医者[はいしゃ]＿＿歯[は]を見[み]てもらいました。", answer: "に", distractors: ["で", "を", "が"] }
+    ],
+    "県": [
+      { type: "kanji", sentence: "これはどこの＿＿の名産[めいさん]ですか。", distractors: ["市", "都", "州"] },
+      { type: "usage", sentence: "「県」の正しい使い方はどれですか。", answer: "私は静岡県に住んでいます。", distractors: ["私は静岡県を住んでいます。", "私は静岡県が住んでいます。", "私は静岡県で住まれています。"] },
+      { type: "particle", sentence: "私[わたし]は静岡県[しずおかけん]＿＿住[す]んでいます。", answer: "に", distractors: ["を", "で", "が"] }
+    ],
+    "(お)正月": [
+      { type: "kanji", sentence: "＿＿には家族[かぞく]みんなで集[あつ]まります。", distractors: ["(お)盆", "(お)祭り", "誕生日"] },
+      { type: "usage", sentence: "「(お)正月」の正しい使い方はどれですか。", answer: "お正月には家族みんなで集まります。", distractors: ["お正月を家族みんなで集まります。", "お正月が家族みんなで集まります。", "お正月には家族みんなで集まりました、必ず来年も。"] },
+      { type: "particle", sentence: "(お)正月[しょうがつ]＿＿家族[かぞく]みんなで集[あつ]まります。", answer: "に", distractors: ["で", "を", "が"] }
+    ],
+    "(お)祭り": [
+      { type: "kanji", sentence: "夏[なつ]には各地[かくち]で＿＿が行[おこな]われます。", distractors: ["行事", "(お)正月", "花火大会"] },
+      { type: "usage", sentence: "「(お)祭り」の正しい使い方はどれですか。", answer: "夏には各地でお祭りが行われます。", distractors: ["夏には各地でお祭りを行われます。", "夏には各地でお祭りは行いました。", "夏には各地でお祭りが行われられます。"] },
+      { type: "particle", sentence: "(お)祭り[まつり]＿＿浴衣[ゆかた]を着[き]て行[い]きました。", answer: "に", distractors: ["で", "を", "が"] }
+    ],
+    "田舎": [
+      { type: "kanji", sentence: "祖父母[そふぼ]は＿＿に住[す]んでいます。", distractors: ["都会", "故郷", "地方"] },
+      { type: "usage", sentence: "「田舎」の正しい使い方はどれですか。", answer: "祖父母は田舎に住んでいます。", distractors: ["祖父母は田舎を住んでいます。", "祖父母は田舎が住んでいます。", "祖父母は田舎で住まれています。"] },
+      { type: "particle", sentence: "祖父母[そふぼ]は田舎[いなか]＿＿住[す]んでいます。", answer: "に", distractors: ["で", "を", "が"] }
+    ],
+    "季節": [
+      { type: "kanji", sentence: "日本[にほん]には四[よ]つの＿＿があります。", distractors: ["気候", "時期", "季語"] },
+      { type: "usage", sentence: "「季節」の正しい使い方はどれですか。", answer: "日本には四つの季節があります。", distractors: ["日本には四つの季節をあります。", "日本には四つの季節でありました。", "日本は四つの季節があります、今も昔も。"] },
+      { type: "particle", sentence: "日本[にほん]には四[よ]つの季節[きせつ]＿＿あります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "着物": [
+      { type: "kanji", sentence: "(お)正月[しょうがつ]に＿＿を着[き]ました。", distractors: ["浴衣", "制服", "服"] },
+      { type: "usage", sentence: "「着物」の正しい使い方はどれですか。", answer: "お正月に着物を着ました。", distractors: ["お正月に着物が着ました。", "お正月は着物を着ました、必ず毎年。", "お正月に着物で着られました。"] },
+      { type: "particle", sentence: "(お)正月[しょうがつ]に着物[きもの]＿＿着[き]ました。", answer: "を", distractors: ["に", "が", "で"] }
+    ],
+    "曲がる": [
+      { type: "kanji", sentence: "あの角[かど]を右[みぎ]に＿＿ください。", distractors: ["回る", "曲げる", "混ざる"] },
+      { type: "usage", sentence: "「曲がる」の正しい使い方はどれですか。", answer: "あの角を右に曲がってください。", distractors: ["あの角で右に曲がってください。", "あの角を右に曲げてください、あなたが。", "あの角が右に曲がってください。"] },
+      { type: "particle", sentence: "あの角[かど]を右[みぎ]＿＿曲[ま]がってください。", answer: "に", distractors: ["を", "で", "が"] }
+    ],
+    "渡る": [
+      { type: "kanji", sentence: "横断歩道[おうだんほどう]を＿＿ください。", distractors: ["渡す", "回る", "通る"] },
+      { type: "usage", sentence: "「渡る」の正しい使い方はどれですか。", answer: "横断歩道を渡ってください。", distractors: ["横断歩道に渡ってください。", "横断歩道が渡ってください。", "横断歩道を渡されてください。"] },
+      { type: "particle", sentence: "横断歩道[おうだんほどう]＿＿渡[わた]ってください。", answer: "を", distractors: ["に", "で", "が"] }
+    ],
+    "不便": [
+      { type: "kanji", sentence: "この町[まち]は交通[こうつう]が＿＿です。", distractors: ["便利", "不安", "不満"] },
+      { type: "usage", sentence: "「不便」の正しい使い方はどれですか。", answer: "この町は交通が不便です。", distractors: ["この町は交通が不便いです。", "この町は交通が不便くです。", "この町は交通を不便です。"] },
+      { type: "grammar", sentence: "この駅[えき]は工事中[こうじちゅう]で、＿＿場所[ばしょ]になっています。", answer: "不便な", distractors: ["不便に", "不便だ", "不便の"] }
     ]
   }
 };
