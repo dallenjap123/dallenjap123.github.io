@@ -44,6 +44,45 @@
   } catch (e) {
     progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
   }
+  function getSyncSnapshot() {
+    return {
+      vocab: JSON.parse(JSON.stringify(progressStore)),
+      grammar: JSON.parse(JSON.stringify(grammarProgressStore)),
+      streak: JSON.parse(JSON.stringify(streakStore)),
+    };
+  }
+
+  function applySyncSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") return;
+    if (snapshot.vocab && typeof snapshot.vocab === "object") {
+      progressStore = snapshot.vocab;
+      try {
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    if (snapshot.grammar && typeof snapshot.grammar === "object") {
+      grammarProgressStore = snapshot.grammar;
+      try {
+        localStorage.setItem(GRAMMAR_PROGRESS_KEY, JSON.stringify(grammarProgressStore));
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    if (snapshot.streak && typeof snapshot.streak === "object") {
+      streakStore = snapshot.streak;
+      try {
+        localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore));
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    updateProgress();
+    refreshWordList();
+    if (state.flashcards.current) renderFace(state.flashcards.current);
+  }
+
   function saveProgress(skipSyncHook) {
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
@@ -55,7 +94,7 @@
     // when WE are the ones applying data that just came FROM the cloud, so
     // we don't immediately push it right back (see set() below).
     if (!skipSyncHook && window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
-      window.JPStudyProgress.onLocalChange(progressStore);
+      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
     }
   }
   // Minimal API surface for optional cloud sync (js/sync.js). If that file
@@ -65,7 +104,14 @@
     get() {
       return JSON.parse(JSON.stringify(progressStore));
     },
+    getSyncSnapshot() {
+      return getSyncSnapshot();
+    },
     set(data) {
+      if (data && typeof data === "object" && ("vocab" in data || "grammar" in data || "streak" in data)) {
+        applySyncSnapshot(data);
+        return;
+      }
       progressStore = data && typeof data === "object" ? data : {};
       saveProgress(true);
       updateProgress();
@@ -122,6 +168,9 @@
     } catch (e) {
       /* ignore */
     }
+    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
+    }
   }
   function getGrammarStats(pattern) {
     return grammarProgressStore[pattern] || { correct: 0, wrong: 0 };
@@ -159,6 +208,9 @@
       localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore));
     } catch (e) {
       /* ignore */
+    }
+    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
     }
   }
 

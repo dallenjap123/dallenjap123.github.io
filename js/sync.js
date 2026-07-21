@@ -19,12 +19,6 @@
   const sdkAvailable = typeof firebase !== "undefined";
 
   const syncStatusEl = document.getElementById("sync-status");
-  if (!isConfigured || !sdkAvailable) {
-    return; // sync-status stays hidden (its default state in the HTML)
-  }
-
-  const t = (window.JPStudyProgress && window.JPStudyProgress.t) || ((key) => key);
-
   const syncOpenBtn = document.getElementById("sync-open-btn");
   const syncActiveStatus = document.getElementById("sync-active-status");
   const syncActiveEmail = document.getElementById("sync-active-email");
@@ -34,6 +28,24 @@
   const syncGoogleBtn = document.getElementById("sync-google-btn");
   const syncCloseX = document.getElementById("sync-close-x");
   const syncErrorEl = document.getElementById("sync-error");
+
+  if (!isConfigured || !sdkAvailable) {
+    if (syncStatusEl && syncOpenBtn) {
+      syncStatusEl.hidden = false;
+      syncOpenBtn.hidden = false;
+      syncOpenBtn.textContent = "⚙️ Set up sync";
+      syncOpenBtn.addEventListener("click", () => {
+        if (syncErrorEl) {
+          syncErrorEl.textContent = "Firebase sync is not configured yet. Add your Firebase web config to enable Google sign-in.";
+          syncErrorEl.hidden = false;
+        }
+        if (syncModal) syncModal.hidden = false;
+      });
+    }
+    return;
+  }
+
+  const t = (window.JPStudyProgress && window.JPStudyProgress.t) || ((key) => key);
 
   let auth, db;
   try {
@@ -116,18 +128,50 @@
 
   syncSignoutBtn.addEventListener("click", () => auth.signOut());
 
-  // Per-word merge: newer lastSeen wins. Words only on one side are kept.
-  // This is intentionally simple (no true conflict resolution) — good
-  // enough for "I studied on my phone, then my laptop" style usage.
-  function mergeProgress(local, remote) {
-    const merged = Object.assign({}, local || {});
-    Object.keys(remote || {}).forEach((id) => {
-      const r = remote[id];
+  // Merge the full sync payload (vocab, grammar, and streak) so updates
+  // from any device are preserved without losing newer progress data.
+  function mergeProgressMaps(localMap, remoteMap) {
+    const merged = Object.assign({}, localMap || {});
+    Object.keys(remoteMap || {}).forEach((id) => {
+      const r = remoteMap[id];
       const l = merged[id];
       if (r && (!l || (r.lastSeen && (!l.lastSeen || r.lastSeen > l.lastSeen)))) {
         merged[id] = r;
+      } else if (r && l && typeof r === "object" && typeof l === "object" && !r.lastSeen && !l.lastSeen) {
+        merged[id] = Object.assign({}, l, r);
       }
     });
+    return merged;
+  }
+
+  function normalizeSyncState(state) {
+    if (!state || typeof state !== "object") {
+      return { vocab: {}, grammar: {}, streak: {} };
+    }
+    if (!("vocab" in state) && !("grammar" in state) && !("streak" in state)) {
+      return { vocab: state, grammar: {}, streak: {} };
+    }
+    return {
+      vocab: state.vocab && typeof state.vocab === "object" ? state.vocab : {},
+      grammar: state.grammar && typeof state.grammar === "object" ? state.grammar : {},
+      streak: state.streak && typeof state.streak === "object" ? state.streak : {},
+    };
+  }
+
+  function mergeSyncState(localState, remoteState) {
+    const local = normalizeSyncState(localState);
+    const remote = normalizeSyncState(remoteState);
+    const merged = {
+      vocab: mergeProgressMaps(local.vocab, remote.vocab),
+      grammar: mergeProgressMaps(local.grammar, remote.grammar),
+    };
+
+    if (remote.streak && (!local.streak || (remote.streak.lastDate && (!local.streak.lastDate || remote.streak.lastDate > local.streak.lastDate)))) {
+      merged.streak = remote.streak;
+    } else {
+      merged.streak = local.streak || {};
+    }
+
     return merged;
   }
 
@@ -142,7 +186,7 @@
   function doPush(data) {
     const user = auth.currentUser;
     if (!user) return Promise.reject(new Error("not signed in"));
-    return docRef(user.uid).set({ progress: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return docRef(user.uid).set({ state: normalizeSyncState(data), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
   }
   function pushToCloud(data) {
     if (!auth.currentUser) return;
@@ -162,7 +206,7 @@
     const originalText = syncSaveNowBtn.textContent;
     syncSaveNowBtn.disabled = true;
     syncSaveNowBtn.textContent = "…";
-    doPush(window.JPStudyProgress.get())
+    doPush(window.JPStudyProgress.getSyncSnapshot())
       .then(() => {
         syncSaveNowBtn.textContent = t("savedConfirm");
       })
@@ -191,15 +235,15 @@
     unsubscribeSnapshot = docRef(uid).onSnapshot(
       (docSnap) => {
         if (docSnap.metadata.hasPendingWrites) return;
-        const remote = docSnap.exists && docSnap.data().progress ? docSnap.data().progress : {};
-        const local = window.JPStudyProgress ? window.JPStudyProgress.get() : {};
-        const merged = mergeProgress(local, remote);
+        const remote = docSnap.exists && docSnap.data().state ? docSnap.data().state : {};
+        const local = window.JPStudyProgress ? window.JPStudyProgress.getSyncSnapshot() : {};
+        const merged = mergeSyncState(local, remote);
         if (window.JPStudyProgress) window.JPStudyProgress.set(merged);
         // If local had something the cloud didn't yet (e.g. studied on this
         // device before ever signing in), push the merge back — but only
         // when it actually adds something, to avoid an echo loop of
         // pointless identical writes on every snapshot.
-        if (JSON.stringify(merged) !== JSON.stringify(remote)) {
+        if (JSON.stringify(merged) !== JSON.stringify(normalizeSyncState(remote))) {
           pushToCloud(merged);
         }
       },
