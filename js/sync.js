@@ -137,20 +137,7 @@
 
   syncGoogleBtn.addEventListener("click", handleGoogleSignIn);
 
-  syncSignoutBtn.addEventListener("click", () => {
-    auth.signOut().then(() => {
-      // 1. Wipe the local browser memory so it doesn't contaminate the next user
-      if (window.JPStudyProgress) {
-        window.JPStudyProgress.set({
-          vocab: {},
-          grammar: {},
-          streak: { current: 0, longest: 0, lastDate: null }
-        });
-      }
-      // 2. Force a quick page reload to instantly reset the dashboard UI
-      window.location.reload();
-    });
-  });
+  syncSignoutBtn.addEventListener("click", () => auth.signOut());
 
   // Merge the full sync payload (vocab, grammar, and streak) so updates
   // from any device are preserved without losing newer progress data.
@@ -283,6 +270,15 @@
 
   auth.onAuthStateChanged((user) => {
     if (user) {
+      // 1. Check if a DIFFERENT account was left in memory (e.g. forced account switch)
+      const lastUid = localStorage.getItem("jpstudy_last_uid");
+      if (lastUid && lastUid !== user.uid) {
+        if (window.JPStudyProgress) {
+          window.JPStudyProgress.set({ vocab: {}, grammar: {}, streak: { current: 0, longest: 0, lastDate: null } });
+        }
+      }
+      localStorage.setItem("jpstudy_last_uid", user.uid);
+
       syncOpenBtn.hidden = true;
       syncActiveStatus.hidden = false;
       syncActiveEmail.textContent = user.email;
@@ -291,6 +287,16 @@
       stopListening();
       syncOpenBtn.hidden = false;
       syncActiveStatus.hidden = true;
+
+      // 2. If an account was logged in but just became logged out (button click, session expire, etc)
+      const lastUid = localStorage.getItem("jpstudy_last_uid");
+      if (lastUid) {
+        if (window.JPStudyProgress) {
+          window.JPStudyProgress.set({ vocab: {}, grammar: {}, streak: { current: 0, longest: 0, lastDate: null } });
+        }
+        localStorage.removeItem("jpstudy_last_uid");
+        window.location.reload(); // Instantly clears the screen
+      }
     }
   });
 })();
