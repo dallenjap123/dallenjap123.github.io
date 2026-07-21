@@ -480,15 +480,28 @@
   });
 
 resetProgressBtn.addEventListener("click", () => {
-    if (!window.confirm("This clears your right/wrong progress for every word. Continue?")) return;
+    const fc = state.flashcards;
     
-    // Instead of deleting the data (which the cloud will just re-download), 
-    // we explicitly set everything to 0 and update the timestamp so the cloud accepts the reset.
+    // Change the warning message depending on what is selected
+    let confirmMsg = "This clears your right/wrong progress for the currently selected lessons. Continue?";
+    if (fc.level === "all" && (!fc.lessons || fc.lessons.length === 0)) {
+      confirmMsg = "This clears your right/wrong progress for EVERY word. Continue?";
+    }
+    
+    if (!window.confirm(confirmMsg)) return;
+
     const now = new Date().toISOString();
-    Object.keys(progressStore).forEach(key => {
-      progressStore[key] = { correct: 0, wrong: 0, lastSeen: now };
-    });
     
+    // Build a list of all words in the currently selected level & lessons
+    // (We pass 'false' at the end to make sure we grab ALL words in the lesson, not just weak ones)
+    const targetItems = buildDeck(fc.level, fc.lessons, false);
+    
+    // Overwrite only the selected words with 0s and a new timestamp
+    targetItems.forEach(item => {
+      const id = wordId(item);
+      progressStore[id] = { correct: 0, wrong: 0, lastSeen: now };
+    });
+
     saveProgress();
     startSession();
     
