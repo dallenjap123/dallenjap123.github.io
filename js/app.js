@@ -479,11 +479,21 @@
     startSession();
   });
 
-  resetProgressBtn.addEventListener("click", () => {
+resetProgressBtn.addEventListener("click", () => {
     if (!window.confirm("This clears your right/wrong progress for every word. Continue?")) return;
-    progressStore = {};
+    
+    // Instead of deleting the data (which the cloud will just re-download), 
+    // we explicitly set everything to 0 and update the timestamp so the cloud accepts the reset.
+    const now = new Date().toISOString();
+    Object.keys(progressStore).forEach(key => {
+      progressStore[key] = { correct: 0, wrong: 0, lastSeen: now };
+    });
+    
     saveProgress();
     startSession();
+    
+    // Force the dashboard to redraw immediately in the background
+    if (typeof renderDashboard === "function") renderDashboard();
   });
 
   cardEl.addEventListener("click", () => {
