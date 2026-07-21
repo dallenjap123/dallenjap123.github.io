@@ -1,13 +1,18 @@
-// Optional cloud sync for cross-device progress, backed by Firebase
-// Realtime Database. This entire file is a no-op — the app works exactly
-// as it does locally — unless BOTH of these are true: (1) the Firebase SDK
-// loaded, and (2) js/firebase-config.js has real project keys (including
-// databaseURL) instead of the placeholder. See README.md → "Optional: sync
-// progress across devices" for setup.
+// Optional cloud sync for cross-device progress, backed by Cloud Firestore.
+// This entire file is a no-op — the app works exactly as it does locally —
+// unless BOTH of these are true: (1) the Firebase SDK loaded, and (2)
+// js/firebase-config.js has real project keys instead of the placeholder.
+// See README.md → "Optional: sync progress across devices" for setup.
 //
 // Only your vocab right/wrong stats (the same data behind the Word List
 // and weak-word highlighting) are synced. Grammar/conjugation practice
 // stay session-only, same as before.
+//
+// Two things happen here, both in real time (no polling, no fixed delay):
+// - Every local change pushes to Firestore immediately.
+// - A live listener (onSnapshot) stays open the whole time you're signed
+//   in, so a change made on another device — or another tab on this one —
+//   shows up here within about a second, no reload or re-sign-in needed.
 (function () {
   const config = window.FIREBASE_CONFIG;
   const isConfigured = !!(config && config.apiKey && config.apiKey !== "YOUR_API_KEY_HERE");
@@ -17,17 +22,6 @@
   if (!isConfigured || !sdkAvailable) {
     return; // sync-status stays hidden (its default state in the HTML)
   }
-  if (!config.databaseURL || config.databaseURL.indexOf("YOUR_PROJECT_ID") !== -1) {
-    // A very common migration snag: databaseURL isn't part of the config
-    // shown when you first register a web app — it only appears after you
-    // create a Realtime Database. Fail loudly here instead of letting
-    // firebase.database() throw a much more cryptic error later.
-    console.warn(
-      "jp-study cloud sync: js/firebase-config.js is missing a real databaseURL. " +
-        "Create a Realtime Database in the Firebase console, then copy its URL in. See README.md."
-    );
-    return;
-  }
 
   const t = (window.JPStudyProgress && window.JPStudyProgress.t) || ((key) => key);
 
@@ -35,6 +29,7 @@
   const syncActiveStatus = document.getElementById("sync-active-status");
   const syncActiveEmail = document.getElementById("sync-active-email");
   const syncSignoutBtn = document.getElementById("sync-signout-btn");
+  const syncSaveNowBtn = document.getElementById("sync-save-now-btn");
   const syncModal = document.getElementById("sync-modal");
   const syncGoogleBtn = document.getElementById("sync-google-btn");
   const syncCloseX = document.getElementById("sync-close-x");
@@ -44,7 +39,7 @@
   try {
     firebase.initializeApp(config);
     auth = firebase.auth();
-    db = firebase.database();
+    db = firebase.firestore();
   } catch (e) {
     console.warn("Firebase init failed — cloud sync disabled, app continues local-only.", e);
     return;
@@ -78,9 +73,8 @@
     const key = map[err && err.code];
     if (key) return t(key);
     // Unmapped error: show the raw code/message rather than nothing, so a
-    // setup problem (e.g. Google sign-in not enabled, or Realtime Database
-    // rules rejecting the request — RTDB surfaces that as PERMISSION_DENIED)
-    // is visible instead of silently doing nothing.
+    // setup problem (e.g. Google sign-in not enabled, or Firestore rules
+    // rejecting the request) is visible instead of silently doing nothing.
     return (err && (err.code ? `${err.code}: ${err.message}` : err.message)) || String(err);
   }
 
@@ -137,60 +131,34 @@
     return merged;
   }
 
-  // Realtime Database keys can't contain ".", "#", "$", "[", "]", "/" —
-  // vocab progress is keyed like "N4::1::夫", which has none of those, so
-  // no escaping is needed here. (Flagged in case future data ever adds one.)
-  function userRef(uid) {
-    return db.ref("users/" + uid);
+  function docRef(uid) {
+    return db.collection("users").doc(uid);
   }
 
-  let pushTimer = null;
-  let pendingPushData = null;
+  // No debounce — every local change pushes right away. (An earlier version
+  // batched changes over ~1.5s to cut down on writes; removed since the
+  // free-tier write quota isn't remotely a concern for one person's study
+  // data, and immediate is simpler to reason about than "eventually".)
   function doPush(data) {
     const user = auth.currentUser;
     if (!user) return Promise.reject(new Error("not signed in"));
-    return userRef(user.uid).update({ progress: data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+    return docRef(user.uid).set({ progress: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
   }
   function pushToCloud(data) {
     if (!auth.currentUser) return;
-    pendingPushData = data;
-    clearTimeout(pushTimer);
-    pushTimer = setTimeout(() => {
-      pushTimer = null;
-      doPush(pendingPushData).catch((e) => console.warn("Cloud sync push failed:", e));
-      pendingPushData = null;
-    }, 1500); // small debounce so rapid grading doesn't spam writes
+    doPush(data).catch((e) => console.warn("Cloud sync push failed:", e));
   }
-  // If the tab closes or gets backgrounded (switching apps on mobile, etc.)
-  // while a debounced push is still pending, fire it immediately instead of
-  // losing that update — otherwise the last few seconds of a study session
-  // could silently never reach the cloud.
-  function flushPendingPush() {
-    if (pushTimer === null || pendingPushData === null) return;
-    clearTimeout(pushTimer);
-    pushTimer = null;
-    doPush(pendingPushData).catch((e) => console.warn("Cloud sync push failed:", e));
-    pendingPushData = null;
-  }
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") flushPendingPush();
-  });
-  window.addEventListener("beforeunload", flushPendingPush);
 
   if (window.JPStudyProgress) {
     window.JPStudyProgress.onLocalChange = pushToCloud;
   }
 
-  // Manual "save now" — bypasses the debounce entirely and gives visible
-  // confirmation, rather than trusting an invisible background timer. Also
-  // cancels any pending debounced push first, so this always sends the
-  // absolute latest local data rather than racing it.
-  const syncSaveNowBtn = document.getElementById("sync-save-now-btn");
+  // Manual "save now" — same push, just with visible loading/confirmation
+  // feedback instead of trusting an invisible background call. Also useful
+  // as a diagnostic: a permission error here means Firestore rules, not a
+  // code problem.
   syncSaveNowBtn.addEventListener("click", () => {
     if (!window.JPStudyProgress || !auth.currentUser) return;
-    clearTimeout(pushTimer);
-    pushTimer = null;
-    pendingPushData = null;
     const originalText = syncSaveNowBtn.textContent;
     syncSaveNowBtn.disabled = true;
     syncSaveNowBtn.textContent = "…";
@@ -211,23 +179,48 @@
       });
   });
 
+  // Live listener: stays subscribed the whole time you're signed in. Fires
+  // once immediately with the current cloud state (handles the initial
+  // sign-in sync), then again automatically whenever the document changes
+  // — including from a different device or a different tab on this one.
+  // hasPendingWrites filters out the echo of OUR OWN not-yet-confirmed
+  // writes, so this only reacts to genuinely external changes.
+  let unsubscribeSnapshot = null;
+  function startListening(uid) {
+    stopListening();
+    unsubscribeSnapshot = docRef(uid).onSnapshot(
+      (docSnap) => {
+        if (docSnap.metadata.hasPendingWrites) return;
+        const remote = docSnap.exists && docSnap.data().progress ? docSnap.data().progress : {};
+        const local = window.JPStudyProgress ? window.JPStudyProgress.get() : {};
+        const merged = mergeProgress(local, remote);
+        if (window.JPStudyProgress) window.JPStudyProgress.set(merged);
+        // If local had something the cloud didn't yet (e.g. studied on this
+        // device before ever signing in), push the merge back — but only
+        // when it actually adds something, to avoid an echo loop of
+        // pointless identical writes on every snapshot.
+        if (JSON.stringify(merged) !== JSON.stringify(remote)) {
+          pushToCloud(merged);
+        }
+      },
+      (e) => console.warn("Cloud sync listener error:", e)
+    );
+  }
+  function stopListening() {
+    if (unsubscribeSnapshot) {
+      unsubscribeSnapshot();
+      unsubscribeSnapshot = null;
+    }
+  }
+
   auth.onAuthStateChanged((user) => {
     if (user) {
       syncOpenBtn.hidden = true;
       syncActiveStatus.hidden = false;
       syncActiveEmail.textContent = user.email;
-      userRef(user.uid)
-        .once("value")
-        .then((snapshot) => {
-          const val = snapshot.val();
-          const remote = val && val.progress ? val.progress : {};
-          const local = window.JPStudyProgress ? window.JPStudyProgress.get() : {};
-          const merged = mergeProgress(local, remote);
-          if (window.JPStudyProgress) window.JPStudyProgress.set(merged);
-          pushToCloud(merged); // make sure the cloud copy reflects the merge too
-        })
-        .catch((e) => console.warn("Cloud sync pull failed:", e));
+      startListening(user.uid);
     } else {
+      stopListening();
       syncOpenBtn.hidden = false;
       syncActiveStatus.hidden = true;
     }
