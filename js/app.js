@@ -71,7 +71,7 @@
     refreshWordList();
     if (state.flashcards.current) renderFace(state.flashcards.current);
     
-    // FIX: Force the Dashboard to redraw so it instantly shows the newly synced data
+    // 👇 ADD THIS LINE: It forces the Home tab to instantly redraw without refreshing!
     if (typeof renderDashboard === "function") renderDashboard();
   }
 
