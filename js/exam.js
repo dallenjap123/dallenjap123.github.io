@@ -5,7 +5,7 @@
 // distractors from OUR real vocab pool, or wraps OUR verified data (grammar
 // pattern usage notes / hand-checked conjugated forms) into new sentences.
 // The "correct answer" shown to you always traces back to a data file in
-// this repo, never to something Gemini made up — see buildVocabMcqQuestions,
+// this repo, never to something Gemini made up — see buildVocabClozeQuestions,
 // requestGrammarQuestions, and requestConjugationQuestions for where that's
 // enforced.
 //
@@ -521,22 +521,31 @@
     return pool.length <= cap ? pool : shuffle(pool).slice(0, cap);
   }
 
-  async function requestVocabDistractors(words, pool) {
-    const targetList = words.map((w) => `${w.word}|${w.reading || w.word}`).join("\n");
+  // Asks Gemini for a natural example sentence per target word (word
+  // replaced by a blank) AND 4 confusable distractor words from the real
+  // pool — this is the JLPT "文脈規定"-style test: read the sentence, pick
+  // which word actually belongs in the blank. Gemini never gets to invent
+  // the correct answer's text; the correct option is always the target's
+  // own `word` field from our data, and distractor options are always real
+  // words looked up from the candidate pool below, never Gemini-authored
+  // text — see buildVocabClozeQuestions.
+  const CLOZE_DISTRACTOR_COUNT = 4; // 5 options total — this is meant to be a real mastery check, not a coin flip
+  async function requestVocabClozeData(words, pool) {
+    const targetList = words.map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`).join("\n");
     const poolList = cappedPool(pool, 500)
       .map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`)
       .join("\n");
-    const prompt = `You are building a JLPT-style Japanese vocabulary multiple-choice exam.
+    const prompt = `You are building the hardest possible JLPT-style Japanese vocabulary fill-in-the-blank exam ("which word fits in this sentence" — 文脈規定 style). This is a MASTERY test, not an introductory quiz — a learner who only vaguely knows these words should fail it. Do not make this easy.
 
-TARGET WORDS (one per line, "word|reading"):
+TARGET WORDS (one per line, "word|reading|meaning"):
 ${targetList}
 
 CANDIDATE WORD POOL (one per line, "word|reading|meaning") — pick distractors ONLY from this exact list, copying the "word" field character-for-character:
 ${poolList}
 
-For EVERY target word, choose exactly 3 distractor words from the candidate pool (never the target word itself, never duplicated within one target's list) that would plausibly confuse a learner. Split roughly evenly between two kinds of confusion:
-- "form": words that look or sound similar (similar kanji shape, similar reading/pronunciation) to the target, so a learner might misread the target as one of these.
-- "meaning": words with a related, overlapping, or easily-mixed-up meaning to the target (near-synonyms, same category), so a learner might know it's "close" but pick the wrong one.
+For EVERY target word, do two things:
+1. Write ONE natural, moderately complex Japanese example sentence (native-level, not a beginner textbook sentence) that uses the target word in a context that genuinely requires understanding its precise nuance to resolve — not just topic/category matching. Replace the target word itself with a blank marked "＿＿". Do not spell the target word out anywhere else in the sentence. Do not include an English translation.
+2. Choose exactly ${CLOZE_DISTRACTOR_COUNT} distractor words from the candidate pool (never the target word itself, never duplicated within one target's list). Make these as deceptive as possible: prioritize words that are the SAME part of speech and would be grammatically valid in that exact blank, and are near-synonyms or commonly confused with the target by learners (differ only in nuance, formality, collocation, or degree) — NOT words that are trivially wrong from grammar or topic alone. Avoid easy throwaway options; every distractor should require real knowledge of the target word to correctly rule out.
 Return exactly one entry per target word, in the same order as the target list.`;
     const schema = {
       type: "array",
@@ -544,10 +553,10 @@ Return exactly one entry per target word, in the same order as the target list.`
         type: "object",
         properties: {
           word: { type: "string" },
-          distractors: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 3 },
-          confusionType: { type: "string", enum: ["form", "meaning"] },
+          sentence: { type: "string" },
+          distractors: { type: "array", items: { type: "string" }, minItems: CLOZE_DISTRACTOR_COUNT, maxItems: CLOZE_DISTRACTOR_COUNT },
         },
-        required: ["word", "distractors", "confusionType"],
+        required: ["word", "sentence", "distractors"],
       },
     };
     const data = await callGemini(prompt, schema);
@@ -564,19 +573,23 @@ Return exactly one entry per target word, in the same order as the target list.`
     return { options: shuffled.map((o) => o.text), correctIndex: shuffled.findIndex((o) => o.isCorrect) };
   }
 
-  function buildVocabMcqQuestions(words, pool, distractorMap) {
+  function buildVocabClozeQuestions(words, pool, clozeMap) {
     const poolByWord = {};
     pool.forEach((w) => {
       if (!poolByWord[w.word]) poolByWord[w.word] = w;
     });
     const questions = [];
     words.forEach((target) => {
-      const entry = distractorMap[target.word];
-      let distractorWords = entry && Array.isArray(entry.distractors) ? entry.distractors.filter((dw) => dw !== target.word && poolByWord[dw]).slice(0, 3) : [];
-      if (distractorWords.length < 3) {
+      const entry = clozeMap[target.word];
+      if (!entry || typeof entry.sentence !== "string" || !entry.sentence.includes("＿＿")) return;
+
+      let distractorWords = Array.isArray(entry.distractors)
+        ? entry.distractors.filter((dw) => dw !== target.word && poolByWord[dw]).slice(0, CLOZE_DISTRACTOR_COUNT)
+        : [];
+      if (distractorWords.length < CLOZE_DISTRACTOR_COUNT) {
         const used = new Set([target.word, ...distractorWords]);
         const fallback = shuffle(pool.filter((w) => !used.has(w.word)));
-        while (distractorWords.length < 3 && fallback.length) {
+        while (distractorWords.length < CLOZE_DISTRACTOR_COUNT && fallback.length) {
           const candidate = fallback.pop();
           if (!used.has(candidate.word)) {
             distractorWords.push(candidate.word);
@@ -585,34 +598,21 @@ Return exactly one entry per target word, in the same order as the target list.`
         }
       }
       const distractorItems = distractorWords.map((dw) => poolByWord[dw]).filter(Boolean);
-      if (distractorItems.length < 3) return;
+      if (distractorItems.length < CLOZE_DISTRACTOR_COUNT) return;
 
-      // No furigana anywhere in this phase — it tests MEANING recognition
-      // only. Showing the reading here would give the meaning-question away
-      // for free (and defeats the point of the separate furigana phase).
-      const direction = Math.random() < 0.5 ? "word-to-meaning" : "meaning-to-word";
+      // No English hint here — showing a translation of the sentence would
+      // hand you the target word's meaning directly. The only way through
+      // is knowing which of these 5 real words actually fits the blank.
+      const built = shuffleWithCorrect(target.word, distractorItems.map((d) => d.word));
       const tag = target.lesson !== undefined ? `${target.level} ・ ${target.lesson}課` : target.level;
-      if (direction === "word-to-meaning") {
-        const built = shuffleWithCorrect(target.meaning, distractorItems.map((d) => d.meaning));
-        questions.push({
-          type: "choice",
-          jp: target.word,
-          en: "",
-          options: built.options,
-          correct: built.correctIndex,
-          tag,
-        });
-      } else {
-        const built = shuffleWithCorrect(target.word, distractorItems.map((d) => d.word));
-        questions.push({
-          type: "choice",
-          jp: t("examWhichWordMeans", { meaning: target.meaning }),
-          en: "",
-          options: built.options,
-          correct: built.correctIndex,
-          tag,
-        });
-      }
+      questions.push({
+        type: "choice",
+        jp: entry.sentence,
+        en: "",
+        options: built.options,
+        correct: built.correctIndex,
+        tag,
+      });
     });
     return questions;
   }
@@ -701,8 +701,8 @@ Return exactly one entry per target word, in the same order as the target list.`
     showPanel("loading");
     try {
       const pool = vocabWordPool();
-      const distractorMap = await requestVocabDistractors(words, pool);
-      const questions = buildVocabMcqQuestions(words, pool, distractorMap);
+      const clozeMap = await requestVocabClozeData(words, pool);
+      const questions = buildVocabClozeQuestions(words, pool, clozeMap);
       if (!questions.length) throw { friendly: t("examErrEmpty") };
       runExam(shuffle(questions), {
         phaseTagText: t("examPhase2Tag"),
