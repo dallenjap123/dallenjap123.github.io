@@ -100,6 +100,18 @@
   // to be hand-updated again when that happens.
   const GEMINI_MODEL = "gemini-flash-latest";
 
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  // 429 (rate limit) and 5xx (Google's own infra — most commonly 503 "model
+  // is currently experiencing high demand") are transient and usually clear
+  // up within seconds, so these are worth a couple of automatic retries
+  // instead of immediately failing the whole exam generation.
+  const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+  const MAX_ATTEMPTS = 3;
+  const RETRY_DELAYS_MS = [1500, 4000];
+
   async function callGemini(prompt, responseSchema) {
     const key = getGeminiKey();
     if (!key) throw { friendly: t("examErrNoKey") };
@@ -112,40 +124,54 @@
         temperature: 0.9,
       },
     };
-    let res;
-    try {
-      res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (e) {
-      throw { friendly: t("examErrNetwork") };
-    }
-    let data;
-    try {
-      data = await res.json();
-    } catch (e) {
-      throw { friendly: t("examErrParse") };
-    }
-    if (!res.ok) {
-      if (res.status === 400 || res.status === 403) throw { friendly: t("examErrBadKey") };
-      if (res.status === 429) throw { friendly: t("examErrQuota") };
-      const msg = (data && data.error && data.error.message) || `HTTP ${res.status}`;
-      throw { friendly: t("examErrGeneric", { msg }) };
-    }
-    const text =
-      data.candidates &&
-      data.candidates[0] &&
-      data.candidates[0].content &&
-      data.candidates[0].content.parts &&
-      data.candidates[0].content.parts[0] &&
-      data.candidates[0].content.parts[0].text;
-    if (!text) throw { friendly: t("examErrEmpty") };
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      throw { friendly: t("examErrParse") };
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const isLastAttempt = attempt === MAX_ATTEMPTS;
+      let res;
+      try {
+        res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      } catch (e) {
+        if (!isLastAttempt) {
+          await delay(RETRY_DELAYS_MS[attempt - 1]);
+          examLoadingTextEl.textContent = t("examRetrying", { attempt: attempt + 1, max: MAX_ATTEMPTS });
+          continue;
+        }
+        throw { friendly: t("examErrNetwork") };
+      }
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw { friendly: t("examErrParse") }; // malformed response body — retrying won't help
+      }
+      if (!res.ok) {
+        if (res.status === 400 || res.status === 403) throw { friendly: t("examErrBadKey") }; // bad key — retrying won't help
+        if (RETRYABLE_STATUSES.has(res.status) && !isLastAttempt) {
+          await delay(RETRY_DELAYS_MS[attempt - 1]);
+          examLoadingTextEl.textContent = t("examRetrying", { attempt: attempt + 1, max: MAX_ATTEMPTS });
+          continue;
+        }
+        if (res.status === 429) throw { friendly: t("examErrQuota") };
+        const msg = (data && data.error && data.error.message) || `HTTP ${res.status}`;
+        throw { friendly: t("examErrGeneric", { msg }) };
+      }
+      const text =
+        data.candidates &&
+        data.candidates[0] &&
+        data.candidates[0].content &&
+        data.candidates[0].content.parts &&
+        data.candidates[0].content.parts[0] &&
+        data.candidates[0].content.parts[0].text;
+      if (!text) throw { friendly: t("examErrEmpty") };
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw { friendly: t("examErrParse") };
+      }
     }
   }
 
@@ -186,6 +212,7 @@
   // ---------- DOM refs ----------
   const examSetupEl = document.getElementById("exam-setup");
   const examLoadingEl = document.getElementById("exam-loading");
+  const examLoadingTextEl = document.getElementById("exam-loading-text");
   const examRunnerEl = document.getElementById("exam-runner");
   const examResultEl = document.getElementById("exam-result");
   const examErrorEl = document.getElementById("exam-error");
@@ -271,6 +298,7 @@
     examLoadingEl.hidden = name !== "loading";
     examRunnerEl.hidden = name !== "runner";
     examResultEl.hidden = name !== "result";
+    if (name === "loading") examLoadingTextEl.textContent = t("examLoading");
   }
   function showExamError(msg) {
     examErrorEl.hidden = false;
