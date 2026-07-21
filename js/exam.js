@@ -587,6 +587,9 @@ Return exactly one entry per target word, in the same order as the target list.`
       const distractorItems = distractorWords.map((dw) => poolByWord[dw]).filter(Boolean);
       if (distractorItems.length < 3) return;
 
+      // No furigana anywhere in this phase — it tests MEANING recognition
+      // only. Showing the reading here would give the meaning-question away
+      // for free (and defeats the point of the separate furigana phase).
       const direction = Math.random() < 0.5 ? "word-to-meaning" : "meaning-to-word";
       const tag = target.lesson !== undefined ? `${target.level} ・ ${target.lesson}課` : target.level;
       if (direction === "word-to-meaning") {
@@ -594,14 +597,13 @@ Return exactly one entry per target word, in the same order as the target list.`
         questions.push({
           type: "choice",
           jp: target.word,
-          en: target.reading ? `（${target.reading}）` : "",
+          en: "",
           options: built.options,
           correct: built.correctIndex,
           tag,
         });
       } else {
-        const format = (w) => (w.reading ? `${w.word}（${w.reading}）` : w.word);
-        const built = shuffleWithCorrect(format(target), distractorItems.map(format));
+        const built = shuffleWithCorrect(target.word, distractorItems.map((d) => d.word));
         questions.push({
           type: "choice",
           jp: t("examWhichWordMeans", { meaning: target.meaning }),
@@ -615,6 +617,29 @@ Return exactly one entry per target word, in the same order as the target list.`
     return questions;
   }
 
+  // ---------- vocab exam: passed-lesson tracking (for the Home dashboard) ----------
+  // Local-only (not part of cloud sync, same as the Gemini key) — an
+  // independent "you cleared this lesson's exam" flag, keyed by level+lesson.
+  // Once set it stays set; it doesn't un-mark itself if you later reset
+  // your flashcard progress for that lesson.
+  const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
+  function markLessonsExamPassed(level, words) {
+    let store = {};
+    try {
+      store = JSON.parse(localStorage.getItem(VOCAB_EXAM_PASSED_KEY) || "{}");
+    } catch (e) {
+      store = {};
+    }
+    [...new Set(words.map((w) => w.lesson).filter((n) => n !== undefined))].forEach((n) => {
+      store[`${level}::${n}`] = true;
+    });
+    try {
+      localStorage.setItem(VOCAB_EXAM_PASSED_KEY, JSON.stringify(store));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   async function startVocabExam() {
     const words = vocabSelectedWords();
     if (!words.length) {
@@ -625,10 +650,51 @@ Return exactly one entry per target word, in the same order as the target list.`
       openGeminiKeyModal();
       return;
     }
-    runVocabPhase1(words);
+    runVocabFuriganaPhase(words);
   }
 
-  async function runVocabPhase1(words) {
+  // Phase 1 — furigana, typed. Needs 100%: the moment one is wrong, the
+  // exam just ends there (no auto-reshuffle-and-retry) — you'd generate a
+  // fresh exam from setup if you want another attempt.
+  function runVocabFuriganaPhase(words) {
+    const testable = shuffle(words.filter((w) => w.reading && w.reading.trim()));
+    if (!testable.length) {
+      // nothing to test (all kana-only words) — treat as an automatic pass
+      // straight through to phase 2.
+      runVocabMcqPhase(words);
+      return;
+    }
+    const questions = testable.map((w) => ({ type: "furigana", jp: w.word, en: w.meaning, answer: w.reading, tag: t("examPhase1Tag") }));
+    runExam(questions, {
+      phaseTagText: t("examPhase1Tag"),
+      passThreshold: 1,
+      strictFailFast: true,
+      onDone: (result) => {
+        if (result.passed) {
+          renderResultBanner(result, {
+            passText: t("examPhase1PassMsg"),
+            failText: "",
+            onNext: { label: t("examContinuePhase2"), fn: () => runVocabMcqPhase(words) },
+            onBack: { label: t("examBackToSetup"), fn: backToSetup },
+          });
+        } else {
+          renderResultBanner(result, {
+            passText: "",
+            failText: t("examPhase1FailMsg", {
+              word: result.failFastItem ? result.failFastItem.jp : "",
+              reading: result.failFastItem ? result.failFastItem.answer : "",
+            }),
+            onBack: { label: t("examBackToSetup"), fn: backToSetup },
+          });
+        }
+      },
+    });
+  }
+
+  // Phase 2 — MCQ meaning recognition. Needs 95%. Failing regenerates a
+  // fresh set of questions via Gemini. Passing this is the whole exam
+  // passing, since phase 1 already had to be cleared to get here.
+  async function runVocabMcqPhase(words) {
     showPanel("loading");
     try {
       const pool = vocabWordPool();
@@ -636,14 +702,14 @@ Return exactly one entry per target word, in the same order as the target list.`
       const questions = buildVocabMcqQuestions(words, pool, distractorMap);
       if (!questions.length) throw { friendly: t("examErrEmpty") };
       runExam(shuffle(questions), {
-        phaseTagText: t("examPhase1Tag"),
+        phaseTagText: t("examPhase2Tag"),
         passThreshold: 0.95,
         onDone: (result) => {
+          if (result.passed) markLessonsExamPassed(examState.vocab.level, words);
           renderResultBanner(result, {
-            passText: t("examPhase1PassMsg"),
-            failText: t("examPhase1FailMsg"),
-            onNext: { label: t("examContinuePhase2"), fn: () => runVocabPhase2(words) },
-            onRetry: { label: t("examTryAgain"), fn: () => runVocabPhase1(words) },
+            passText: t("examAllPassedMsg"),
+            failText: t("examPhase2FailMsg"),
+            onRetry: { label: t("examTryAgain"), fn: () => runVocabMcqPhase(words) },
             onBack: { label: t("examBackToSetup"), fn: backToSetup },
           });
         },
@@ -652,35 +718,6 @@ Return exactly one entry per target word, in the same order as the target list.`
       showPanel("setup");
       showExamError((err && err.friendly) || t("examErrUnknown"));
     }
-  }
-
-  function runVocabPhase2(words) {
-    const testable = shuffle(words.filter((w) => w.reading && w.reading.trim()));
-    if (!testable.length) {
-      showPanel("result");
-      renderResultBanner(
-        { correct: 0, total: 0, pct: 1, passed: true },
-        { passText: t("examAllPassedMsg"), failText: "", onBack: { label: t("examBackToSetup"), fn: backToSetup } }
-      );
-      return;
-    }
-    const questions = testable.map((w) => ({ type: "furigana", jp: w.word, en: w.meaning, answer: w.reading, tag: t("examPhase2Tag") }));
-    runExam(questions, {
-      phaseTagText: t("examPhase2Tag"),
-      passThreshold: 1,
-      strictFailFast: true,
-      onDone: (result) => {
-        renderResultBanner(result, {
-          passText: t("examAllPassedMsg"),
-          failText: t("examPhase2FailMsg", {
-            word: result.failFastItem ? result.failFastItem.jp : "",
-            reading: result.failFastItem ? result.failFastItem.answer : "",
-          }),
-          onRetry: { label: t("examTryAgain"), fn: () => runVocabPhase2(words) },
-          onBack: { label: t("examBackToSetup"), fn: backToSetup },
-        });
-      },
-    });
   }
 
   // ---------- Grammar exam ----------

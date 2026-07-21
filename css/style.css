@@ -559,6 +559,18 @@ main {
 .dash-progress-track { height: 6px; border-radius: 999px; background: var(--paper-deep); overflow: hidden; }
 .dash-progress-fill { height: 100%; background: var(--indigo); border-radius: 999px; }
 .dash-subsection-meta { font-family: var(--font-ui); font-size: 0.72rem; color: var(--ink-soft); margin: 6px 0 0; }
+.dash-exam-passed-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--mastered);
+  background: var(--mastered-bg);
+  border: 1px solid var(--mastered);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 8px 0 0;
+}
 .dash-empty-note { font-family: var(--font-ui); font-size: 0.78rem; color: var(--ink-soft); font-style: italic; margin: 0; }
 
 .dash-weak-section { margin-top: 8px; }

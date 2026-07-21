@@ -1415,6 +1415,20 @@ resetProgressBtn.addEventListener("click", () => {
   const ALL_LEVELS = ["N5", "N4", "N3", "N2", "N1"];
   let dashSelectedLevel = "N4"; // the only populated level today; will still work once others are added
 
+  // Set by the Exam tab (js/exam.js) when a vocab exam's final phase is
+  // passed — every lesson included in that exam gets marked here, keyed
+  // "{level}::{lesson}". Local-only (not synced to the cloud), same as the
+  // Gemini key. Read fresh on every render rather than cached, since it's
+  // a plain localStorage key exam.js writes to independently of this file.
+  const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
+  function getVocabExamPassedStore() {
+    try {
+      return JSON.parse(localStorage.getItem(VOCAB_EXAM_PASSED_KEY) || "{}");
+    } catch (e) {
+      return {};
+    }
+  }
+
   function renderDashLessonBreakdown(level) {
     const items = (window.VOCAB_DATA && window.VOCAB_DATA[level]) || [];
     const container = document.getElementById("dash-lesson-breakdown");
@@ -1424,6 +1438,7 @@ resetProgressBtn.addEventListener("click", () => {
     }
     const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
     const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+    const examPassed = getVocabExamPassedStore();
     const rows = lessonNums
       .map((n) => {
         const lessonItems = items.filter((item) => item.lesson === n);
@@ -1444,6 +1459,7 @@ resetProgressBtn.addEventListener("click", () => {
         const pct = total ? Math.round((mastered / total) * 100) : 0;
         const meta = totalSum ? t("dashAccuracyLine", { pct: Math.round((correctSum / totalSum) * 100) }) : t("dashNotStartedYet");
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        const badge = examPassed[`${level}::${n}`] ? `<p class="dash-exam-passed-badge">${t("dashExamPassedBadge")}</p>` : "";
         return `
         <div class="dash-lesson-row">
           <div class="dash-lesson-row-header">
@@ -1452,6 +1468,7 @@ resetProgressBtn.addEventListener("click", () => {
           </div>
           <div class="dash-progress-track"><div class="dash-progress-fill" style="width:${pct}%"></div></div>
           <p class="dash-subsection-meta">${meta}</p>
+          ${badge}
         </div>`;
       })
       .join("");
