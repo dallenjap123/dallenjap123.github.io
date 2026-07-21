@@ -386,4 +386,234 @@ window.GRAMMAR_PRACTICE = {
     { type: "choice", jp: "先輩に無理やりお酒を＿＿＿。", en: "I was forced by a senior to drink alcohol.", options: ["飲まされました", "飲みました", "飲ませました", "飲まれました"], correct: 0 },
     { type: "fill", jp: "上司に残業を＿＿＿＿＿＿＿。（する）", en: "I was made to work overtime by my boss.", answer: "させられました" },
   ],
+
+  // ---------- 26課 で・に ----------
+  "で・に": [
+    { type: "fill", jp: "公園＿＿子供たちがいます。", en: "There are children in the park.", answer: "に" },
+    { type: "fill", jp: "公園＿＿子供たちが遊んでいます。", en: "Children are playing in the park.", answer: "で" },
+    { type: "choice", jp: "毎朝7時＿＿起きます。", en: "I get up at 7 every morning.", options: ["に", "で", "を", "が"], correct: 0 },
+    { type: "fill", jp: "友達＿＿手紙を書きました。", en: "I wrote a letter to my friend.", answer: "に" },
+    { type: "choice", jp: "電車＿＿会社に行きます。", en: "I go to work by train.", options: ["で", "に", "を", "が"], correct: 0 },
+    { type: "fill", jp: "風邪＿＿学校を休みました。", en: "I was absent from school because of a cold.", answer: "で" },
+  ],
+
+  // ---------- 27課 を・と ----------
+  "を・と": [
+    { type: "fill", jp: "毎朝、公園＿＿散歩します。", en: "I take a walk through the park every morning.", answer: "を" },
+    { type: "choice", jp: "次の駅で電車＿＿降ります。", en: "I'll get off the train at the next station.", options: ["を", "に", "で", "が"], correct: 0 },
+    { type: "fill", jp: "「明日は休みます」＿＿部長に言いました。", en: "I told the manager, \"I'll be off tomorrow.\"", answer: "と" },
+    { type: "choice", jp: "週末、友達＿＿映画を見に行きます。", en: "I'm going to see a movie with a friend this weekend.", options: ["と", "に", "を", "が"], correct: 0 },
+    { type: "fill", jp: "田中さん＿＿結婚することにしました。", en: "I decided to marry Tanaka.", answer: "と" },
+    { type: "choice", jp: "道＿＿渡るときは、気をつけてください。", en: "Please be careful when crossing the street.", options: ["を", "に", "で", "が"], correct: 0 },
+  ],
+
+  // ---------- 28課 も・しか ----------
+  "も・しか": [
+    { type: "fill", jp: "財布に千円＿＿ありません。", en: "I only have 1000 yen in my wallet.", answer: "しか" },
+    { type: "choice", jp: "宿題がまだ半分＿＿できていません。", en: "I haven't even finished half of my homework yet.", options: ["も", "しか", "だけ", "ばかり"], correct: 0 },
+    { type: "fill", jp: "この問題が分かる人はクラスに一人＿＿いません。", en: "There's only one person in the class who understands this problem.", answer: "しか" },
+    { type: "choice", jp: "このケーキ、一つ食べて＿＿いいですか。", en: "May I eat one of these cakes, too?", options: ["も", "しか", "だけ", "でも"], correct: 0 },
+    { type: "fill", jp: "三日間＿＿休みがありませんでした。", en: "I only had three days off.", answer: "しか" },
+    { type: "choice", jp: "三時間＿＿待ちました。大変でした。", en: "I waited as long as three hours. It was rough.", options: ["も", "しか", "だけ", "ばかり"], correct: 0 },
+  ],
+
+  // ---------- 29課 だけ・でも ----------
+  "だけ・でも": [
+    { type: "fill", jp: "会議には田中さん＿＿来ませんでした。", en: "Only Tanaka didn't come to the meeting.", answer: "だけ" },
+    { type: "choice", jp: "疲れたでしょう。コーヒー＿＿飲みませんか。", en: "You must be tired. Won't you have some coffee or something?", options: ["でも", "だけ", "しか", "も"], correct: 0 },
+    { type: "fill", jp: "少し＿＿休ませてください。", en: "Please let me rest just a little.", answer: "だけ" },
+    { type: "choice", jp: "この漢字は簡単なので、子供＿＿読めます。", en: "This kanji is easy, so even a child can read it.", options: ["でも", "だけ", "しか", "を"], correct: 0 },
+    { type: "fill", jp: "分からないことがあったら、いつ＿＿聞いてください。", en: "If there's something you don't understand, please ask anytime.", answer: "でも" },
+    { type: "choice", jp: "彼は忙しいので、五分＿＿会えませんでした。", en: "He was busy, so I could only meet him for five minutes.", options: ["だけ", "でも", "も", "しか"], correct: 0 },
+  ],
+
+  // ---------- 30課 は・が ----------
+  "は・が": [
+    { type: "fill", jp: "わたし＿＿学生です。", en: "As for me, I'm a student.", answer: "は" },
+    { type: "choice", jp: "だれ＿＿窓を割りましたか。ケンさんが割りました。", en: "\"Who broke the window?\" \"Ken did.\"", options: ["が", "は", "を", "に"], correct: 0 },
+    { type: "fill", jp: "象＿＿鼻が長いです。", en: "Elephants have long trunks.", answer: "は" },
+    { type: "choice", jp: "わたしは日本語＿＿分かります。", en: "I understand Japanese.", options: ["が", "を", "は", "に"], correct: 0 },
+    { type: "fill", jp: "部屋に猫＿＿います。", en: "There's a cat in the room.", answer: "が" },
+    { type: "choice", jp: "今日＿＿天気がいいですね。", en: "The weather's nice today, isn't it.", options: ["は", "が", "を", "に"], correct: 0 },
+  ],
+
+  // ---------- 31課 の・こと ----------
+  "の・こと": [
+    { type: "fill", jp: "電車が来る＿＿を待っています。", en: "I'm waiting for the train to come.", answer: "の" },
+    { type: "choice", jp: "彼が引っ越した＿＿を知りませんでした。", en: "I didn't know that he had moved.", options: ["こと", "の", "とき", "ところ"], correct: 0 },
+    { type: "fill", jp: "わたしの趣味は写真をとる＿＿です。", en: "My hobby is taking photos.", answer: "こと" },
+    { type: "choice", jp: "子供が公園で遊んでいる＿＿を見ました。", en: "I saw the children playing in the park.", options: ["の", "こと", "とき", "もの"], correct: 0 },
+    { type: "fill", jp: "漢字を読む＿＿ができますか。", en: "Can you read kanji?", answer: "こと" },
+    { type: "choice", jp: "毎日運動する＿＿は体にいいです。", en: "Exercising every day is good for your health.", options: ["こと", "の", "とき", "ため"], correct: 0 },
+  ],
+
+  // ---------- 32課 〜て…・〜ないで… ----------
+  "〜て…・〜ないで…": [
+    { type: "fill", jp: "朝、シャワーを浴び＿＿会社に行きます。", en: "In the morning, I take a shower and then go to work.", answer: "て" },
+    { type: "fill", jp: "傘を＿＿＿＿＿、雨の中を歩きました。（さす）", en: "I walked in the rain without opening an umbrella.", answer: "ささないで" },
+    { type: "choice", jp: "昨日は疲れていたので、晩ご飯を＿＿寝てしまいました。", en: "I was tired yesterday, so I went to sleep without eating dinner.", options: ["食べないで", "食べて", "食べなくて", "食べたいで"], correct: 0 },
+    { type: "fill", jp: "砂糖を＿＿＿＿＿、コーヒーを飲みます。（入れる）", en: "I drink my coffee without sugar.", answer: "入れないで" },
+    { type: "choice", jp: "朝起き＿＿、顔を洗います。", en: "I get up, then wash my face.", options: ["て", "ないで", "たり", "れば"], correct: 0 },
+    { type: "fill", jp: "電気をつけ＿＿＿＿＿、勉強します。（つける）", en: "I study without turning on the light.", answer: "つけないで" },
+  ],
+
+  // ---------- 33課 他動詞・自動詞 ----------
+  "他動詞・自動詞": [
+    { type: "fill", jp: "暑いので、まど＿＿開けます。", en: "It's hot, so I'll open the window.", answer: "を" },
+    { type: "choice", jp: "車のドア＿＿急に開きました。", en: "The car door suddenly opened.", options: ["が", "を", "に", "で"], correct: 0 },
+    { type: "fill", jp: "へやにいた虫を外に＿＿＿＿＿。（出す）", en: "I put the bug that was in the room outside.", answer: "出しました" },
+    { type: "choice", jp: "学生は後ろのドアから＿＿。", en: "Students go out through the back door.", options: ["出ます", "出します", "出させます", "出られます"], correct: 0 },
+    { type: "fill", jp: "トムは古いおもちゃを＿＿＿＿＿います。（集める）", en: "Tom is collecting old toys.", answer: "集めて" },
+    { type: "choice", jp: "みんなが＿＿、旅行のそうだんをします。", en: "Everyone gathers and discusses the trip.", options: ["集まって", "集めて", "集まられて", "集められて"], correct: 0 },
+  ],
+
+  // ---------- 34課 〜ています・〜てあります ----------
+  "〜ています・〜てあります": [
+    { type: "fill", jp: "まどが＿＿＿＿＿います。（開く）", en: "The window is open.", answer: "開いて" },
+    { type: "choice", jp: "暑いので、まどが＿＿あります。", en: "It's hot, so the window has been left open on purpose.", options: ["開けて", "開いて", "開かれて", "開けさせて"], correct: 0 },
+    { type: "fill", jp: "かべにきれいな絵が＿＿＿＿＿います。（かかる）", en: "There's a beautiful picture hanging on the wall.", answer: "かかって" },
+    { type: "choice", jp: "パーティーのために、かべに絵が＿＿あります。", en: "A picture has been hung on the wall for the party.", options: ["かけて", "かかって", "かかられて", "かけられて"], correct: 0 },
+    { type: "fill", jp: "電気が＿＿＿＿＿います。（消える）", en: "The light is off.", answer: "消えて" },
+    { type: "choice", jp: "会議室にお茶が＿＿あります。", en: "Tea has been prepared in the meeting room.", options: ["用意して", "用意されて", "用意し", "用意させて"], correct: 0 },
+  ],
+
+  // ---------- 35課 〜てきます・〜ていきます ----------
+  "〜てきます・〜ていきます": [
+    { type: "fill", jp: "ちょっとコンビニに＿＿＿＿＿。（行く）", en: "I'm just going to the convenience store, and I'll be back.", answer: "行ってきます" },
+    { type: "choice", jp: "雨がだんだん強くなって＿＿。", en: "The rain has been gradually getting stronger.", options: ["きました", "いきました", "きます", "いきます"], correct: 0 },
+    { type: "fill", jp: "これから日本語をもっと勉強して＿＿＿＿＿です。（いく）", en: "From now on, I want to keep studying Japanese more.", answer: "いきたい" },
+    { type: "choice", jp: "子どもたちは元気に育って＿＿でしょう。", en: "The children will likely keep growing up healthy.", options: ["いく", "くる", "いった", "きた"], correct: 0 },
+    { type: "fill", jp: "財布を忘れたので、家に取りに帰って＿＿＿＿＿。（くる）", en: "I forgot my wallet, so I'll go home to get it and come back.", answer: "きます" },
+    { type: "choice", jp: "空が明るくなって＿＿。", en: "The sky has been getting brighter.", options: ["きました", "いきました", "きます", "いくでしょう"], correct: 0 },
+  ],
+
+  // ---------- 36課 こ・そ・あ ----------
+  "こ・そ・あ": [
+    { type: "choice", jp: "A「＿＿シャツ、どこで買いましたか。」（相手が着ているシャツを指して）", en: "\"Where did you buy that shirt you're wearing?\"", options: ["その", "この", "あの", "どの"], correct: 0 },
+    { type: "fill", jp: "＿＿＿＿に大きい木がありますね。（遠くを指して）", en: "There's a big tree over there, isn't there.", answer: "あそこ" },
+    { type: "choice", jp: "A「新しいレストランができたんですよ。」B「＿＿ですか。今度行ってみましょう。」", en: "A: \"A new restaurant opened.\" B: \"Is that so? Let's try going sometime.\"", options: ["そう", "ああ", "こう", "どう"], correct: 0 },
+    { type: "fill", jp: "＿＿＿の映画、二人で見に行ったの覚えてる？（二人とも知っている話）", en: "Do you remember that movie we went to see together?", answer: "あの" },
+    { type: "choice", jp: "＿＿＿はわたしのかさです。（手に持っているものを指して）", en: "This is my umbrella.", options: ["これ", "それ", "あれ", "どれ"], correct: 0 },
+    { type: "fill", jp: "＿＿＿＿＿のバッグにしますか。", en: "Which bag will you choose?", answer: "どちら" },
+  ],
+
+  // ---------- 37課 接続の言葉 ----------
+  "ですから・だから": [
+    { type: "fill", jp: "これは一つ100円です。＿＿＿＿＿、三つで300円です。", en: "This is 100 yen each. So three of them is 300 yen.", answer: "ですから" },
+    { type: "choice", jp: "もう夜8時だ。＿＿、教室にはだれもいないと思う。", en: "It's already 8pm. So I think no one's in the classroom.", options: ["だから", "それで", "けれど", "それに"], correct: 0 },
+    { type: "fill", jp: "ここは人がよく通るんだ。＿＿＿、ここに物をおかないで。", en: "People often pass through here. So don't leave things here.", answer: "だから" },
+    { type: "choice", jp: "明日は試験があります。＿＿＿＿＿、今晩は早く寝ます。", en: "I have an exam tomorrow. So I'm going to sleep early tonight.", options: ["ですから", "それに", "けれど", "たとえば"], correct: 0 },
+    { type: "fill", jp: "雨が降っています。＿＿＿＿＿、傘を持っていきます。", en: "It's raining. So I'll take an umbrella.", answer: "ですから" },
+    { type: "choice", jp: "もう遅い。＿＿、そろそろ帰ろう。", en: "It's already late. So let's head home soon.", options: ["だから", "それに", "たとえば", "けれど"], correct: 0 },
+  ],
+  "それで": [
+    { type: "fill", jp: "小さい字が見えなくなりました。＿＿＿＿、新しいめがねを買いました。", en: "I could no longer see small print. So I bought new glasses.", answer: "それで" },
+    { type: "choice", jp: "会社が遠い。＿＿＿、毎朝早く家を出る。", en: "The office is far. So I leave home early every morning.", options: ["それで", "それに", "けれど", "たとえば"], correct: 0 },
+    { type: "fill", jp: "熱が出ました。＿＿＿＿、学校を休みました。", en: "I got a fever. So I was absent from school.", answer: "それで" },
+    { type: "choice", jp: "電車が止まった。＿＿＿、遅刻してしまった。", en: "The train stopped. So I ended up being late.", options: ["それで", "それに", "たとえば", "では"], correct: 0 },
+    { type: "fill", jp: "財布をなくしました。＿＿＿＿、警察に行きました。", en: "I lost my wallet. So I went to the police.", answer: "それで" },
+    { type: "choice", jp: "頭が痛かった。＿＿＿、薬を飲んで早く寝た。", en: "I had a headache. So I took medicine and went to bed early.", options: ["それで", "けれど", "それに", "たとえば"], correct: 0 },
+  ],
+  "けれど(も)": [
+    { type: "fill", jp: "とてもがんばりました。＿＿＿＿＿、いいてんはとれませんでした。", en: "I tried very hard. But I couldn't get a good grade.", answer: "けれども" },
+    { type: "choice", jp: "このカメラはいい。＿＿、少し重い。", en: "This camera is good. But it's a little heavy.", options: ["けれど", "それで", "たとえば", "だから"], correct: 0 },
+    { type: "fill", jp: "安いです。＿＿＿、あまりおいしくなかったです。", en: "It was cheap. But it wasn't very good.", answer: "けれど" },
+    { type: "choice", jp: "頑張って勉強した。＿＿、試験に落ちてしまった。", en: "I studied hard. But I ended up failing the exam.", options: ["けれど", "それで", "それに", "たとえば"], correct: 0 },
+    { type: "fill", jp: "天気はよかった。＿＿＿、風がとても強かった。", en: "The weather was good. But the wind was very strong.", answer: "けれど" },
+    { type: "choice", jp: "彼は忙しい。＿＿、いつも笑顔だ。", en: "He's busy. But he always has a smile on his face.", options: ["けれども", "それで", "だから", "たとえば"], correct: 0 },
+  ],
+  "それに": [
+    { type: "fill", jp: "バナナはおいしいです。＿＿＿＿、安いです。", en: "Bananas are tasty. What's more, they're cheap.", answer: "それに" },
+    { type: "choice", jp: "雨がふっているし、＿＿＿、風もある。", en: "It's raining, and on top of that, it's windy too.", options: ["それに", "けれど", "それで", "たとえば"], correct: 0 },
+    { type: "fill", jp: "この部屋は広い。＿＿＿＿、明るい。", en: "This room is spacious. On top of that, it's bright.", answer: "それに" },
+    { type: "choice", jp: "彼は頭がいい。＿＿＿、性格もいい。", en: "He's smart. On top of that, his personality is good too.", options: ["それに", "けれど", "だから", "では"], correct: 0 },
+    { type: "fill", jp: "この店は安い。＿＿＿＿、おいしい。", en: "This shop is cheap. On top of that, it's delicious.", answer: "それに" },
+    { type: "choice", jp: "今日は暑い。＿＿＿、湿度も高い。", en: "It's hot today. On top of that, the humidity is high too.", options: ["それに", "それで", "けれど", "たとえば"], correct: 0 },
+  ],
+  "たとえば": [
+    { type: "fill", jp: "日本のスポーツ、＿＿＿＿、じゅうどうをやってみたいです。", en: "I'd like to try a Japanese sport — judo, for example.", answer: "たとえば" },
+    { type: "choice", jp: "山田さんはいつもおそく帰る。＿＿、きのうは11時に帰った。", en: "Yamada always comes home late. For example, yesterday he came home at 11.", options: ["たとえば", "それで", "けれど", "では"], correct: 0 },
+    { type: "fill", jp: "果物が好きです。＿＿＿＿、りんごやみかんをよく食べます。", en: "I like fruit. For example, I often eat apples and oranges.", answer: "たとえば" },
+    { type: "choice", jp: "田中さんは色々な国に行ったことがある。＿＿、フランスやドイツに行った。", en: "Tanaka has been to various countries. For example, he went to France and Germany.", options: ["たとえば", "それに", "けれど", "だから"], correct: 0 },
+    { type: "fill", jp: "この町には有名な建物が多い。＿＿＿＿、古いお寺がある。", en: "This town has many famous buildings. For example, there's an old temple.", answer: "たとえば" },
+    { type: "choice", jp: "わたしは辛い食べ物が苦手だ。＿＿、カレーも食べられない。", en: "I'm not good with spicy food. For example, I can't even eat curry.", options: ["たとえば", "それで", "それに", "けれど"], correct: 0 },
+  ],
+  "(それ)では・じゃ": [
+    { type: "fill", jp: "じゅんびはできましたか。＿＿＿＿＿、始めましょう。", en: "Are you ready? Well then, let's begin.", answer: "それでは" },
+    { type: "choice", jp: "トム「ぼくは兄がいます。」先生「＿＿、二人兄弟ですね。」", en: "Tom: \"I have an older brother.\" Teacher: \"Well then, there are two of you siblings.\"", options: ["じゃ", "それに", "たとえば", "けれど"], correct: 0 },
+    { type: "fill", jp: "えっ？サラはパーティーに来ない？＿＿、ぼくもやめようかな。", en: "Huh? Sara's not coming to the party? Well then, maybe I'll skip it too.", answer: "じゃ" },
+    { type: "choice", jp: "A「準備、終わりました。」B「＿＿＿＿、始めましょうか。」", en: "A: \"I'm ready.\" B: \"Well then, shall we begin?\"", options: ["それでは", "それに", "たとえば", "けれど"], correct: 0 },
+    { type: "fill", jp: "雨が降ってきた。＿＿、今日は中止にしよう。", en: "It's started raining. Well then, let's call it off for today.", answer: "じゃ" },
+    { type: "choice", jp: "みんな集まりましたね。＿＿＿＿、会議を始めます。", en: "Everyone's gathered. Well then, let's start the meeting.", options: ["それでは", "それに", "たとえば", "だから"], correct: 0 },
+  ],
+
+  // ---------- 38課 副詞 ----------
+  "まだ・もう": [
+    { type: "fill", jp: "トム「昼ご飯はもう食べた？」サラ「ううん、＿＿＿食べていない。」", en: "Tom: \"Have you already eaten lunch?\" Sara: \"No, not yet.\"", answer: "まだ" },
+    { type: "choice", jp: "銀行は＿＿開いていますか。", en: "Is the bank still open?", options: ["まだ", "もう", "なかなか", "やっと"], correct: 0 },
+    { type: "fill", jp: "4時だから、＿＿＿しまっていますよ。", en: "It's 4 o'clock, so it's already closed.", answer: "もう" },
+    { type: "choice", jp: "これ、おいしい。＿＿一つ食べてもいい？", en: "This is delicious. Can I have one more?", options: ["もう", "まだ", "けっこう", "ずいぶん"], correct: 0 },
+    { type: "fill", jp: "スープに＿＿＿少ししおを入れてください。", en: "Please add a little more salt to the soup.", answer: "もう" },
+    { type: "choice", jp: "宿題は＿＿終わっていません。", en: "I haven't finished my homework yet.", options: ["まだ", "もう", "やっと", "とうとう"], correct: 0 },
+  ],
+  "なかなか・やっと・とうとう": [
+    { type: "fill", jp: "バスが＿＿＿＿来ません。", en: "The bus just won't come.", answer: "なかなか" },
+    { type: "choice", jp: "＿＿仕事が終わりました。（苦労した後で）", en: "I finally finished the work, after a struggle.", options: ["やっと", "なかなか", "とうとう", "もう"], correct: 0 },
+    { type: "fill", jp: "テレビが＿＿＿＿こわれてしまった。", en: "The TV finally broke down, after a long time.", answer: "とうとう" },
+    { type: "choice", jp: "彼はいくら誘っても＿＿来なかった。", en: "No matter how much I invited him, he just wouldn't come.", options: ["なかなか", "やっと", "とうとう", "もう"], correct: 0 },
+    { type: "fill", jp: "三年間頑張って、＿＿＿＿試験に合格しました。", en: "After three years of hard work, I finally passed the exam.", answer: "やっと" },
+    { type: "choice", jp: "長い間病気だった祖父は、＿＿亡くなってしまった。", en: "My grandfather, who had been ill for a long time, finally passed away.", options: ["とうとう", "なかなか", "やっと", "もう"], correct: 0 },
+  ],
+  "かならず・きっと・ぜひ": [
+    { type: "fill", jp: "わたしはご飯の後で、＿＿＿＿はをみがいている。", en: "I always brush my teeth without fail after meals.", answer: "かならず" },
+    { type: "choice", jp: "今度のテストでは＿＿いいてんがとれるでしょう。", en: "You'll surely get a good grade on the next test.", options: ["きっと", "かならず", "ぜひ", "もう"], correct: 0 },
+    { type: "fill", jp: "あしたの試合は＿＿＿＿かつぞ！", en: "We will definitely win tomorrow's match!", answer: "かならず" },
+    { type: "choice", jp: "トム「＿＿わたしの国へあそびに来てください。」", en: "Tom: \"Please, by all means, come visit my country.\"", options: ["ぜひ", "かならず", "きっと", "なかなか"], correct: 0 },
+    { type: "fill", jp: "彼女はまじめだから、＿＿＿＿約束を守る。", en: "She's serious, so she definitely keeps her promises.", answer: "かならず" },
+    { type: "choice", jp: "山田「ええ、＿＿行きたいです。」", en: "Yamada: \"Yes, I'd love to go.\"", options: ["ぜひ", "かならず", "きっと", "もう"], correct: 0 },
+  ],
+
+  // ---------- 39課 〜すぎます・〜にくいです・〜やすいです ----------
+  "〜すぎます・〜にくいです・〜やすいです": [
+    { type: "fill", jp: "昨日の夜、食べ＿＿＿＿＿、おなかが痛いです。（食べる）", en: "I ate too much last night, and my stomach hurts.", answer: "すぎて" },
+    { type: "choice", jp: "この漢字は画数が多くて、覚え＿＿です。", en: "This kanji has a lot of strokes, so it's hard to remember.", options: ["にくい", "やすい", "すぎる", "がたい"], correct: 0 },
+    { type: "fill", jp: "この靴は軽くて、歩き＿＿＿＿です。（歩く）", en: "These shoes are light and easy to walk in.", answer: "やすい" },
+    { type: "choice", jp: "話し＿＿、のどが痛くなりました。", en: "I talked too much, and my throat started to hurt.", options: ["すぎて", "にくくて", "やすくて", "がたくて"], correct: 0 },
+    { type: "fill", jp: "先生の説明はいつも分かり＿＿＿＿です。（分かる）", en: "The teacher's explanations are always easy to understand.", answer: "やすい" },
+    { type: "choice", jp: "この道は暗くて、夜は歩き＿＿です。", en: "This road is dark, so it's hard to walk at night.", options: ["にくい", "やすい", "すぎる", "っぽい"], correct: 0 },
+  ],
+
+  // ---------- 40課 品詞 ----------
+  "名詞⇔動詞": [
+    { type: "fill", jp: "料理は好きですが、＿＿＿＿は好きではありません。（そうじする）", en: "I like cooking, but I don't like cleaning.", answer: "そうじ" },
+    { type: "choice", jp: "帰りの＿＿はもう買いました。", en: "I've already bought the return ticket.", options: ["きっぷ", "きっぷする", "きっぷして", "きっぷされ"], correct: 0 },
+    { type: "fill", jp: "＿＿＿＿は楽しいですよ。（山にのぼる）", en: "Mountain climbing is fun.", answer: "山のぼり" },
+    { type: "choice", jp: "毎朝の＿＿は健康にいいです。", en: "My morning walk is good for my health.", options: ["散歩", "散歩する", "散歩して", "散歩され"], correct: 0 },
+    { type: "fill", jp: "彼の＿＿＿＿はとても上手です。（料理する）", en: "His cooking is very good.", answer: "料理" },
+    { type: "choice", jp: "週末はいつも家で＿＿をします。", en: "On weekends I always do cleaning at home.", options: ["そうじ", "そうじする", "そうじして", "そうじされ"], correct: 0 },
+  ],
+  "名詞⇔形容詞": [
+    { type: "fill", jp: "東京スカイツリーの＿＿＿は634メートルです。（高い）", en: "The height of the Tokyo Skytree is 634 meters.", answer: "高さ" },
+    { type: "choice", jp: "場所の＿＿を考えて、ホテルをえらびます。", en: "I'll choose the hotel considering the convenience of the location.", options: ["べんりさ", "べんりな", "べんりに", "べんりだ"], correct: 0 },
+    { type: "fill", jp: "この問題の＿＿＿＿は分かりません。（難しい）", en: "I don't know how difficult this problem is.", answer: "難しさ" },
+    { type: "choice", jp: "荷物の＿＿を測ってください。", en: "Please measure the weight of the luggage.", options: ["重さ", "重い", "重く", "重くて"], correct: 0 },
+    { type: "fill", jp: "部屋の＿＿＿＿にびっくりしました。（広い）", en: "I was surprised by how spacious the room was.", answer: "広さ" },
+    { type: "choice", jp: "値段の＿＿を比べてみましょう。", en: "Let's compare the prices.", options: ["高さ", "高い", "高く", "高くて"], correct: 0 },
+  ],
+  "副詞⇔形容詞": [
+    { type: "fill", jp: "みんなで＿＿＿話しましょう。（楽しい）", en: "Let's all chat happily together.", answer: "楽しく" },
+    { type: "choice", jp: "手を＿＿あらってください。", en: "Please wash your hands thoroughly.", options: ["きれいに", "きれいな", "きれいだ", "きれいの"], correct: 0 },
+    { type: "fill", jp: "もっと＿＿＿＿字を書いてください。（大きい）", en: "Please write in bigger letters.", answer: "大きく" },
+    { type: "choice", jp: "部屋を＿＿片付けました。", en: "I tidied the room quietly.", options: ["静かに", "静かな", "静かだ", "静かの"], correct: 0 },
+    { type: "fill", jp: "彼はいつも＿＿＿＿話します。（優しい）", en: "He always speaks kindly.", answer: "優しく" },
+    { type: "choice", jp: "荷物を＿＿運んでください。", en: "Please carry the luggage carefully.", options: ["丁寧に", "丁寧な", "丁寧だ", "丁寧の"], correct: 0 },
+  ],
+  "名詞⇔文": [
+    { type: "choice", jp: "友だちと話す＿＿は楽しいです。", en: "Talking with friends is fun.", options: ["こと", "とき", "ため", "あいだ"], correct: 0 },
+    { type: "fill", jp: "トムさんと会うやくそくをした＿＿＿＿をわすれていました。", en: "I had forgotten that I'd made a promise to meet Tom.", answer: "こと" },
+    { type: "choice", jp: "毎日運動する＿＿は体にいいです。", en: "Exercising every day is good for your health.", options: ["の", "とき", "ため", "あいだ"], correct: 0 },
+    { type: "fill", jp: "漢字を書く＿＿＿＿は難しいです。", en: "Writing kanji is difficult.", answer: "の" },
+    { type: "choice", jp: "早く寝る＿＿は大切です。", en: "Going to bed early is important.", options: ["こと", "とき", "ところ", "ため"], correct: 0 },
+    { type: "fill", jp: "音楽を聞く＿＿＿＿が好きです。", en: "I like listening to music.", answer: "の" },
+  ],
 };
