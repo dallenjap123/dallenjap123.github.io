@@ -143,15 +143,37 @@
   // from any device are preserved without losing newer progress data.
   function mergeProgressMaps(localMap, remoteMap) {
     const merged = Object.assign({}, localMap || {});
+    
     Object.keys(remoteMap || {}).forEach((id) => {
       const r = remoteMap[id];
       const l = merged[id];
-      if (r && (!l || (r.lastSeen && (!l.lastSeen || r.lastSeen > l.lastSeen)))) {
+      
+      if (!r) return;
+      if (!l) {
         merged[id] = r;
-      } else if (r && l && typeof r === "object" && typeof l === "object" && !r.lastSeen && !l.lastSeen) {
+        return;
+      }
+      
+      // CLOCK DRIFT FIX: Compare total study attempts instead of just timestamps.
+      // If a device is a few seconds behind, it will still win if it has more practice attempts.
+      const rTotal = (r.correct || 0) + (r.wrong || 0);
+      const lTotal = (l.correct || 0) + (l.wrong || 0);
+      
+      if (rTotal > lTotal) {
+        // The cloud has more practice attempts, so it's definitively newer
+        merged[id] = r;
+      } else if (rTotal === 0 && lTotal > 0 && r.lastSeen && l.lastSeen && r.lastSeen > l.lastSeen) {
+        // The cloud was explicitly reset to 0
+        merged[id] = r;
+      } else if (rTotal === lTotal && r.lastSeen && (!l.lastSeen || r.lastSeen > l.lastSeen)) {
+        // Same amount of attempts, fallback to standard timestamp check
+        merged[id] = r;
+      } else if (typeof r === "object" && typeof l === "object" && !r.lastSeen && !l.lastSeen) {
+        // Initial setup merge
         merged[id] = Object.assign({}, l, r);
       }
     });
+    
     return merged;
   }
 
