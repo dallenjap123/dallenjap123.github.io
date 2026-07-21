@@ -116,6 +116,150 @@ window.VOCAB_EXAM_QUESTIONS = {
       { type: "kanji", sentence: "一人[ひとり]で暮[く]らすのは＿＿です。", distractors: ["楽しい", "忙しい", "悲しい"] },
       { type: "usage", sentence: "「寂しい」の正しい使い方はどれですか。", answer: "友達がいなくて寂しいです。", distractors: ["友達がいなくて寂しいくないです。", "友達がいなくて寂しいでした。", "友達がいなくて寂しいさを感じます。"] },
       { type: "grammar", sentence: "彼[かれ]が引[ひ]っ越[こ]して、＿＿を感[かん]じています。", answer: "寂しさ", distractors: ["寂しい", "寂しく", "寂しかった"] }
+    ],
+
+    // ---------- 2課 趣味① ----------
+    "趣味": [
+      { type: "kanji", sentence: "私[わたし]の＿＿は写真[しゃしん]を撮[と]ることです。", distractors: ["趣旨", "主義", "首位"] },
+      { type: "usage", sentence: "「趣味」の正しい使い方はどれですか。", answer: "私の趣味は写真を撮ることです。", distractors: ["私は趣味が写真を撮ることをします。", "私の趣味を写真を撮ることです。", "私の趣味は写真を撮ることにします。"] },
+      { type: "particle", sentence: "あなた＿＿趣味[しゅみ]は何[なん]ですか。", answer: "の", distractors: ["が", "を", "に"] }
+    ],
+    "美術館": [
+      { type: "kanji", sentence: "週末[しゅうまつ]に＿＿へ絵[え]を見[み]に行[い]きました。", distractors: ["博物館", "図書館", "美容院"] },
+      { type: "usage", sentence: "「美術館」の正しい使い方はどれですか。", answer: "美術館で有名な絵を見ました。", distractors: ["美術館を有名な絵を見ました。", "美術館に有名な絵がいます。", "美術館は有名な絵を見ました。"] },
+      { type: "particle", sentence: "週末[しゅうまつ]、美術館[びじゅつかん]＿＿絵[え]を見[み]に行[い]きました。", answer: "へ", distractors: ["を", "が", "で"] }
+    ],
+    "(お)花見": [
+      { type: "kanji", sentence: "春[はる]になったら、＿＿に行[い]きましょう。", distractors: ["(お)祭り", "(お)正月", "ハイキング"] },
+      { type: "collocation", sentence: "(お)花見[はなみ]は＿＿の時期[じき]にします。", answer: "春", distractors: ["夏", "秋", "冬"] }
+    ],
+    "コンサート": [
+      { type: "kanji", sentence: "昨日[きのう]、有名[ゆうめい]な歌手[かしゅ]の＿＿に行[い]きました。", distractors: ["展覧会", "試合", "番組"] },
+      { type: "collocation", sentence: "コンサートが＿＿始[はじ]まりました。", answer: "もうすぐ", distractors: ["だいたい", "なかなか", "たいてい"] }
+    ],
+    "ダンス": [
+      { type: "kanji", sentence: "妹[いもうと]は毎週[まいしゅう]＿＿を習[なら]っています。", distractors: ["運動", "練習", "スキー"] },
+      { type: "collocation", sentence: "ダンスの発表会[はっぴょうかい]で＿＿踊[おど]りました。", answer: "上手に", distractors: ["下手に", "大変に", "十分に"] }
+    ],
+    "スキー": [
+      { type: "kanji", sentence: "冬[ふゆ]になったら、家族[かぞく]で＿＿に行[い]きます。", distractors: ["ダンス", "ハイキング", "旅行"] },
+      { type: "collocation", sentence: "スキーで＿＿転[ころ]びました。", answer: "たくさん", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+    "ビデオ": [
+      { type: "kanji", sentence: "結婚式[けっこんしき]の＿＿を撮[と]りました。", distractors: ["ドラマ", "番組", "写真"] },
+      { type: "particle", sentence: "息子[むすこ]の運動会[うんどうかい]＿＿ビデオを撮[と]りました。", answer: "の", distractors: ["を", "が", "に"] }
+    ],
+    "アニメ": [
+      { type: "kanji", sentence: "息子[むすこ]は毎週[まいしゅう]＿＿を見[み]ています。", distractors: ["マンガ", "ドラマ", "ゲーム"] },
+      { type: "collocation", sentence: "そのアニメは＿＿人気[にんき]があります。", answer: "とても", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+    "マンガ": [
+      { type: "kanji", sentence: "息子[むすこ]は＿＿を読[よ]むのが好[す]きです。", distractors: ["アニメ", "小説", "日記"] },
+      { type: "collocation", sentence: "そのマンガを＿＿読[よ]みました。", answer: "一気に", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+    "日記": [
+      { type: "kanji", sentence: "毎晩[まいばん]寝[ね]る前[まえ]に＿＿を書[か]きます。", distractors: ["手紙", "小説", "レポート"] },
+      { type: "particle", sentence: "日記[にっき]＿＿今日[きょう]あったことを書[か]きました。", answer: "に", distractors: ["を", "が", "で"] },
+      { type: "collocation", sentence: "旅行中[りょこうちゅう]、＿＿日記[にっき]をつけていました。", answer: "毎日", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+    "試合する": [
+      { type: "kanji", sentence: "私[わたし]たちのチームは強[つよ]いチームと＿＿しました。", distractors: ["試着する", "準備する", "練習する"] },
+      { type: "usage", sentence: "「試合する」の正しい使い方はどれですか。", answer: "私たちのチームは強いチームと試合しました。", distractors: ["私たちのチームは強いチームを試合しました。", "私たちのチームは強いチームと試合されました。", "私たちのチームは強いチームと試合させました。"] },
+      { type: "particle", sentence: "私[わたし]たちのチームは強[つよ]いチーム＿＿試合[しあい]しました。", answer: "と", distractors: ["を", "が", "に"] },
+      { type: "collocation", sentence: "明日[あした]、＿＿な試合[しあい]があります。", answer: "大切", distractors: ["心配", "便利", "熱心"] }
+    ],
+    "放送する": [
+      { type: "kanji", sentence: "その番組[ばんぐみ]は毎週[まいしゅう]土曜日[どようび]に＿＿されます。", distractors: ["包装する", "訪問する", "解放する"] },
+      { type: "usage", sentence: "「放送する」の正しい使い方はどれですか。", answer: "その番組は毎週土曜日に放送されます。", distractors: ["その番組は毎週土曜日を放送されます。", "その番組は毎週土曜日に放送させます。", "その番組は毎週土曜日で放送されます。"] },
+      { type: "particle", sentence: "好[す]きな番組[ばんぐみ]が夜[よる]九時[くじ]＿＿放送[ほうそう]されます。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "集める": [
+      { type: "kanji", sentence: "息子[むすこ]は切手[きって]を＿＿のが好[す]きです。", distractors: ["選ぶ", "並べる", "調べる"] },
+      { type: "usage", sentence: "「集める」の正しい使い方はどれですか。", answer: "息子は切手を集めるのが好きです。", distractors: ["息子は切手が集めるのが好きです。", "息子は切手を集まるのが好きです。", "息子は切手を集めさせるのが好きです。"] },
+      { type: "particle", sentence: "会議[かいぎ]の前[まえ]に資料[しりょう]＿＿集[あつ]めました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "ぜひ": [
+      { type: "usage", sentence: "「ぜひ」の正しい使い方はどれですか。", answer: "この本はぜひ読んでみてください。", distractors: ["この本はぜひを読んでみてください。", "この本はぜひが読んでみてください。", "この本はぜひで読んでみてください。"] },
+      { type: "collocation", sentence: "＿＿一度[いちど]食[た]べてみてください、おいしいですよ。", answer: "ぜひ", distractors: ["だいたい", "たいてい", "なかなか"] }
+    ],
+    "一度": [
+      { type: "usage", sentence: "「一度」の正しい使い方はどれですか。", answer: "その映画は一度見たことがあります。", distractors: ["その映画は一度に見たことがあります。", "その映画は一度を見たことがあります。", "その映画は一度が見たことがあります。"] },
+      { type: "collocation", sentence: "一度[いちど]決[き]めたら、＿＿変[か]えません。", answer: "絶対に", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+
+    // ---------- 3課 趣味② ----------
+    "船": [
+      { type: "kanji", sentence: "港[みなと]から＿＿に乗[の]って島[しま]へ行[い]きました。", distractors: ["舟", "空港", "交通"] },
+      { type: "usage", sentence: "「船」の正しい使い方はどれですか。", answer: "船で島に行きました。", distractors: ["船を島に行きました。", "船に島に行きました。", "船が島に行きました。"] },
+      { type: "particle", sentence: "港[みなと]から船[ふね]＿＿乗[の]りました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "空港": [
+      { type: "kanji", sentence: "友達[ともだち]を＿＿まで送[おく]りました。", distractors: ["港", "駐車場", "会場"] },
+      { type: "usage", sentence: "「空港」の正しい使い方はどれですか。", answer: "空港まで友達を送りました。", distractors: ["空港を友達を送りました。", "空港に友達が送りました。", "空港は友達を送りました。"] },
+      { type: "particle", sentence: "飛行機[ひこうき]に乗[の]るために、空港[くうこう]＿＿行[い]きました。", answer: "へ", distractors: ["を", "が", "で"] }
+    ],
+    "急行": [
+      { type: "kanji", sentence: "この＿＿に乗[の]れば、早[はや]く着[つ]きます。", distractors: ["交通", "空港", "世界"] },
+      { type: "particle", sentence: "駅[えき]で急行[きゅうこう]＿＿乗[の]りました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "交通": [
+      { type: "kanji", sentence: "この町[まち]は＿＿がとても便利[べんり]です。", distractors: ["急行", "空港", "世界"] },
+      { type: "usage", sentence: "「交通」の正しい使い方はどれですか。", answer: "この町は交通がとても便利です。", distractors: ["この町は交通をとても便利です。", "この町は交通にとても便利です。", "この町は交通がとても便利にします。"] },
+      { type: "particle", sentence: "この町[まち]は交通[こうつう]＿＿便利[べんり]です。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "神社": [
+      { type: "kanji", sentence: "お正月[しょうがつ]に＿＿へお参[まい]りに行[い]きました。", distractors: ["(お)寺", "教会", "美術館"] },
+      { type: "usage", sentence: "「神社」の正しい使い方はどれですか。", answer: "神社で祈りました。", distractors: ["神社を祈りました。", "神社は祈りました。", "神社が祈りました。"] },
+      { type: "particle", sentence: "お正月[しょうがつ]に神社[じんじゃ]＿＿お参[まい]りに行[い]きました。", answer: "へ", distractors: ["を", "が", "で"] }
+    ],
+    "世界": [
+      { type: "kanji", sentence: "この本[ほん]は＿＿中[じゅう]で読[よ]まれています。", distractors: ["世代", "世紀", "業界"] },
+      { type: "usage", sentence: "「世界」の正しい使い方はどれですか。", answer: "この本は世界中で読まれています。", distractors: ["この本は世界中を読まれています。", "この本は世界中に読まれています。", "この本は世界中が読まれています。"] },
+      { type: "particle", sentence: "日本[にほん]のアニメは世界＿＿人気[にんき]です。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "予約する": [
+      { type: "kanji", sentence: "レストラン＿＿しました。", distractors: ["要約する", "予測する", "約束する"] },
+      { type: "usage", sentence: "「予約する」の正しい使い方はどれですか。", answer: "レストランを予約しました。", distractors: ["レストランに予約しました。", "レストランが予約しました。", "レストランを予約されました。"] },
+      { type: "particle", sentence: "友達[ともだち]といい医者[いしゃ]＿＿予約[よやく]しました。", answer: "を", distractors: ["に", "が", "で"] },
+      { type: "collocation", sentence: "ホテルを＿＿予約[よやく]しました。", answer: "すぐに", distractors: ["全然", "あまり", "だいたい"] }
+    ],
+    "案内する": [
+      { type: "kanji", sentence: "留学生[りゅうがくせい]を神社[じんじゃ]に＿＿しました。", distractors: ["安心する", "暗記する", "準備する"] },
+      { type: "usage", sentence: "「案内する」の正しい使い方はどれですか。", answer: "留学生を神社に案内しました。", distractors: ["留学生を神社が案内しました。", "留学生に神社を案内されました。", "留学生を神社に案内させました。"] },
+      { type: "particle", sentence: "留学生[りゅうがくせい]を神社[じんじゃ]＿＿案内[あんない]しました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "準備する": [
+      { type: "kanji", sentence: "会議[かいぎ]のために資料[しりょう]を＿＿しました。", distractors: ["出席する", "予約する", "研究する"] },
+      { type: "usage", sentence: "「準備する」の正しい使い方はどれですか。", answer: "会議のために資料を準備しました。", distractors: ["会議のために資料が準備しました。", "会議のために資料を準備されました。", "会議のために資料を準備させました。"] },
+      { type: "particle", sentence: "会議[かいぎ]の前[まえ]に資料[しりょう]＿＿準備[じゅんび]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "動く": [
+      { type: "kanji", sentence: "このスイッチを押[お]すと、機械[きかい]が＿＿ます。", distractors: ["止まる", "壊れる", "消える"] },
+      { type: "usage", sentence: "「動く」の正しい使い方はどれですか。", answer: "この機械は電気で動きます。", distractors: ["この機械は電気を動きます。", "この機械は電気に動かれます。", "この機械は電気が動かせます。"] },
+      { type: "particle", sentence: "このスイッチ＿＿押[お]すと、機械[きかい]が動[うご]きます。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "泊まる": [
+      { type: "kanji", sentence: "京都[きょうと]で旅館[りょかん]に＿＿ました。", distractors: ["止まる", "泊める", "止める"] },
+      { type: "usage", sentence: "「泊まる」の正しい使い方はどれですか。", answer: "旅館に泊まりました。", distractors: ["旅館を泊まりました。", "旅館で泊まりました。", "旅館が泊まりました。"] },
+      { type: "particle", sentence: "京都[きょうと]で旅館[りょかん]＿＿泊[と]まりました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "乗り換える": [
+      { type: "kanji", sentence: "次[つぎ]の駅[えき]で電車[でんしゃ]を＿＿ます。", distractors: ["乗り遅れる", "乗り越す", "取り替える"] },
+      { type: "usage", sentence: "「乗り換える」の正しい使い方はどれですか。", answer: "次の駅で電車を乗り換えます。", distractors: ["次の駅で電車が乗り換えます。", "次の駅で電車に乗り換えられます。", "次の駅に電車を乗り換えます。"] },
+      { type: "particle", sentence: "次[つぎ]の駅[えき]＿＿電車[でんしゃ]を乗[の]り換[か]えます。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "止める": [
+      { type: "kanji", sentence: "車[くるま]をここに＿＿もいいですか。", distractors: ["止まる", "泊まる", "停める"] },
+      { type: "usage", sentence: "「止める」の正しい使い方はどれですか。", answer: "車をここに止めてもいいですか。", distractors: ["車がここに止めてもいいですか。", "車をここに止まってもいいですか。", "車をここで止めってもいいですか。"] },
+      { type: "particle", sentence: "車[くるま]＿＿ここに止[と]めてもいいですか。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "残念": [
+      { type: "kanji", sentence: "旅行[りょこう]に行[い]けなくて＿＿です。", distractors: ["心配", "大変", "不便"] },
+      { type: "usage", sentence: "「残念」の正しい使い方はどれですか。", answer: "旅行に行けなくて残念です。", distractors: ["旅行に行けなくて残念くないです。", "旅行に行けなくて残念いです。", "旅行に行けなくて残念かったです。"] }
+    ],
+    "もうすぐ": [
+      { type: "usage", sentence: "「もうすぐ」の正しい使い方はどれですか。", answer: "もうすぐ夏休みです。", distractors: ["もうすぐを夏休みです。", "もうすぐが夏休みです。", "もうすぐに夏休みです。"] },
+      { type: "collocation", sentence: "電車[でんしゃ]は＿＿到着[とうちゃく]します。", answer: "もうすぐ", distractors: ["だいたい", "たいてい", "なかなか"] }
     ]
   }
 };
