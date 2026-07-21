@@ -260,6 +260,71 @@ window.VOCAB_EXAM_QUESTIONS = {
     "もうすぐ": [
       { type: "usage", sentence: "「もうすぐ」の正しい使い方はどれですか。", answer: "もうすぐ夏休みです。", distractors: ["もうすぐを夏休みです。", "もうすぐが夏休みです。", "もうすぐに夏休みです。"] },
       { type: "collocation", sentence: "電車[でんしゃ]は＿＿到着[とうちゃく]します。", answer: "もうすぐ", distractors: ["だいたい", "たいてい", "なかなか"] }
+    ],
+
+    // ---------- 4課 生活① ----------
+    "棚": [
+      { type: "kanji", sentence: "本[ほん]を＿＿に置[お]きました。", distractors: ["引き出し", "机", "押入れ"] },
+      { type: "usage", sentence: "「棚」の正しい使い方はどれですか。", answer: "本を棚に置きました。", distractors: ["本を棚が置きました。", "本を棚を置きました。", "本を棚で置きました。"] },
+      { type: "particle", sentence: "本[ほん]を棚[たな]＿＿置[お]きました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "スイッチ": [
+      { type: "kanji", sentence: "電気[でんき]の＿＿を押[お]しました。", distractors: ["リモコン", "ボタン", "コンセント"] },
+      { type: "particle", sentence: "電気[でんき]のスイッチ＿＿押[お]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "パソコン": [
+      { type: "kanji", sentence: "新[あたら]しい＿＿を買[か]いました。", distractors: ["コンピューター", "テレビ", "スマホ"] },
+      { type: "usage", sentence: "「パソコン」の正しい使い方はどれですか。", answer: "パソコンで宿題をします。", distractors: ["パソコンを宿題をします。", "パソコンに宿題をします。", "パソコンが宿題をします。"] }
+    ],
+    "布団": [
+      { type: "kanji", sentence: "毎朝[まいあさ]＿＿をたたみます。", distractors: ["毛布", "シーツ", "枕"] },
+      { type: "particle", sentence: "毎朝[まいあさ]布団[ふとん]＿＿たたみます。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "ごみ": [
+      { type: "kanji", sentence: "＿＿を捨[す]ててください。", distractors: ["荷物", "忘れ物", "洗濯物"] },
+      { type: "particle", sentence: "ごみ＿＿捨[す]ててください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "住所": [
+      { type: "kanji", sentence: "この紙[かみ]に＿＿を書[か]いてください。", distractors: ["名前", "電話番号", "意味"] },
+      { type: "usage", sentence: "「住所」の正しい使い方はどれですか。", answer: "この紙に住所を書いてください。", distractors: ["この紙は住所を書いてください。", "この紙に住所が書いてください。", "この紙を住所を書いてください。"] }
+    ],
+    "修理する": [
+      { type: "kanji", sentence: "壊[こわ]れたパソコンを＿＿しました。", distractors: ["習得する", "集中する", "終了する"] },
+      { type: "usage", sentence: "「修理する」の正しい使い方はどれですか。", answer: "壊れたパソコンを修理しました。", distractors: ["壊れたパソコンが修理しました。", "壊れたパソコンを修理されました。", "壊れたパソコンを修理させました。"] },
+      { type: "particle", sentence: "壊[こわ]れたパソコン＿＿修理[しゅうり]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "故障する": [
+      { type: "kanji", sentence: "パソコンが＿＿しました。", distractors: ["呼称する", "交渉する", "誇張する"] },
+      { type: "usage", sentence: "「故障する」の正しい使い方はどれですか。", answer: "パソコンが故障しました。", distractors: ["パソコンを故障しました。", "パソコンに故障しました。", "パソコンで故障しました。"] },
+      { type: "particle", sentence: "パソコン＿＿故障[こしょう]しました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "引っ越しする": [
+      { type: "kanji", sentence: "来月[らいげつ]、新[あたら]しい家[いえ]に＿＿します。", distractors: ["引き出し", "引き受ける", "修理する"] },
+      { type: "usage", sentence: "「引っ越しする」の正しい使い方はどれですか。", answer: "来月、新しい家に引っ越しします。", distractors: ["来月、新しい家を引っ越しします。", "来月、新しい家に引っ越しされます。", "来月、新しい家に引っ越しさせます。"] },
+      { type: "particle", sentence: "来月[らいげつ]、新[あたら]しい家[いえ]＿＿引[ひ]っ越[こ]しします。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "役に立つ": [
+      { type: "kanji", sentence: "この辞書[じしょ]はとても＿＿ます。", distractors: ["立つ", "目に立つ", "気に入る"] },
+      { type: "usage", sentence: "「役に立つ」の正しい使い方はどれですか。", answer: "この辞書はとても役に立ちます。", distractors: ["この辞書はとても役に立てます。", "この辞書はとても役が立ちます。", "この辞書はとても役を立ちます。"] }
+    ],
+    "捨てる": [
+      { type: "kanji", sentence: "古[ふる]い服[ふく]を＿＿ました。", distractors: ["拾う", "忘れる", "汚れる"] },
+      { type: "particle", sentence: "古[ふる]い服[ふく]＿＿捨[す]てました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "つける": [
+      { type: "kanji", sentence: "部屋[へや]が暗[くら]いので、電気[でんき]を＿＿ください。", distractors: ["消す", "つく", "開く"] },
+      { type: "usage", sentence: "「つける」の正しい使い方はどれですか。", answer: "電気をつけてください。", distractors: ["電気がつけてください。", "電気につけてください。", "電気をつきてください。"] }
+    ],
+    "消す": [
+      { type: "kanji", sentence: "寝[ね]る前[まえ]に電気[でんき]を＿＿ください。", distractors: ["つける", "消える", "忘れる"] },
+      { type: "particle", sentence: "寝[ね]る前[まえ]に電気[でんき]＿＿消[け]してください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "すてき": [
+      { type: "usage", sentence: "「すてき」の正しい使い方はどれですか。", answer: "すてきな部屋ですね。", distractors: ["すてきの部屋ですね。", "すてきい部屋ですね。", "すてきだ部屋ですね。"] }
+    ],
+    "そろそろ": [
+      { type: "usage", sentence: "「そろそろ」の正しい使い方はどれですか。", answer: "そろそろ帰りましょう。", distractors: ["そろそろを帰りましょう。", "そろそろが帰りましょう。", "そろそろに帰りましょう。"] },
+      { type: "collocation", sentence: "時間[じかん]なので、＿＿失礼[しつれい]します。", answer: "そろそろ", distractors: ["だいたい", "たいてい", "なかなか"] }
     ]
   }
 };
