@@ -435,12 +435,17 @@
     return { options: shuffled.map((o) => o.text), correctIndex: shuffled.findIndex((o) => o.isCorrect) };
   }
 
-  // JLPT "文脈規定"-style question: read a sentence, pick which word fits
-  // the blank. Every sentence + its 4 distractor words comes from
-  // js/data/vocab-exam-questions.js, hand-authored per word (not
-  // generated) — one of the (up to) 10 questions per word is picked at
-  // random so repeat attempts don't feel identical. A word with no
-  // authored questions yet is simply skipped rather than crashing.
+  // Sentence-based question, read from js/data/vocab-exam-questions.js,
+  // hand-authored per word (not generated). Each word can have several
+  // question TYPES (kanji/reading recognition, usage, particle,
+  // collocation, related-grammar — see that file's header) — one is
+  // picked at random per attempt so repeat attempts don't feel identical
+  // and, across a whole exam, the mix of types stays varied on its own.
+  // `answer` defaults to the word itself (the plain kanji/reading-recognition
+  // case); other types set `answer` explicitly to whatever's actually being
+  // tested (a particle, a collocate, a related form, a full sentence for
+  // "usage" questions). A word with no authored questions yet is simply
+  // skipped rather than crashing.
   function buildVocabClozeQuestions(words, level) {
     const bank = (window.VOCAB_EXAM_QUESTIONS && window.VOCAB_EXAM_QUESTIONS[level]) || {};
     const questions = [];
@@ -448,7 +453,7 @@
       const bankQuestions = bank[target.word];
       if (!bankQuestions || !bankQuestions.length) return;
       const chosen = bankQuestions[Math.floor(Math.random() * bankQuestions.length)];
-      const built = shuffleWithCorrect(target.word, chosen.distractors);
+      const built = shuffleWithCorrect(chosen.answer || target.word, chosen.distractors);
       const tag = target.lesson !== undefined ? `${target.level} ・ ${target.lesson}課` : target.level;
       questions.push({ type: "choice", jp: chosen.sentence, en: "", options: built.options, correct: built.correctIndex, tag });
     });
