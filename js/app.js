@@ -123,11 +123,13 @@
   }
   function recordGrade(item, isCorrect) {
     const id = wordId(item);
-    const stats = progressStore[id] || { correct: 0, wrong: 0 };
+    const stats = progressStore[id] || { correct: 0, wrong: 0, streak: 0 };
     if (isCorrect) {
       stats.correct += 1;
+      stats.streak = (stats.streak || 0) + 1;
     } else {
       stats.wrong += 1;
+      stats.streak = 0;
     }
     stats.lastSeen = new Date().toISOString();
     progressStore[id] = stats;
@@ -140,6 +142,12 @@
     const stats = getStats(item);
     if (stats.correct + stats.wrong === 0) return false; // no attempts yet
     return stats.wrong > stats.correct;
+  }
+  // "Mastered" = your last two grades in a row (ever, across sessions) were
+  // correct — same bar as the in-session mastery queue in gradeCurrent(),
+  // just persisted instead of reset every session.
+  function isMastered(item) {
+    return (getStats(item).streak || 0) >= 2;
   }
 
   // ---------- persisted grammar practice progress (per pattern) ----------
@@ -236,6 +244,9 @@
       views.forEach((v) => v.classList.toggle("active", v.id === `${target}-view`));
       if (target === "wordlist" && typeof refreshWordList === "function") refreshWordList();
       if (target === "home" && typeof renderDashboard === "function") renderDashboard();
+      if (target === "exam" && window.JPStudyExam && typeof window.JPStudyExam.onTabShow === "function") {
+        window.JPStudyExam.onTabShow();
+      }
     });
   });
 
@@ -491,7 +502,7 @@ resetProgressBtn.addEventListener("click", () => {
     // Overwrite only the selected words with 0s and a new timestamp
     targetItems.forEach(item => {
       const id = wordId(item);
-      progressStore[id] = { correct: 0, wrong: 0, lastSeen: now };
+      progressStore[id] = { correct: 0, wrong: 0, streak: 0, lastSeen: now };
     });
 
     saveProgress();
@@ -1390,6 +1401,9 @@ resetProgressBtn.addEventListener("click", () => {
       refreshWordList();
       if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
       renderDashboard();
+      if (window.JPStudyExam && typeof window.JPStudyExam.onLangChange === "function") {
+        window.JPStudyExam.onLangChange();
+      }
     });
   });
 
@@ -1413,27 +1427,28 @@ resetProgressBtn.addEventListener("click", () => {
     const rows = lessonNums
       .map((n) => {
         const lessonItems = items.filter((item) => item.lesson === n);
-        let studied = 0,
+        let mastered = 0,
           correctSum = 0,
           totalSum = 0;
         lessonItems.forEach((item) => {
-          const stats = getStats({ ...item, level });
+          const idItem = { ...item, level };
+          const stats = getStats(idItem);
           const attempts = stats.correct + stats.wrong;
           if (attempts > 0) {
-            studied += 1;
             correctSum += stats.correct;
             totalSum += attempts;
           }
+          if (isMastered(idItem)) mastered += 1;
         });
         const total = lessonItems.length;
-        const pct = total ? Math.round((studied / total) * 100) : 0;
+        const pct = total ? Math.round((mastered / total) * 100) : 0;
         const meta = totalSum ? t("dashAccuracyLine", { pct: Math.round((correctSum / totalSum) * 100) }) : t("dashNotStartedYet");
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
         return `
         <div class="dash-lesson-row">
           <div class="dash-lesson-row-header">
             <span class="dash-lesson-title">${title}</span>
-            <span class="dash-lesson-count">${studied} / ${total}</span>
+            <span class="dash-lesson-count">${t("masteredProgress", { n: mastered, total })}</span>
           </div>
           <div class="dash-progress-track"><div class="dash-progress-fill" style="width:${pct}%"></div></div>
           <p class="dash-subsection-meta">${meta}</p>
