@@ -137,7 +137,30 @@
 
   syncGoogleBtn.addEventListener("click", handleGoogleSignIn);
 
-  syncSignoutBtn.addEventListener("click", () => auth.signOut());
+  syncSignoutBtn.addEventListener("click", async () => {
+    const originalText = syncSignoutBtn.textContent;
+    syncSignoutBtn.disabled = true;
+    syncSignoutBtn.textContent = "Saving...";
+    
+    try {
+      // Force a final sync to ensure the cloud perfectly matches 
+      // the local device before we destroy the auth token.
+      if (window.JPStudyProgress && auth.currentUser) {
+        // Wait for the push, but timeout after 3 seconds so the user 
+        // isn't trapped if they have a bad internet connection.
+        const pushPromise = doPush(window.JPStudyProgress.getSyncSnapshot());
+        const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+        await Promise.race([pushPromise, timeoutPromise]);
+      }
+    } catch (e) {
+      console.warn("Final push before signout failed", e);
+    }
+    
+    // Now that the data is safely in the cloud, we can log out
+    syncSignoutBtn.textContent = originalText;
+    syncSignoutBtn.disabled = false;
+    auth.signOut();
+  });
 
   // Merge the full sync payload (vocab, grammar, and streak) so updates
   // from any device are preserved without losing newer progress data.
