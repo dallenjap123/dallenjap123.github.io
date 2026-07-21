@@ -137,7 +137,20 @@
 
   syncGoogleBtn.addEventListener("click", handleGoogleSignIn);
 
-  syncSignoutBtn.addEventListener("click", () => auth.signOut());
+  syncSignoutBtn.addEventListener("click", () => {
+    auth.signOut().then(() => {
+      // 1. Wipe the local browser memory so it doesn't contaminate the next user
+      if (window.JPStudyProgress) {
+        window.JPStudyProgress.set({
+          vocab: {},
+          grammar: {},
+          streak: { current: 0, longest: 0, lastDate: null }
+        });
+      }
+      // 2. Force a quick page reload to instantly reset the dashboard UI
+      window.location.reload();
+    });
+  });
 
   // Merge the full sync payload (vocab, grammar, and streak) so updates
   // from any device are preserved without losing newer progress data.
