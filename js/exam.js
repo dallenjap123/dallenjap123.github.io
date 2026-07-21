@@ -398,17 +398,21 @@
     const ctx = runnerCtx;
     const total = ctx.total;
     const correct = ctx.correct;
+    const wrong = total - correct;
     const pct = total ? correct / total : 1;
-    const passed = pct >= ctx.config.passThreshold;
+    const usesMaxWrong = ctx.config.maxWrong !== undefined;
+    const passed = usesMaxWrong ? wrong <= ctx.config.maxWrong : pct >= ctx.config.passThreshold;
     showPanel("result");
-    ctx.config.onDone({ correct, total, pct, passed, failFastItem: extra && extra.failFastItem });
+    ctx.config.onDone({ correct, total, pct, wrong, usesMaxWrong, passed, failFastItem: extra && extra.failFastItem });
   }
 
   function renderResultBanner(result, opts) {
     const pctDisplay = Math.round(result.pct * 100);
     examResultBannerEl.className = "exam-result-banner " + (result.passed ? "pass" : "fail");
     const scoreLine = result.total
-      ? `<p class="exam-result-score">${result.correct} / ${result.total} (${pctDisplay}%)</p>`
+      ? `<p class="exam-result-score">${result.correct} / ${result.total} (${
+          result.usesMaxWrong ? `${result.wrong} ${t("examWrongLabel")}` : `${pctDisplay}%`
+        })</p>`
       : "";
     const detailLine = `<p class="exam-result-detail">${result.passed ? opts.passText : opts.failText}</p>`;
     examResultBannerEl.innerHTML = scoreLine + detailLine;
@@ -534,11 +538,11 @@
   }
 
   // Phase 2 — MCQ meaning-in-context recognition, from the hand-authored
-  // bank (js/data/vocab-exam-questions.js). Needs 95%. Failing picks a
-  // fresh random set (new question per word, where more than one is
-  // authored) rather than repeating the exact same attempt. Passing this
-  // is the whole exam passing, since phase 1 already had to be cleared to
-  // get here.
+  // bank (js/data/vocab-exam-questions.js). Allows at most 1 wrong answer
+  // total, regardless of set size. Failing picks a fresh random set (new
+  // question per word, where more than one is authored) rather than
+  // repeating the exact same attempt. Passing this is the whole exam
+  // passing, since phase 1 already had to be cleared to get here.
   function runVocabMcqPhase(words) {
     const questions = buildVocabClozeQuestions(words, examState.vocab.level);
     if (!questions.length) {
@@ -548,7 +552,7 @@
     }
     runExam(shuffle(questions), {
       phaseTagText: t("examPhase2Tag"),
-      passThreshold: 0.95,
+      maxWrong: 1,
       onDone: (result) => {
         if (result.passed) markLessonsExamPassed(examState.vocab.level, words);
         renderResultBanner(result, {
