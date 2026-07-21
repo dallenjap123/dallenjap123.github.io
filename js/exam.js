@@ -54,7 +54,12 @@
     }
   }
 
-  const GEMINI_MODEL = "gemini-2.5-flash";
+  // "-latest" alias instead of a pinned version — Google periodically
+  // retires specific model snapshots (e.g. gemini-2.5-flash stopped being
+  // available to new API keys), and this alias always resolves to
+  // whatever Gemini's current flash-tier model is, so this doesn't need
+  // to be hand-updated again when that happens.
+  const GEMINI_MODEL = "gemini-flash-latest";
 
   async function callGemini(prompt, responseSchema) {
     const key = getGeminiKey();
