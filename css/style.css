@@ -172,32 +172,6 @@ body {
 }
 .modal-close-x:hover { color: var(--ink); }
 
-.gemini-key-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-ui);
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-}
-.gemini-key-input:focus { border-color: var(--indigo); outline: none; }
-.gemini-key-show-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-ui);
-  font-size: 0.78rem;
-  color: var(--ink-soft);
-  margin-bottom: 16px;
-  cursor: pointer;
-}
-.gemini-key-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.gemini-key-link-note { margin: 14px 0 0; font-size: 0.78rem; }
-.gemini-key-link-note a { color: var(--indigo); }
-
 /* ---------- main / views ---------- */
 main {
   max-width: 900px;
@@ -744,16 +718,6 @@ main {
 .breadcrumb-item.done-wrong { border-color: var(--seal); background: var(--paper); color: var(--seal); }
 
 /* ---------- exam ---------- */
-.exam-key-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-}
-.exam-key-status { font-family: var(--font-ui); font-size: 0.75rem; color: var(--ink-soft); }
-.exam-key-status.ok { color: var(--mastered); }
-
 .exam-panel { margin-top: 20px; }
 .exam-panel-note {
   font-family: var(--font-ui);

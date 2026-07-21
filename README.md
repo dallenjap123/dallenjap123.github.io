@@ -6,7 +6,8 @@ A static site with five tools:
   quizzable word→meaning or meaning→word, with a mastery queue (wrong
   answers come back soon, right answers retire after two in a row) and a
   "practice weak words" mode that drills your worst-ratio words without
-  affecting your tracked stats.
+  affecting your tracked stats. Flipping a card speaks its reading aloud
+  (your browser's built-in text-to-speech — no key, no setup).
 - **Grammar** — a Reference view (browse patterns by level, with lesson
   numbers and usage notes) and a Practice view (fill-in-the-blank +
   multiple-choice questions, filterable by lesson).
@@ -16,9 +17,9 @@ A static site with five tools:
   three Practice modes: **By form** (drill one form across 50 verbs),
   **By verb** (cycle one verb through all 8 forms in order), and
   **Sentences** (each form tested inside a real sentence).
-- **Exam** — Gemini-generated mock tests, scoped to whichever level/lessons
-  (or, for Conjugation, forms) you select. See "Exam tab (Gemini mock
-  tests)" below for how it works and how to set up your API key.
+- **Exam** — mock tests, scoped to whichever level/lessons (or, for
+  Conjugation, forms) you select. Entirely local — no API key, no network
+  call. See "Exam tab" below for how it works.
 
 The **Home** dashboard tracks *mastered* words per lesson (words you've
 gotten right twice in a row, most recently) — not just words you've
@@ -39,11 +40,12 @@ css/
   style.css
 js/
   app.js
-  exam.js                         (Gemini mock-test tab — see below)
+  exam.js                         (mock-test tab — see below)
   sync.js                        (optional cloud sync — see below)
   firebase-config.js              (optional cloud sync — see below)
   data/
     vocab-data.js
+    vocab-exam-questions.js        (Vocab exam's question bank — see below)
     grammar-data.js
     grammar-practice-data.js
     conjugation-data.js
@@ -117,61 +119,56 @@ free, the more reliable route is Cloudflare Pages + Cloudflare Zero Trust
 Access (free for up to 50 users), which puts a login in front of the whole
 site. Otherwise, an unlisted GitHub Pages URL is "private by obscurity" only.
 
-## Exam tab (Gemini mock tests)
+## Exam tab
 
-The Exam tab generates a mock test on demand from Google's Gemini API, using
-your own real vocab/grammar/conjugation data as the source content — so the
-test content matches whatever's in your `js/data/*.js` files.
+The Exam tab generates a mock test from hand-authored content — entirely
+local, no API key, no network call, no external service. It reuses your own
+data files as the source of truth, so every correct answer traces back to
+something already verified elsewhere in this repo.
 
 **How each exam type works:**
 
-- **Vocab** — pick a level and lesson(s), then generate a two-phase exam:
-  - *Phase 1* — multiple-choice, testing word/meaning recognition. Wrong
-    options are real words from your own vocab bank, chosen because they
-    look/sound similar to the target word or have an easily-confused
-    meaning (JLPT-style distractors) — Gemini only picks *which* real words
-    are confusable, it never invents a meaning. Needs **95%** to pass.
-  - *Phase 2* — open-ended: type the furigana (hiragana reading) for every
-    word in your selection, one at a time. Needs **100%** — a single
-    mistake fails the phase immediately and it restarts from the top
-    (reshuffled, no new Gemini call needed since this phase is just your
-    own verified reading data).
-  - Failing phase 1 regenerates a fresh set of questions via Gemini and
-    restarts that phase.
-- **Grammar** — pick a level and lesson(s); Gemini writes new fill-in-the-
-  blank and multiple-choice questions grounded in that pattern's real
-  meaning/usage/examples from `grammar-data.js`. Single phase, needs **80%**
-  to pass; failing regenerates a fresh set.
-- **Conjugation** — pick which forms to include (defaults to all); Gemini
-  wraps your hand-checked, verified conjugated forms
-  (`CONJUGATION_PRACTICE_VERBS`) into new example sentences and multiple-
-  choice distractors. The correct answer is always your own verified data,
-  never something Gemini generated — if Gemini's own options don't contain
-  the verified form character-for-character, the app silently replaces them
-  with safe distractors built from your own data instead. Single phase,
-  needs **80%** to pass; failing regenerates a fresh set.
+- **Vocab** — pick a level and lesson(s), then a two-phase exam:
+  - *Phase 1* — open-ended: type the furigana (hiragana reading) for every
+    word in your selection, one at a time, kanji only (no meaning shown).
+    Needs **100%** — a single mistake ends the exam immediately; generate a
+    fresh one from setup to try again.
+  - *Phase 2* — multiple-choice: read a Japanese sentence with the target
+    word blanked out and pick which of 5 real words (the target + 4
+    distractors) actually belongs there — a JLPT 文脈規定-style test, no
+    translation shown. Content comes from `js/data/vocab-exam-questions.js`,
+    hand-written per word (up to several questions each; one is picked at
+    random per attempt). A word with no authored questions yet is skipped
+    rather than crashing. Needs **95%** to pass; failing picks a fresh
+    random question per word rather than repeating the identical attempt.
+  - Passing both phases marks every included lesson "exam passed" on the
+    Home dashboard.
+- **Grammar** — pick a level and lesson(s); samples real questions straight
+  from the existing curated Grammar Practice bank
+  (`js/data/grammar-practice-data.js`). Single phase, needs **80%** to pass.
+- **Conjugation** — pick which forms to include (defaults to all); samples
+  real, hand-checked sentences from the existing Conjugation "Sentences"
+  bank (`js/data/conjugation-sentences-data.js`). Single phase, needs **80%**
+  to pass.
 
 All three reuse the same self/auto-grading conventions as the rest of the
 app: multiple-choice is graded automatically, fill-in-the-blank is graded on
 your own honesty (reveal → "✓ knew it" / "✗ didn't know"), same as Grammar
-Practice.
+Practice. Sentence questions show furigana above the kanji and have a
+"🔊 play sentence" button (reads the sentence aloud via your browser's
+built-in text-to-speech, skipping the blank so it never gives away the
+answer) — except Phase 1, since that phase IS the reading test.
 
-### Setting up your Gemini API key
+### Adding more Vocab exam questions
 
-1. Get a free key from **[Google AI Studio](https://aistudio.google.com/app/apikey)**
-   (Google account required, no credit card).
-2. On the Exam tab, click **⚙ set Gemini API key**, paste it in, and Save.
-
-That key is saved **only in this browser's `localStorage`** — it is never
-committed to the repo, never written to any file, and never included in the
-optional cloud-sync snapshot described below (so signing in to sync on a
-different device does NOT bring your key with it — you'd set it again
-there). It's sent directly from your browser to Google's Gemini API only.
-Click **clear saved key** any time to remove it.
-
-**On cost:** Gemini's API has a free tier; generating one exam is a single
-request. If you hit a quota/rate-limit error, wait a bit and try again, or
-check your usage at [Google AI Studio](https://aistudio.google.com/).
+`js/data/vocab-exam-questions.js` is keyed by level, then by the exact word
+string used in `vocab-data.js`. Each question is
+`{ sentence, distractors }` — `sentence` is a natural Japanese sentence with
+the word replaced by `＿＿`, with every kanji run annotated
+`漢字[かんじ]` for furigana; `distractors` is an array of other real words
+(each must also exist in `vocab-data.js`) that plausibly fit the blank. A
+word can have as many or as few questions as you like — more variety just
+means repeat attempts feel fresher.
 
 ## Optional: sync progress across devices
 

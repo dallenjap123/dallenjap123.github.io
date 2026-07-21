@@ -1431,9 +1431,9 @@ resetProgressBtn.addEventListener("click", () => {
 
   // Set by the Exam tab (js/exam.js) when a vocab exam's final phase is
   // passed — every lesson included in that exam gets marked here, keyed
-  // "{level}::{lesson}". Local-only (not synced to the cloud), same as the
-  // Gemini key. Read fresh on every render rather than cached, since it's
-  // a plain localStorage key exam.js writes to independently of this file.
+  // "{level}::{lesson}". Local-only (not synced to the cloud yet). Read
+  // fresh on every render rather than cached, since it's a plain
+  // localStorage key exam.js writes to independently of this file.
   const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
   function getVocabExamPassedStore() {
     try {

@@ -1,18 +1,14 @@
-// Exam tab — Gemini-generated mock tests for Vocab / Grammar / Conjugation,
-// scoped to whichever lessons (or, for Conjugation, forms) you select.
-//
-// Design principle: Gemini never gets to invent ground truth. It only picks
-// distractors from OUR real vocab pool, or wraps OUR verified data (grammar
-// pattern usage notes / hand-checked conjugated forms) into new sentences.
-// The "correct answer" shown to you always traces back to a data file in
-// this repo, never to something Gemini made up — see buildVocabClozeQuestions,
-// requestGrammarQuestions, and requestConjugationQuestions for where that's
-// enforced.
-//
-// Your Gemini API key lives ONLY in this browser's localStorage — it is
-// never written to a file, never included in the cloud-sync snapshot (see
-// js/sync.js / getSyncSnapshot in app.js), and only ever sent directly from
-// your browser to Google's API.
+// Exam tab — mock tests for Vocab / Grammar / Conjugation, scoped to
+// whichever lessons (or, for Conjugation, forms) you select. Entirely
+// local: no API key, no network call, no external service. Content comes
+// from hand-authored data files —
+//   - Vocab meaning-in-context phase: js/data/vocab-exam-questions.js
+//     (up to 10 questions per word; one is picked at random per attempt)
+//   - Grammar: sampled from the existing js/data/grammar-practice-data.js
+//   - Conjugation: sampled from the existing
+//     js/data/conjugation-sentences-data.js
+// See buildVocabClozeQuestions, buildGrammarQuestions, and
+// buildConjugationQuestions.
 (function () {
   function t(key, vars) {
     if (window.JPStudyProgress && typeof window.JPStudyProgress.t === "function") {
@@ -31,11 +27,10 @@
   }
 
   // ---------- furigana rendering ----------
-  // Gemini is asked to annotate every kanji run with bracket notation,
-  // e.g. "毎日[まいにち]". Escape the raw text FIRST (it's externally
-  // generated), then turn our own bracket syntax into <ruby> — so the only
-  // HTML ever inserted is markup we control, never anything from Gemini's
-  // own output.
+  // Hand-authored sentences (in the data files) annotate every kanji run
+  // with bracket notation, e.g. "毎日[まいにち]". Escape the raw text FIRST
+  // regardless, then turn our own bracket syntax into <ruby> — so the only
+  // HTML ever inserted is markup we control.
   const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
@@ -69,113 +64,6 @@
     });
   }
 
-  // ---------- Gemini API key (local-only — deliberately kept out of getSyncSnapshot) ----------
-  const GEMINI_KEY_STORAGE = "jpstudy_gemini_key_v1";
-  function getGeminiKey() {
-    try {
-      return (localStorage.getItem(GEMINI_KEY_STORAGE) || "").trim();
-    } catch (e) {
-      return "";
-    }
-  }
-  function setGeminiKey(key) {
-    try {
-      localStorage.setItem(GEMINI_KEY_STORAGE, key.trim());
-    } catch (e) {
-      /* ignore — key just won't persist this session */
-    }
-  }
-  function clearGeminiKey() {
-    try {
-      localStorage.removeItem(GEMINI_KEY_STORAGE);
-    } catch (e) {
-      /* ignore */
-    }
-  }
-
-  // "-latest" alias instead of a pinned version — Google periodically
-  // retires specific model snapshots (e.g. gemini-2.5-flash stopped being
-  // available to new API keys), and this alias always resolves to
-  // whatever Gemini's current flash-tier model is, so this doesn't need
-  // to be hand-updated again when that happens.
-  const GEMINI_MODEL = "gemini-flash-latest";
-
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  // 429 (rate limit) and 5xx (Google's own infra — most commonly 503 "model
-  // is currently experiencing high demand") are transient and usually clear
-  // up within seconds, so these are worth a couple of automatic retries
-  // instead of immediately failing the whole exam generation.
-  const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
-  const MAX_ATTEMPTS = 3;
-  const RETRY_DELAYS_MS = [1500, 4000];
-
-  async function callGemini(prompt, responseSchema) {
-    const key = getGeminiKey();
-    if (!key) throw { friendly: t("examErrNoKey") };
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
-    const body = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-        temperature: 0.9,
-      },
-    };
-
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      const isLastAttempt = attempt === MAX_ATTEMPTS;
-      let res;
-      try {
-        res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-      } catch (e) {
-        if (!isLastAttempt) {
-          await delay(RETRY_DELAYS_MS[attempt - 1]);
-          examLoadingTextEl.textContent = t("examRetrying", { attempt: attempt + 1, max: MAX_ATTEMPTS });
-          continue;
-        }
-        throw { friendly: t("examErrNetwork") };
-      }
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        throw { friendly: t("examErrParse") }; // malformed response body — retrying won't help
-      }
-      if (!res.ok) {
-        if (res.status === 400 || res.status === 403) throw { friendly: t("examErrBadKey") }; // bad key — retrying won't help
-        if (RETRYABLE_STATUSES.has(res.status) && !isLastAttempt) {
-          await delay(RETRY_DELAYS_MS[attempt - 1]);
-          examLoadingTextEl.textContent = t("examRetrying", { attempt: attempt + 1, max: MAX_ATTEMPTS });
-          continue;
-        }
-        if (res.status === 429) throw { friendly: t("examErrQuota") };
-        const msg = (data && data.error && data.error.message) || `HTTP ${res.status}`;
-        throw { friendly: t("examErrGeneric", { msg }) };
-      }
-      const text =
-        data.candidates &&
-        data.candidates[0] &&
-        data.candidates[0].content &&
-        data.candidates[0].content.parts &&
-        data.candidates[0].content.parts[0] &&
-        data.candidates[0].content.parts[0].text;
-      if (!text) throw { friendly: t("examErrEmpty") };
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        throw { friendly: t("examErrParse") };
-      }
-    }
-  }
-
-  // ---------- shared exam state ----------
   const examState = {
     type: "vocab", // vocab | grammar | conjugation
     vocab: { level: "N4", lessons: [] },
@@ -221,16 +109,6 @@
   const examGenerateBtn = document.getElementById("exam-generate-btn");
   const examResultBannerEl = document.getElementById("exam-result-banner");
   const examResultActionsEl = document.getElementById("exam-result-actions");
-  const examKeyStatusEl = document.getElementById("exam-key-status");
-  const examKeyBtn = document.getElementById("exam-key-btn");
-
-  const geminiKeyModal = document.getElementById("gemini-key-modal");
-  const geminiKeyInput = document.getElementById("gemini-key-input");
-  const geminiKeyShowToggle = document.getElementById("gemini-key-show-toggle");
-  const geminiKeyError = document.getElementById("gemini-key-error");
-  const geminiKeySaveBtn = document.getElementById("gemini-key-save-btn");
-  const geminiKeyClearBtn = document.getElementById("gemini-key-clear-btn");
-  const geminiKeyCloseX = document.getElementById("gemini-key-close-x");
 
   const runnerEls = {
     phaseTag: document.getElementById("exam-phase-tag"),
@@ -249,48 +127,6 @@
     gradeRight: document.getElementById("exam-grade-right"),
     progressEl: document.getElementById("exam-progress"),
   };
-
-  // ---------- Gemini key modal ----------
-  function updateKeyStatus() {
-    const has = !!getGeminiKey();
-    examKeyStatusEl.textContent = has ? t("examKeySet") : t("examKeyNotSet");
-    examKeyStatusEl.classList.toggle("ok", has);
-  }
-  function openGeminiKeyModal() {
-    geminiKeyInput.value = getGeminiKey();
-    geminiKeyInput.type = "password";
-    geminiKeyShowToggle.checked = false;
-    geminiKeyError.hidden = true;
-    geminiKeyModal.hidden = false;
-    setTimeout(() => geminiKeyInput.focus(), 0);
-  }
-  function closeGeminiKeyModal() {
-    geminiKeyModal.hidden = true;
-  }
-  examKeyBtn.addEventListener("click", openGeminiKeyModal);
-  geminiKeyCloseX.addEventListener("click", closeGeminiKeyModal);
-  geminiKeyModal.addEventListener("click", (e) => {
-    if (e.target === geminiKeyModal) closeGeminiKeyModal();
-  });
-  geminiKeyShowToggle.addEventListener("change", () => {
-    geminiKeyInput.type = geminiKeyShowToggle.checked ? "text" : "password";
-  });
-  geminiKeySaveBtn.addEventListener("click", () => {
-    const val = geminiKeyInput.value.trim();
-    if (!val) {
-      geminiKeyError.hidden = false;
-      geminiKeyError.textContent = t("geminiKeyErrEmpty");
-      return;
-    }
-    setGeminiKey(val);
-    updateKeyStatus();
-    closeGeminiKeyModal();
-  });
-  geminiKeyClearBtn.addEventListener("click", () => {
-    clearGeminiKey();
-    geminiKeyInput.value = "";
-    updateKeyStatus();
-  });
 
   // ---------- panel switching ----------
   function showPanel(name) {
@@ -587,68 +423,10 @@
   }
 
   // ---------- Vocab exam ----------
-  function vocabWordPool() {
-    const data = window.VOCAB_DATA || {};
-    const pool = [];
-    Object.keys(data).forEach((level) => {
-      (data[level] || []).forEach((item) => pool.push({ ...item, level }));
-    });
-    return pool;
-  }
   function vocabSelectedWords() {
     const { level, lessons } = examState.vocab;
     const items = vocabItemsForLevel(level).map((i) => ({ ...i, level }));
     return lessons.length ? items.filter((i) => lessons.includes(i.lesson)) : items;
-  }
-  function cappedPool(pool, cap) {
-    return pool.length <= cap ? pool : shuffle(pool).slice(0, cap);
-  }
-
-  // Asks Gemini for a natural example sentence per target word (word
-  // replaced by a blank) AND 4 confusable distractor words from the real
-  // pool — this is the JLPT "文脈規定"-style test: read the sentence, pick
-  // which word actually belongs in the blank. Gemini never gets to invent
-  // the correct answer's text; the correct option is always the target's
-  // own `word` field from our data, and distractor options are always real
-  // words looked up from the candidate pool below, never Gemini-authored
-  // text — see buildVocabClozeQuestions.
-  const CLOZE_DISTRACTOR_COUNT = 4; // 5 options total — this is meant to be a real mastery check, not a coin flip
-  async function requestVocabClozeData(words, pool, level) {
-    const targetList = words.map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`).join("\n");
-    const poolList = cappedPool(pool, 500)
-      .map((w) => `${w.word}|${w.reading || w.word}|${w.meaning}`)
-      .join("\n");
-    const prompt = `You are building the hardest possible JLPT-style Japanese vocabulary fill-in-the-blank exam ("which word fits in this sentence" — 文脈規定 style). This is a MASTERY test, not an introductory quiz — a learner who only vaguely knows these words should fail it. Do not make this easy.
-
-TARGET WORDS (one per line, "word|reading|meaning"):
-${targetList}
-
-CANDIDATE WORD POOL (one per line, "word|reading|meaning") — pick distractors ONLY from this exact list, copying the "word" field character-for-character:
-${poolList}
-
-For EVERY target word, do these things:
-1. Write ONE natural, moderately complex Japanese example sentence that uses the target word in a context that genuinely requires understanding its precise nuance to resolve — not just topic/category matching. Replace the target word itself with a blank marked "＿＿". Do not spell the target word out anywhere else in the sentence. Do not include an English translation.
-2. IMPORTANT — the difficulty must come ONLY from distinguishing the target word from its distractors, never from the surrounding sentence being hard to read or understand. So: keep every other word/grammar pattern in the sentence at or below JLPT ${level} level (this learner's current level) — no rare or advanced vocabulary outside the target word itself. And annotate EVERY run of kanji characters in the sentence (in both the sentence text and, separately, nowhere else) with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — for example "毎日[まいにち]の生活[せいかつ]". Do not put brackets around the blank marker "＿＿", and do not annotate kana-only words.
-3. Choose exactly ${CLOZE_DISTRACTOR_COUNT} distractor words from the candidate pool (never the target word itself, never duplicated within one target's list). Make these as deceptive as possible: prioritize words that are the SAME part of speech and would be grammatically valid in that exact blank, and are near-synonyms or commonly confused with the target by learners (differ only in nuance, formality, collocation, or degree) — NOT words that are trivially wrong from grammar or topic alone. Avoid easy throwaway options; every distractor should require real knowledge of the target word to correctly rule out.
-Return exactly one entry per target word, in the same order as the target list.`;
-    const schema = {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          word: { type: "string" },
-          sentence: { type: "string" },
-          distractors: { type: "array", items: { type: "string" }, minItems: CLOZE_DISTRACTOR_COUNT, maxItems: CLOZE_DISTRACTOR_COUNT },
-        },
-        required: ["word", "sentence", "distractors"],
-      },
-    };
-    const data = await callGemini(prompt, schema);
-    const map = {};
-    (Array.isArray(data) ? data : []).forEach((entry) => {
-      if (entry && typeof entry.word === "string") map[entry.word] = entry;
-    });
-    return map;
   }
 
   function shuffleWithCorrect(correctText, wrongTexts) {
@@ -657,53 +435,29 @@ Return exactly one entry per target word, in the same order as the target list.`
     return { options: shuffled.map((o) => o.text), correctIndex: shuffled.findIndex((o) => o.isCorrect) };
   }
 
-  function buildVocabClozeQuestions(words, pool, clozeMap) {
-    const poolByWord = {};
-    pool.forEach((w) => {
-      if (!poolByWord[w.word]) poolByWord[w.word] = w;
-    });
+  // JLPT "文脈規定"-style question: read a sentence, pick which word fits
+  // the blank. Every sentence + its 4 distractor words comes from
+  // js/data/vocab-exam-questions.js, hand-authored per word (not
+  // generated) — one of the (up to) 10 questions per word is picked at
+  // random so repeat attempts don't feel identical. A word with no
+  // authored questions yet is simply skipped rather than crashing.
+  function buildVocabClozeQuestions(words, level) {
+    const bank = (window.VOCAB_EXAM_QUESTIONS && window.VOCAB_EXAM_QUESTIONS[level]) || {};
     const questions = [];
     words.forEach((target) => {
-      const entry = clozeMap[target.word];
-      if (!entry || typeof entry.sentence !== "string" || !entry.sentence.includes("＿＿")) return;
-
-      let distractorWords = Array.isArray(entry.distractors)
-        ? entry.distractors.filter((dw) => dw !== target.word && poolByWord[dw]).slice(0, CLOZE_DISTRACTOR_COUNT)
-        : [];
-      if (distractorWords.length < CLOZE_DISTRACTOR_COUNT) {
-        const used = new Set([target.word, ...distractorWords]);
-        const fallback = shuffle(pool.filter((w) => !used.has(w.word)));
-        while (distractorWords.length < CLOZE_DISTRACTOR_COUNT && fallback.length) {
-          const candidate = fallback.pop();
-          if (!used.has(candidate.word)) {
-            distractorWords.push(candidate.word);
-            used.add(candidate.word);
-          }
-        }
-      }
-      const distractorItems = distractorWords.map((dw) => poolByWord[dw]).filter(Boolean);
-      if (distractorItems.length < CLOZE_DISTRACTOR_COUNT) return;
-
-      // No English hint here — showing a translation of the sentence would
-      // hand you the target word's meaning directly. The only way through
-      // is knowing which of these 5 real words actually fits the blank.
-      const built = shuffleWithCorrect(target.word, distractorItems.map((d) => d.word));
+      const bankQuestions = bank[target.word];
+      if (!bankQuestions || !bankQuestions.length) return;
+      const chosen = bankQuestions[Math.floor(Math.random() * bankQuestions.length)];
+      const built = shuffleWithCorrect(target.word, chosen.distractors);
       const tag = target.lesson !== undefined ? `${target.level} ・ ${target.lesson}課` : target.level;
-      questions.push({
-        type: "choice",
-        jp: entry.sentence,
-        en: "",
-        options: built.options,
-        correct: built.correctIndex,
-        tag,
-      });
+      questions.push({ type: "choice", jp: chosen.sentence, en: "", options: built.options, correct: built.correctIndex, tag });
     });
     return questions;
   }
 
   // ---------- vocab exam: passed-lesson tracking (for the Home dashboard) ----------
-  // Local-only (not part of cloud sync, same as the Gemini key) — an
-  // independent "you cleared this lesson's exam" flag, keyed by level+lesson.
+  // Local-only (not part of cloud sync yet) — an independent "you cleared
+  // this lesson's exam" flag, keyed by level+lesson.
   // Once set it stays set; it doesn't un-mark itself if you later reset
   // your flashcard progress for that lesson.
   const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
@@ -724,14 +478,10 @@ Return exactly one entry per target word, in the same order as the target list.`
     }
   }
 
-  async function startVocabExam() {
+  function startVocabExam() {
     const words = vocabSelectedWords();
     if (!words.length) {
       showExamError(t("examErrNoContent"));
-      return;
-    }
-    if (!getGeminiKey()) {
-      openGeminiKeyModal();
       return;
     }
     runVocabFuriganaPhase(words);
@@ -778,33 +528,32 @@ Return exactly one entry per target word, in the same order as the target list.`
     });
   }
 
-  // Phase 2 — MCQ meaning recognition. Needs 95%. Failing regenerates a
-  // fresh set of questions via Gemini. Passing this is the whole exam
-  // passing, since phase 1 already had to be cleared to get here.
-  async function runVocabMcqPhase(words) {
-    showPanel("loading");
-    try {
-      const pool = vocabWordPool();
-      const clozeMap = await requestVocabClozeData(words, pool, examState.vocab.level);
-      const questions = buildVocabClozeQuestions(words, pool, clozeMap);
-      if (!questions.length) throw { friendly: t("examErrEmpty") };
-      runExam(shuffle(questions), {
-        phaseTagText: t("examPhase2Tag"),
-        passThreshold: 0.95,
-        onDone: (result) => {
-          if (result.passed) markLessonsExamPassed(examState.vocab.level, words);
-          renderResultBanner(result, {
-            passText: t("examAllPassedMsg"),
-            failText: t("examPhase2FailMsg"),
-            onRetry: { label: t("examTryAgain"), fn: () => runVocabMcqPhase(words) },
-            onBack: { label: t("examBackToSetup"), fn: backToSetup },
-          });
-        },
-      });
-    } catch (err) {
+  // Phase 2 — MCQ meaning-in-context recognition, from the hand-authored
+  // bank (js/data/vocab-exam-questions.js). Needs 95%. Failing picks a
+  // fresh random set (new question per word, where more than one is
+  // authored) rather than repeating the exact same attempt. Passing this
+  // is the whole exam passing, since phase 1 already had to be cleared to
+  // get here.
+  function runVocabMcqPhase(words) {
+    const questions = buildVocabClozeQuestions(words, examState.vocab.level);
+    if (!questions.length) {
       showPanel("setup");
-      showExamError((err && err.friendly) || t("examErrUnknown"));
+      showExamError(t("examErrEmpty"));
+      return;
     }
+    runExam(shuffle(questions), {
+      phaseTagText: t("examPhase2Tag"),
+      passThreshold: 0.95,
+      onDone: (result) => {
+        if (result.passed) markLessonsExamPassed(examState.vocab.level, words);
+        renderResultBanner(result, {
+          passText: t("examAllPassedMsg"),
+          failText: t("examPhase2FailMsg"),
+          onRetry: { label: t("examTryAgain"), fn: () => runVocabMcqPhase(words) },
+          onBack: { label: t("examBackToSetup"), fn: backToSetup },
+        });
+      },
+    });
   }
 
   // ---------- Grammar exam ----------
@@ -814,93 +563,50 @@ Return exactly one entry per target word, in the same order as the target list.`
     return lessons.length ? items.filter((i) => lessons.includes(i.lesson)) : items;
   }
 
-  async function requestGrammarQuestions(patterns, level) {
-    const QUESTIONS_PER_PATTERN = 3;
+  // Samples real questions straight from the existing curated Grammar
+  // Practice bank (js/data/grammar-practice-data.js) — no generation
+  // needed, that bank already has ~6 hand-written questions per pattern.
+  const GRAMMAR_QUESTIONS_PER_PATTERN = 3;
+  function buildGrammarQuestions(patterns) {
     const bank = window.GRAMMAR_PRACTICE || {};
-    const patternBlocks = patterns
-      .map((p) => {
-        const examples = (p.examples || []).slice(0, 2).map((ex) => `  - ${ex.jp} (${ex.en})`).join("\n");
-        const sample = (bank[p.pattern] || [])
-          .slice(0, 2)
-          .map((q) => `  - style reference (write a NEW sentence, don't copy): ${JSON.stringify(q)}`)
-          .join("\n");
-        return `Pattern: ${p.pattern}\nMeaning: ${p.meaning}\nUsage: ${p.usage}\nReal example sentences:\n${examples}\n${sample}`;
-      })
-      .join("\n\n");
-    const prompt = `You are writing a Japanese grammar mock exam for a learner studying these grammar patterns (grounded in the real reference data below — use it so your sentences and correct answers stay accurate; don't invent new grammar facts):
-
-${patternBlocks}
-
-For EACH pattern above, write exactly ${QUESTIONS_PER_PATTERN} NEW practice questions (don't copy the style reference verbatim), mixing two types:
-- "fill": a Japanese sentence with a blank marked "＿＿", an English translation, and the exact text that fills the blank as "answer".
-- "choice": a Japanese sentence with a blank marked "＿＿", an English translation, exactly 4 short options, and the zero-based "correct" index of the right option.
-Only test the pattern given for each block. Keep the vocabulary (everything other than the grammar pattern itself) at or below JLPT ${level} level so the sentence stays readable — the difficulty should come from the grammar pattern, not obscure words. In the "jp" field ONLY (never in "en" or "options"), annotate every run of kanji characters with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — e.g. "毎日[まいにち]の生活[せいかつ]". Do not bracket the blank marker "＿＿" or kana-only words. Set "pattern" to the exact pattern string given.`;
-    const schema = {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          pattern: { type: "string" },
-          type: { type: "string", enum: ["fill", "choice"] },
-          jp: { type: "string" },
-          en: { type: "string" },
-          answer: { type: "string" },
-          options: { type: "array", items: { type: "string" } },
-          correct: { type: "integer" },
-        },
-        required: ["pattern", "type", "jp", "en"],
-      },
-    };
-    const data = await callGemini(prompt, schema);
-    const validPatterns = new Set(patterns.map((p) => p.pattern));
     const questions = [];
-    (Array.isArray(data) ? data : []).forEach((q) => {
-      if (!q || !validPatterns.has(q.pattern) || !q.jp) return;
-      if (q.type === "choice") {
-        if (!Array.isArray(q.options) || q.options.length < 2 || typeof q.correct !== "number" || q.correct < 0 || q.correct >= q.options.length) return;
-        questions.push({ type: "choice", jp: q.jp, en: q.en || "", options: q.options, correct: q.correct, tag: q.pattern });
-      } else if (q.type === "fill") {
-        if (!q.answer) return;
-        questions.push({ type: "fill", jp: q.jp, en: q.en || "", answer: q.answer, tag: q.pattern });
-      }
+    patterns.forEach((p) => {
+      const bankQuestions = bank[p.pattern];
+      if (!bankQuestions || !bankQuestions.length) return;
+      shuffle(bankQuestions)
+        .slice(0, Math.min(GRAMMAR_QUESTIONS_PER_PATTERN, bankQuestions.length))
+        .forEach((q) => questions.push({ ...q, tag: p.pattern }));
     });
     return questions;
   }
 
-  async function startGrammarExam() {
+  function startGrammarExam() {
     const patterns = grammarSelectedPatterns();
     if (!patterns.length) {
       showExamError(t("examErrNoContent"));
       return;
     }
-    if (!getGeminiKey()) {
-      openGeminiKeyModal();
-      return;
-    }
     runGrammarExam(patterns);
   }
 
-  async function runGrammarExam(patterns) {
-    showPanel("loading");
-    try {
-      const questions = await requestGrammarQuestions(patterns, examState.grammar.level);
-      if (!questions.length) throw { friendly: t("examErrEmpty") };
-      runExam(shuffle(questions), {
-        phaseTagText: t("examGrammarTag"),
-        passThreshold: 0.8,
-        onDone: (result) => {
-          renderResultBanner(result, {
-            passText: t("examPassMsg"),
-            failText: t("examFailMsg80"),
-            onRetry: { label: t("examTryAgain"), fn: () => runGrammarExam(patterns) },
-            onBack: { label: t("examBackToSetup"), fn: backToSetup },
-          });
-        },
-      });
-    } catch (err) {
-      showPanel("setup");
-      showExamError((err && err.friendly) || t("examErrUnknown"));
+  function runGrammarExam(patterns) {
+    const questions = buildGrammarQuestions(patterns);
+    if (!questions.length) {
+      showExamError(t("examErrEmpty"));
+      return;
     }
+    runExam(shuffle(questions), {
+      phaseTagText: t("examGrammarTag"),
+      passThreshold: 0.8,
+      onDone: (result) => {
+        renderResultBanner(result, {
+          passText: t("examPassMsg"),
+          failText: t("examFailMsg80"),
+          onRetry: { label: t("examTryAgain"), fn: () => runGrammarExam(patterns) },
+          onBack: { label: t("examBackToSetup"), fn: backToSetup },
+        });
+      },
+    });
   }
 
   // ---------- Conjugation exam ----------
@@ -909,119 +615,51 @@ Only test the pattern given for each block. Keep the vocabulary (everything othe
   function conjugationSelectedForms() {
     return examState.conjugation.forms.length ? examState.conjugation.forms : FORM_KEYS;
   }
-  function conjugationGroundTruthCombos(forms) {
-    const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
-    const combos = [];
-    verbs.forEach((v) => {
-      forms.forEach((f) => {
-        if (v[f]) combos.push({ dict: v.dict, reading: v.reading, meaning: v.meaning, group: v.group, form: f, answer: v[f] });
-      });
-    });
-    return combos;
-  }
-  function buildFallbackConjOptions(combo, allCombos) {
-    const others = shuffle(allCombos.filter((c) => c.answer !== combo.answer && c.form === combo.form))
-      .slice(0, 3)
-      .map((c) => c.answer);
-    const options = [combo.answer, ...others];
-    while (options.length < 4) options.push(combo.answer + "…"); // pathological tiny-bank fallback
-    return options.slice(0, 4);
-  }
 
-  async function requestConjugationQuestions(combos) {
-    const lines = combos
-      .map((c, i) => `${i}. dict=${c.dict}, reading=${c.reading}, meaning=${c.meaning}, form=${FORM_LABELS[c.form]}, CORRECT_CONJUGATED_FORM=${c.answer}`)
-      .join("\n");
-    const prompt = `You are writing a Japanese verb-conjugation mock exam. Below is a list of verbs with their VERIFIED correct conjugated form for a specific grammatical form — treat CORRECT_CONJUGATED_FORM as ground truth you must not alter.
-
-${lines}
-
-For EACH numbered item, write one natural Japanese example sentence using the verb's meaning in context, with a blank marked "＿＿" where the conjugated form (CORRECT_CONJUGATED_FORM) belongs, plus an English translation of the full sentence (with the blank filled in). Keep every word other than the verb itself simple and common (early-intermediate level) so the sentence stays easy to read — the difficulty should come from the conjugation, not obscure vocabulary. In the "jp" field ONLY (never in "en" or "options" — those must stay plain, unannotated text since "options" needs to exactly match real conjugated forms), annotate every run of kanji characters with furigana using this exact bracket notation immediately after the kanji: 漢字[かんじ] — e.g. "毎日[まいにち]は忙[いそが]しいです". Do not bracket the blank marker "＿＿" or kana-only words. Make roughly half the items type "choice" with exactly 4 options where one option is EXACTLY the given CORRECT_CONJUGATED_FORM and the other 3 are plausible-but-wrong conjugations of the SAME verb; the rest type "fill" with no options. Always return the item's "index" so answers can be matched back up.`;
-    const schema = {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          index: { type: "integer" },
-          type: { type: "string", enum: ["fill", "choice"] },
-          jp: { type: "string" },
-          en: { type: "string" },
-          options: { type: "array", items: { type: "string" } },
-        },
-        required: ["index", "type", "jp", "en"],
-      },
-    };
-    const data = await callGemini(prompt, schema);
+  // Samples real questions straight from the existing curated Conjugation
+  // "Sentences" bank (js/data/conjugation-sentences-data.js) — already
+  // hand-checked, sentence-based, keyed by form.
+  function buildConjugationQuestions(forms) {
+    const bank = window.CONJUGATION_SENTENCES || {};
     const questions = [];
-    (Array.isArray(data) ? data : []).forEach((q) => {
-      if (!q || typeof q.index !== "number" || !combos[q.index] || !q.jp) return;
-      const combo = combos[q.index];
-      const tag = `${FORM_LABELS[combo.form]} ・ ${combo.dict}`;
-      if (q.type === "choice") {
-        let options = Array.isArray(q.options) ? q.options.slice(0, 4) : [];
-        // Ground truth always wins: if Gemini's options don't contain our
-        // verified answer verbatim, replace them with safe local distractors —
-        // conjugation correctness never depends on Gemini's own output.
-        if (!options.includes(combo.answer)) options = buildFallbackConjOptions(combo, combos);
-        const deduped = options.filter((o, i, arr) => arr.indexOf(o) === i);
-        const shuffled = shuffle(deduped);
-        const correct = shuffled.indexOf(combo.answer);
-        if (correct === -1) return;
-        questions.push({ type: "choice", jp: q.jp, en: q.en || "", options: shuffled, correct, tag });
-      } else {
-        questions.push({ type: "fill", jp: q.jp, en: q.en || "", answer: combo.answer, tag });
-      }
+    forms.forEach((f) => {
+      (bank[f] || []).forEach((q) => questions.push({ ...q, tag: FORM_LABELS[f] || f }));
     });
     return questions;
   }
 
-  async function startConjugationExam() {
-    const forms = conjugationSelectedForms();
-    const combos = conjugationGroundTruthCombos(forms);
-    if (!combos.length) {
-      showExamError(t("examErrNoContent"));
-      return;
-    }
-    if (!getGeminiKey()) {
-      openGeminiKeyModal();
-      return;
-    }
-    runConjugationExam(combos);
+  function startConjugationExam() {
+    runConjugationExam(conjugationSelectedForms());
   }
 
-  async function runConjugationExam(combos) {
-    showPanel("loading");
-    try {
-      const sample = combos.length > MAX_CONJ_QUESTIONS ? shuffle(combos).slice(0, MAX_CONJ_QUESTIONS) : combos;
-      const questions = await requestConjugationQuestions(sample);
-      if (!questions.length) throw { friendly: t("examErrEmpty") };
-      runExam(shuffle(questions), {
-        phaseTagText: t("examConjugationTag"),
-        passThreshold: 0.8,
-        onDone: (result) => {
-          renderResultBanner(result, {
-            passText: t("examPassMsg"),
-            failText: t("examFailMsg80"),
-            onRetry: { label: t("examTryAgain"), fn: () => runConjugationExam(combos) },
-            onBack: { label: t("examBackToSetup"), fn: backToSetup },
-          });
-        },
-      });
-    } catch (err) {
-      showPanel("setup");
-      showExamError((err && err.friendly) || t("examErrUnknown"));
+  function runConjugationExam(forms) {
+    const all = buildConjugationQuestions(forms);
+    if (!all.length) {
+      showExamError(t("examErrEmpty"));
+      return;
     }
+    const questions = all.length > MAX_CONJ_QUESTIONS ? shuffle(all).slice(0, MAX_CONJ_QUESTIONS) : all;
+    runExam(shuffle(questions), {
+      phaseTagText: t("examConjugationTag"),
+      passThreshold: 0.8,
+      onDone: (result) => {
+        renderResultBanner(result, {
+          passText: t("examPassMsg"),
+          failText: t("examFailMsg80"),
+          onRetry: { label: t("examTryAgain"), fn: () => runConjugationExam(forms) },
+          onBack: { label: t("examBackToSetup"), fn: backToSetup },
+        });
+      },
+    });
   }
 
   // ---------- public hooks for app.js ----------
   window.JPStudyExam = {
-    onTabShow: updateKeyStatus,
+    onTabShow() {},
     onLangChange() {
-      updateKeyStatus();
       if (!examSetupEl.hidden) renderSetupPanel();
     },
   };
 
-  updateKeyStatus();
   renderSetupPanel();
 })();
