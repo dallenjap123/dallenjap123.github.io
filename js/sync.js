@@ -141,9 +141,18 @@
     const originalText = syncSignoutBtn.textContent;
     syncSignoutBtn.disabled = true;
     syncSignoutBtn.textContent = "Saving...";
-    
+
+    // Cancel any queued debounced push — the explicit push right below
+    // already captures the latest snapshot, so this just avoids a stray
+    // duplicate write firing during/after sign-out.
+    if (pushDebounceTimer) {
+      clearTimeout(pushDebounceTimer);
+      pushDebounceTimer = null;
+      pendingSnapshot = null;
+    }
+
     try {
-      // Force a final sync to ensure the cloud perfectly matches 
+      // Force a final sync to ensure the cloud perfectly matches
       // the local device before we destroy the auth token.
       if (window.JPStudyProgress && auth.currentUser) {
         // Wait for the push, but timeout after 3 seconds so the user 
@@ -235,10 +244,6 @@
     return db.collection("users").doc(uid);
   }
 
-  // No debounce — every local change pushes right away. (An earlier version
-  // batched changes over ~1.5s to cut down on writes; removed since the
-  // free-tier write quota isn't remotely a concern for one person's study
-  // data, and immediate is simpler to reason about than "eventually".)
   function doPush(data) {
     const user = auth.currentUser;
     if (!user) return Promise.reject(new Error("not signed in"));
@@ -249,8 +254,50 @@
     doPush(data).catch((e) => console.warn("Cloud sync push failed:", e));
   }
 
+  // Debounced auto-push: every local change (each flashcard grade, etc.)
+  // calls this, but all progress lives in ONE Firestore document and
+  // Firestore rate-limits writes to a single document to roughly 1/sec
+  // sustained. Grading quickly with no debounce queues writes faster than
+  // Firestore's write stream can flush them, which surfaces as a
+  // "resource-exhausted: Write stream exhausted maximum allowed queued
+  // writes" console error. Instead, coalesce rapid-fire changes and push
+  // only the latest snapshot once things go quiet for a moment.
+  const PUSH_DEBOUNCE_MS = 1200;
+  let pushDebounceTimer = null;
+  let pendingSnapshot = null;
+
+  function scheduleCloudPush(data) {
+    if (!auth.currentUser) return;
+    pendingSnapshot = data;
+    if (pushDebounceTimer) clearTimeout(pushDebounceTimer);
+    pushDebounceTimer = setTimeout(() => {
+      pushDebounceTimer = null;
+      const snap = pendingSnapshot;
+      pendingSnapshot = null;
+      if (snap) pushToCloud(snap);
+    }, PUSH_DEBOUNCE_MS);
+  }
+  // Sends a still-pending debounced change immediately — used right before
+  // the tab might disappear (sign-out, navigating away) so a change made
+  // just before that doesn't get lost along with the cancelled timer.
+  function flushPendingPush() {
+    if (pushDebounceTimer) {
+      clearTimeout(pushDebounceTimer);
+      pushDebounceTimer = null;
+    }
+    if (pendingSnapshot) {
+      const snap = pendingSnapshot;
+      pendingSnapshot = null;
+      pushToCloud(snap);
+    }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushPendingPush();
+  });
+  window.addEventListener("beforeunload", flushPendingPush);
+
   if (window.JPStudyProgress) {
-    window.JPStudyProgress.onLocalChange = pushToCloud;
+    window.JPStudyProgress.onLocalChange = scheduleCloudPush;
   }
 
   // Manual "save now" — same push, just with visible loading/confirmation
