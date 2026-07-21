@@ -325,6 +325,60 @@ window.VOCAB_EXAM_QUESTIONS = {
     "そろそろ": [
       { type: "usage", sentence: "「そろそろ」の正しい使い方はどれですか。", answer: "そろそろ帰りましょう。", distractors: ["そろそろを帰りましょう。", "そろそろが帰りましょう。", "そろそろに帰りましょう。"] },
       { type: "collocation", sentence: "時間[じかん]なので、＿＿失礼[しつれい]します。", answer: "そろそろ", distractors: ["だいたい", "たいてい", "なかなか"] }
+    ],
+
+    // ---------- 5課 買い物① ----------
+    "カード": [
+      { type: "kanji", sentence: "買[か]い物[もの]を＿＿で払[はら]いました。", distractors: ["現金", "レシート", "お釣り"] },
+      { type: "usage", sentence: "「カード」の正しい使い方はどれですか。", answer: "カードで払いました。", distractors: ["カードを払いました。", "カードに払いました。", "カードが払いました。"] }
+    ],
+    "お釣り": [
+      { type: "kanji", sentence: "＿＿を数[かぞ]えてください。", distractors: ["現金", "レシート", "財布"] },
+      { type: "particle", sentence: "レジでお釣[つ]り＿＿もらいました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "億": [
+      { type: "kanji", sentence: "この会社[かいしゃ]は一年[いちねん]に一＿＿円[えん]も稼[かせ]ぎます。", distractors: ["万", "兆", "千"] },
+      { type: "usage", sentence: "「億」の正しい使い方はどれですか。", answer: "この会社は一億円を稼ぎました。", distractors: ["この会社は一億円が稼ぎました。", "この会社は一億円に稼ぎました。", "この会社は一億円で稼ぎました。"] }
+    ],
+    "サイズ": [
+      { type: "kanji", sentence: "この靴[くつ]の＿＿は大[おお]きすぎます。", distractors: ["カラー", "デザイン", "スタイル"] },
+      { type: "particle", sentence: "この靴[くつ]＿＿サイズは大[おお]きすぎます。", answer: "の", distractors: ["が", "を", "に"] }
+    ],
+    "売り場": [
+      { type: "kanji", sentence: "靴[くつ]の＿＿は三階[さんがい]です。", distractors: ["受付", "駐車場", "会場"] },
+      { type: "usage", sentence: "「売り場」の正しい使い方はどれですか。", answer: "靴の売り場は三階です。", distractors: ["靴が売り場は三階です。", "靴を売り場は三階です。", "靴に売り場は三階です。"] }
+    ],
+    "エスカレーター": [
+      { type: "kanji", sentence: "＿＿で二階[にかい]に上[あ]がりました。", distractors: ["エレベーター", "階段", "電車"] },
+      { type: "particle", sentence: "エスカレーター＿＿二階[にかい]に上[あ]がりました。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "サービス": [
+      { type: "kanji", sentence: "この店[みせ]は＿＿がとてもいいです。", distractors: ["品物", "システム", "スタッフ"] },
+      { type: "usage", sentence: "「サービス」の正しい使い方はどれですか。", answer: "この店はサービスがとてもいいです。", distractors: ["この店はサービスをとてもいいです。", "この店はサービスにとてもいいです。", "この店はサービスでとてもいいです。"] }
+    ],
+    "(お)土産": [
+      { type: "kanji", sentence: "旅行[りょこう]から帰[かえ]って、＿＿を買[か]ってきました。", distractors: ["(お)祝い", "プレゼント", "荷物"] },
+      { type: "particle", sentence: "友達[ともだち]に(お)土産[みやげ]＿＿買[か]ってきました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "下ろす": [
+      { type: "kanji", sentence: "銀行[ぎんこう]でお金[かね]を＿＿ました。", distractors: ["下がる", "降ろす", "落とす"] },
+      { type: "usage", sentence: "「下ろす」の正しい使い方はどれですか。", answer: "銀行でお金を下ろしました。", distractors: ["銀行でお金が下ろしました。", "銀行でお金に下ろしました。", "銀行でお金を下ろされました。"] }
+    ],
+    "押す": [
+      { type: "kanji", sentence: "ボタンを＿＿ください。", distractors: ["引く", "触る", "押さえる"] },
+      { type: "particle", sentence: "ボタン＿＿押[お]してください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "払う": [
+      { type: "kanji", sentence: "レジでお金[かね]を＿＿ました。", distractors: ["拾う", "洗う", "手伝う"] },
+      { type: "usage", sentence: "「払う」の正しい使い方はどれですか。", answer: "レジでお金を払いました。", distractors: ["レジでお金が払いました。", "レジでお金に払いました。", "レジでお金を払われました。"] }
+    ],
+    "触る": [
+      { type: "kanji", sentence: "この絵[え]に＿＿ないでください。", distractors: ["触れる", "座る", "騒ぐ"] },
+      { type: "particle", sentence: "この絵[え]＿＿触[さわ]らないでください。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "細かい": [
+      { type: "kanji", sentence: "＿＿お金[かね]がありますか。", distractors: ["温かい", "柔らかい", "暖かい"] },
+      { type: "usage", sentence: "「細かい」の正しい使い方はどれですか。", answer: "細かいお金がありますか。", distractors: ["細かいのお金がありますか。", "細かかお金がありますか。", "細かくお金がありますか。"] }
     ]
   }
 };
