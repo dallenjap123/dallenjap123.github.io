@@ -95,12 +95,15 @@
   // rejections (a bad Firebase setup can do either), and always restores
   // the button whether it succeeds, fails, or the user just closes the
   // Google popup without finishing.
-  function handleGoogleSignIn() {
+  function handleGoogleSignIn(buttonEl = syncGoogleBtn) {
     clearError();
-    const originalText = syncGoogleBtn.textContent;
-    syncGoogleBtn.disabled = true;
-    syncGoogleBtn.textContent = "…";
+    const originalText = buttonEl ? buttonEl.textContent : "Sign in";
+    if (buttonEl) {
+      buttonEl.disabled = true;
+      buttonEl.textContent = "…";
+    }
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
     Promise.resolve()
       .then(() => auth.signInWithPopup(provider))
       .then(() => {
@@ -113,12 +116,20 @@
         }
       })
       .finally(() => {
-        syncGoogleBtn.disabled = false;
-        syncGoogleBtn.textContent = originalText;
+        if (buttonEl) {
+          buttonEl.disabled = false;
+          buttonEl.textContent = originalText;
+        }
       });
   }
 
-  syncOpenBtn.addEventListener("click", openModal);
+  syncOpenBtn.addEventListener("click", () => {
+    if (!auth.currentUser) {
+      handleGoogleSignIn(syncOpenBtn);
+    } else {
+      openModal();
+    }
+  });
   syncCloseX.addEventListener("click", closeModal);
   syncModal.addEventListener("click", (e) => {
     if (e.target === syncModal) closeModal(); // click outside the box closes it
