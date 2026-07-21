@@ -56,31 +56,23 @@
     if (!snapshot || typeof snapshot !== "object") return;
     if (snapshot.vocab && typeof snapshot.vocab === "object") {
       progressStore = snapshot.vocab;
-      try {
-        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
-      } catch (e) {
-        /* ignore */
-      }
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore)); } catch (e) {}
     }
     if (snapshot.grammar && typeof snapshot.grammar === "object") {
       grammarProgressStore = snapshot.grammar;
-      try {
-        localStorage.setItem(GRAMMAR_PROGRESS_KEY, JSON.stringify(grammarProgressStore));
-      } catch (e) {
-        /* ignore */
-      }
+      try { localStorage.setItem(GRAMMAR_PROGRESS_KEY, JSON.stringify(grammarProgressStore)); } catch (e) {}
     }
     if (snapshot.streak && typeof snapshot.streak === "object") {
       streakStore = snapshot.streak;
-      try {
-        localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore));
-      } catch (e) {
-        /* ignore */
-      }
+      try { localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore)); } catch (e) {}
     }
+    
     updateProgress();
     refreshWordList();
     if (state.flashcards.current) renderFace(state.flashcards.current);
+    
+    // FIX: Force the Dashboard to redraw so it instantly shows the newly synced data
+    if (typeof renderDashboard === "function") renderDashboard();
   }
 
   function saveProgress(skipSyncHook) {
