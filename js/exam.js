@@ -664,7 +664,10 @@ Return exactly one entry per target word, in the same order as the target list.`
       runVocabMcqPhase(words);
       return;
     }
-    const questions = testable.map((w) => ({ type: "furigana", jp: w.word, en: w.meaning, answer: w.reading, tag: t("examPhase1Tag") }));
+    // No meaning hint here — this is the final-exam-style kanji-only reading
+    // test. Showing the meaning would let you use it as a crutch to guess
+    // the reading instead of actually recognizing the word.
+    const questions = testable.map((w) => ({ type: "furigana", jp: w.word, en: "", answer: w.reading, tag: t("examPhase1Tag") }));
     runExam(questions, {
       phaseTagText: t("examPhase1Tag"),
       passThreshold: 1,
