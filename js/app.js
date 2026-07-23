@@ -9,6 +9,33 @@
   }
   if (!window.I18N || !window.I18N[currentLang]) currentLang = "en";
 
+  // ---------- settings: silent mode + theme ----------
+  const SILENT_MODE_KEY = "jpstudy_silent_mode_v1";
+  const THEME_KEY = "jpstudy_theme_v1";
+  let silentMode = false;
+  try {
+    silentMode = localStorage.getItem(SILENT_MODE_KEY) === "1";
+  } catch (e) {
+    silentMode = false;
+  }
+  let currentTheme = "light";
+  try {
+    currentTheme = localStorage.getItem(THEME_KEY) || "light";
+  } catch (e) {
+    currentTheme = "light";
+  }
+  function applyTheme() {
+    document.documentElement.dataset.theme = currentTheme;
+  }
+  applyTheme();
+  // Exposed so exam.js (loaded after this file) can check silent mode too,
+  // without duplicating the localStorage/state logic in a second file.
+  window.JPStudySettings = {
+    isSilent() {
+      return silentMode;
+    },
+  };
+
   function t(key, vars) {
     const dict = (window.I18N && window.I18N[currentLang]) || {};
     let str = dict[key] || key;
@@ -119,35 +146,31 @@
     return `${item.level}::${item.lesson}::${item.word}`;
   }
   function getStats(item) {
-    return progressStore[wordId(item)] || { correct: 0, wrong: 0 };
+    return progressStore[wordId(item)] || {};
   }
-  function recordGrade(item, isCorrect) {
+  // Each flashcard session shows a word exactly twice (see gradeCurrent) and
+  // that single sitting decides its fate: both correct → mastered, anything
+  // else → weak. No running right/wrong ratio, no cross-session streak —
+  // just "did you get it, both times, just now."
+  function recordSessionResult(item, masteredThisSitting) {
     const id = wordId(item);
-    const stats = progressStore[id] || { correct: 0, wrong: 0, streak: 0 };
-    if (isCorrect) {
-      stats.correct += 1;
-      stats.streak = (stats.streak || 0) + 1;
-    } else {
-      stats.wrong += 1;
-      stats.streak = 0;
-    }
+    const stats = progressStore[id] || {};
+    stats.mastered = masteredThisSitting;
+    stats.weak = !masteredThisSitting;
     stats.lastSeen = new Date().toISOString();
     progressStore[id] = stats;
     saveProgress();
     recordStudyActivity();
   }
-  // "Weak" is a pure right/wrong ratio: any word you've attempted at least
-  // once where wrongs outnumber corrects.
-  function isWeakByRatio(item) {
-    const stats = getStats(item);
-    if (stats.correct + stats.wrong === 0) return false; // no attempts yet
-    return stats.wrong > stats.correct;
+  // "Weak" = the last time you sat down with this word, you didn't get both
+  // reps right. Clears the moment you master it in a later sitting.
+  function isWeak(item) {
+    return !!getStats(item).weak;
   }
-  // "Mastered" = your last two grades in a row (ever, across sessions) were
-  // correct — same bar as the in-session mastery queue in gradeCurrent(),
-  // just persisted instead of reset every session.
+  // "Mastered" = the last time you sat down with this word, you got both
+  // reps right.
   function isMastered(item) {
-    return (getStats(item).streak || 0) >= 2;
+    return !!getStats(item).mastered;
   }
 
   // ---------- persisted grammar practice progress (per pattern) ----------
@@ -275,7 +298,7 @@
       items = items.filter((item) => lessons.includes(item.lesson));
     }
     if (isolateMode) {
-      items = items.filter((item) => isWeakByRatio(item));
+      items = items.filter((item) => isWeak(item));
     }
     return items;
   }
@@ -291,7 +314,7 @@
 
   // ---------- pronunciation audio (Web Speech API — no key, no backend) ----------
   function speakJapanese(text) {
-    if (!text || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
+    if (silentMode || !text || !window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
     try {
       window.speechSynthesis.cancel(); // don't stack up overlapping utterances
       const utter = new SpeechSynthesisUtterance(text);
@@ -375,10 +398,10 @@
 
   // Builds a fresh study queue from the current level/lesson/weak filters
   // and resets session progress (mastered count starts back at 0 — it's a
-  // per-session tally, separate from the persisted right/wrong stats).
+  // per-session tally, separate from the persisted mastered/weak flags).
   function startSession() {
     const fc = state.flashcards;
-    const items = buildDeck(fc.level, fc.lessons, fc.isolateMode).map((item) => ({ ...item, streak: 0 }));
+    const items = buildDeck(fc.level, fc.lessons, fc.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
     fc.queue = items;
     fc.totalCount = items.length;
     fc.masteredCount = 0;
@@ -386,30 +409,25 @@
     showNextCard();
   }
 
-  // Wrong → reinsert a few cards ahead so it resurfaces soon.
-  // Right → push to the back; after 2 correct answers in a row this
-  // session, retire it instead of requeueing (mastered for now).
-  // In isolate mode, the queue behavior is identical but recordGrade is
-  // skipped — this is deliberately extra practice on already-known-weak
-  // words, and shouldn't be able to move the ratio that got them flagged.
+  // Every word gets exactly two presentations per sitting, right or wrong —
+  // no requeueing a miss to resurface a few cards later. The first
+  // presentation always goes back to the end of the queue for its second
+  // showing; the second presentation is the verdict: both correct this
+  // sitting → mastered, anything else → weak. Isolate mode (practicing the
+  // weak pile) uses the same rule, so mastering a weak word there clears it
+  // from the pile — that's the point of practicing it.
   function gradeCurrent(isCorrect) {
     const fc = state.flashcards;
     const item = fc.current;
     if (!item || !fc.flipped) return;
-    if (!fc.isolateMode) {
-      recordGrade(item, isCorrect);
-    }
-    if (isCorrect) {
-      item.streak = (item.streak || 0) + 1;
-      if (item.streak >= 2) {
-        fc.masteredCount += 1;
-      } else {
-        fc.queue.push(item);
-      }
+    item.attempts += 1;
+    if (isCorrect) item.correctAttempts += 1;
+    if (item.attempts < 2) {
+      fc.queue.push(item);
     } else {
-      item.streak = 0;
-      const insertPos = Math.min(3, fc.queue.length);
-      fc.queue.splice(insertPos, 0, item);
+      const masteredThisSitting = item.correctAttempts === 2;
+      recordSessionResult(item, masteredThisSitting);
+      if (masteredThisSitting) fc.masteredCount += 1;
     }
     showNextCard();
   }
@@ -642,6 +660,15 @@ resetProgressBtn.addEventListener("click", () => {
     });
   });
 
+  // Turns "漢字[かんじ]" bracket notation into <ruby><rt> furigana — escape
+  // first so any stray < > & in the source text can't leak into the markup.
+  function escapeHtml(str) {
+    return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function furiganaToHtml(text) {
+    return escapeHtml(text).replace(/([一-龯々〆〇]+)\[([^\]<>]+)\]/g, "<ruby>$1<rt>$2</rt></ruby>");
+  }
+
   // ---------- reusable quiz engine ----------
   // Shared by Grammar Practice and Conjugation "Sentences" mode: both show a
   // Japanese sentence (fill-in-the-blank or multiple-choice), let the user
@@ -693,7 +720,7 @@ resetProgressBtn.addEventListener("click", () => {
       const item = qs.queue.shift();
       qs.current = item;
       tagEl.textContent = item.tag || ""; // set now, but stays hidden (resetCardUI) until answered — avoids spoiling the question
-      sentenceEl.textContent = item.jp;
+      sentenceEl.innerHTML = furiganaToHtml(item.jp);
       hintEl.textContent = item.en || "";
       if (item.type === "choice") {
         optionsEl.hidden = false;
@@ -794,7 +821,7 @@ resetProgressBtn.addEventListener("click", () => {
       const lesson = lessonMap[pattern];
       if (gpState.lessons.length && !gpState.lessons.includes(lesson)) return;
       bank[pattern].forEach((q) => {
-        items.push({ ...q, tag: pattern });
+        items.push({ ...q, tag: lesson !== undefined ? `${lesson}課　${pattern}` : pattern });
       });
     });
     return items;
@@ -882,7 +909,7 @@ resetProgressBtn.addEventListener("click", () => {
             const rows = lessonItems
               .map((item) => {
                 const idItem = { ...item, level: l };
-                const rowClass = isWeakByRatio(idItem) ? ' class="wl-row-weak"' : "";
+                const rowClass = isWeak(idItem) ? ' class="wl-row-weak"' : "";
                 return `
               <tr${rowClass}>
                 <td class="wl-word">${item.word}</td>
@@ -1421,6 +1448,66 @@ resetProgressBtn.addEventListener("click", () => {
     });
   });
 
+  // ---------- settings modal (gear icon: silent mode + dark mode) ----------
+  const settingsOpenBtn = document.getElementById("settings-open-btn");
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsCloseX = document.getElementById("settings-close-x");
+  const settingsSilentToggle = document.getElementById("settings-silent-toggle");
+  const settingsDarkToggle = document.getElementById("settings-dark-toggle");
+
+  function syncSettingsToggleUI() {
+    if (settingsSilentToggle) {
+      settingsSilentToggle.classList.toggle("active", silentMode);
+      settingsSilentToggle.setAttribute("aria-checked", String(silentMode));
+    }
+    if (settingsDarkToggle) {
+      const isDark = currentTheme === "dark";
+      settingsDarkToggle.classList.toggle("active", isDark);
+      settingsDarkToggle.setAttribute("aria-checked", String(isDark));
+    }
+  }
+  syncSettingsToggleUI();
+
+  if (settingsOpenBtn && settingsModal) {
+    settingsOpenBtn.addEventListener("click", () => {
+      settingsModal.hidden = false;
+    });
+  }
+  if (settingsCloseX && settingsModal) {
+    settingsCloseX.addEventListener("click", () => {
+      settingsModal.hidden = true;
+    });
+  }
+  if (settingsModal) {
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) settingsModal.hidden = true;
+    });
+  }
+  if (settingsSilentToggle) {
+    settingsSilentToggle.addEventListener("click", () => {
+      silentMode = !silentMode;
+      try {
+        localStorage.setItem(SILENT_MODE_KEY, silentMode ? "1" : "0");
+      } catch (e) {
+        /* ignore — silent mode choice just won't persist */
+      }
+      if (silentMode && window.speechSynthesis) window.speechSynthesis.cancel();
+      syncSettingsToggleUI();
+    });
+  }
+  if (settingsDarkToggle) {
+    settingsDarkToggle.addEventListener("click", () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(THEME_KEY, currentTheme);
+      } catch (e) {
+        /* ignore — theme choice just won't persist */
+      }
+      applyTheme();
+      syncSettingsToggleUI();
+    });
+  }
+
   // ---------- dashboard (home) ----------
   // Vocab only, by design — grammar and conjugation both stay out of this
   // view. Organized by level (tabs) then by lesson within that level,
@@ -1457,21 +1544,15 @@ resetProgressBtn.addEventListener("click", () => {
       .map((n) => {
         const lessonItems = items.filter((item) => item.lesson === n);
         let mastered = 0,
-          correctSum = 0,
-          totalSum = 0;
+          weak = 0;
         lessonItems.forEach((item) => {
           const idItem = { ...item, level };
-          const stats = getStats(idItem);
-          const attempts = stats.correct + stats.wrong;
-          if (attempts > 0) {
-            correctSum += stats.correct;
-            totalSum += attempts;
-          }
           if (isMastered(idItem)) mastered += 1;
+          else if (isWeak(idItem)) weak += 1;
         });
         const total = lessonItems.length;
         const pct = total ? Math.round((mastered / total) * 100) : 0;
-        const meta = totalSum ? t("dashAccuracyLine", { pct: Math.round((correctSum / totalSum) * 100) }) : t("dashNotStartedYet");
+        const meta = weak ? t("dashWeakCountLine", { n: weak }) : mastered ? "" : t("dashNotStartedYet");
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
         const badge = examPassed[`${level}::${n}`] ? `<p class="dash-exam-passed-badge">${t("dashExamPassedBadge")}</p>` : "";
         return `
@@ -1495,12 +1576,12 @@ resetProgressBtn.addEventListener("click", () => {
       ((window.VOCAB_DATA && window.VOCAB_DATA[level]) || []).forEach((item) => {
         const idItem = { ...item, level };
         const stats = getStats(idItem);
-        if (stats.correct + stats.wrong > 0 && stats.wrong > stats.correct) {
-          weakVocab.push({ word: item.word, meaning: item.meaning, gap: stats.wrong - stats.correct });
+        if (stats.weak) {
+          weakVocab.push({ word: item.word, meaning: item.meaning, lastSeen: stats.lastSeen || "" });
         }
       });
     });
-    weakVocab.sort((a, b) => b.gap - a.gap);
+    weakVocab.sort((a, b) => (b.lastSeen > a.lastSeen ? 1 : -1)); // most recently missed first
 
     const listEl = document.getElementById("dash-weak-list");
     if (!weakVocab.length) {
