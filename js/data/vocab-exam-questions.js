@@ -876,6 +876,226 @@ window.VOCAB_EXAM_QUESTIONS = {
     "なかなか": [
       { type: "kanji", sentence: "料理[りょうり]が＿＿来[き]ませんでした。", distractors: ["すぐに", "もうすぐ", "やっと"] },
       { type: "usage", sentence: "「なかなか」の正しい使い方はどれですか。", answer: "料理がなかなか来ませんでした。", distractors: ["料理がなかなか来ました、すぐに。", "料理はなかなかの来ませんでした。", "料理がなかなかに来ませんでした。"] }
+    ],
+
+    // ---------- 13課 生活③ ----------
+    "ジャケット": [
+      { type: "kanji", sentence: "寒[さむ]いので、＿＿を脱[ぬ]ぎました。", distractors: ["コート", "セーター", "シャツ"] },
+      { type: "usage", sentence: "「ジャケット」の正しい使い方はどれですか。", answer: "ジャケットを脱ぎました。", distractors: ["ジャケットが脱ぎました。", "ジャケットに脱ぎました。", "ジャケットを脱がれました。"] }
+    ],
+    "下着": [
+      { type: "kanji", sentence: "新[あたら]しい＿＿を買[か]いました。", distractors: ["上着", "下手", "着物"] },
+      { type: "usage", sentence: "「下着」の正しい使い方はどれですか。", answer: "新しい下着を買いました。", distractors: ["新しい下着が買いました。", "新しい下着に買いました。", "新しい下着を買われました。"] },
+      { type: "particle", sentence: "新[あたら]しい下着[したぎ]＿＿買[か]いました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "道具": [
+      { type: "kanji", sentence: "これは野菜[やさい]を切[き]る＿＿です。", distractors: ["家具", "道路", "用具"] },
+      { type: "usage", sentence: "「道具」の正しい使い方はどれですか。", answer: "この道具は何ですか。", distractors: ["この道具を何ですか。", "この道具が何でございましたか。", "この道具は何をですか。"] },
+      { type: "particle", sentence: "この道具[どうぐ]＿＿何[なん]ですか。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "忘れ物": [
+      { type: "kanji", sentence: "これは田中[たなか]さんの＿＿です。", distractors: ["落とし物", "買い物", "忘れる"] },
+      { type: "usage", sentence: "「忘れ物」の正しい使い方はどれですか。", answer: "これは田中さんの忘れ物です。", distractors: ["これは田中さんの忘れ物をです。", "これは田中さんが忘れ物です。", "これは田中さんの忘れ物でされます。"] },
+      { type: "particle", sentence: "忘[わす]れ物[もの]＿＿ないように、気[き]をつけてください。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "クリーニングする": [
+      { type: "kanji", sentence: "このスーツを＿＿に出[だ]しました。", distractors: ["洗濯", "修理", "掃除"] },
+      { type: "usage", sentence: "「クリーニングする」の正しい使い方はどれですか。", answer: "この服はクリーニングできません。", distractors: ["この服はクリーニングしできません。", "この服にクリーニングできません。", "この服はクリーニングをさせません。"] }
+    ],
+    "生活する": [
+      { type: "kanji", sentence: "日本[にほん]で＿＿しています。", distractors: ["生産する", "成功する", "製作する"] },
+      { type: "usage", sentence: "「生活する」の正しい使い方はどれですか。", answer: "日本で生活しています。", distractors: ["日本を生活しています。", "日本は生活されています。", "日本に生活しています。"] },
+      { type: "particle", sentence: "日本[にほん]で生活[せいかつ]＿＿しています。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "植える": [
+      { type: "kanji", sentence: "庭[にわ]に花[はな]を＿＿ました。", distractors: ["飢える", "植わる", "埋める"] },
+      { type: "usage", sentence: "「植える」の正しい使い方はどれですか。", answer: "庭に花を植えました。", distractors: ["庭が花を植えました。", "庭に花が植えました。", "庭に花を植わりました。"] },
+      { type: "particle", sentence: "庭[にわ]に花[はな]＿＿植[う]えました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "消える": [
+      { type: "kanji", sentence: "テレビが＿＿います。", distractors: ["消す", "冷める", "切れる"] },
+      { type: "usage", sentence: "「消える」の正しい使い方はどれですか。", answer: "電気が消えています。", distractors: ["電気を消えています。", "電気は消しています、だれかが。", "電気が消えられています。"] },
+      { type: "particle", sentence: "電気[でんき]＿＿消[き]えています。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "つく": [
+      { type: "kanji", sentence: "部屋[へや]の電気[でんき]が＿＿ました。", distractors: ["着く", "付く", "突く"] },
+      { type: "usage", sentence: "「つく」の正しい使い方はどれですか。", answer: "部屋の電気がつきました。", distractors: ["部屋の電気をつきました。", "部屋は電気がつけました、だれかが。", "部屋の電気がつけられました。"] },
+      { type: "particle", sentence: "部屋[へや]の電気[でんき]＿＿つきました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "はく": [
+      { type: "kanji", sentence: "今日[きょう]は赤[あか]い靴[くつ]を＿＿ます。", distractors: ["掃く", "吐く", "着る"] },
+      { type: "usage", sentence: "「はく」の正しい使い方はどれですか。", answer: "今日は赤い靴をはきます。", distractors: ["今日は赤い靴にはきます。", "今日は赤い靴がはきます。", "今日は赤い靴をはかれます。"] },
+      { type: "particle", sentence: "今日[きょう]は赤[あか]い靴[くつ]＿＿はきます。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "引く": [
+      { type: "kanji", sentence: "そのドアを＿＿ください。", distractors: ["弾く", "押す", "轢く"] },
+      { type: "usage", sentence: "「引く」の正しい使い方はどれですか。", answer: "そのドアは引いてください。", distractors: ["そのドアに引いてください。", "そのドアが引いてください。", "そのドアは引かれてください。"] },
+      { type: "particle", sentence: "そのドア＿＿引[ひ]いてください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "拾う": [
+      { type: "kanji", sentence: "道[みち]でお金[かね]を＿＿ました。", distractors: ["捨てる", "洗う", "失う"] },
+      { type: "usage", sentence: "「拾う」の正しい使い方はどれですか。", answer: "道でお金を拾いました。", distractors: ["道でお金が拾いました。", "道はお金を拾われました。", "道でお金に拾いました。"] },
+      { type: "particle", sentence: "道[みち]でお金[かね]＿＿拾[ひろ]いました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "汚れる": [
+      { type: "kanji", sentence: "ワインで服[ふく]が＿＿ました。", distractors: ["汚す", "疲れる", "壊れる"] },
+      { type: "usage", sentence: "「汚れる」の正しい使い方はどれですか。", answer: "ワインで服が汚れました。", distractors: ["ワインを服が汚れました。", "ワインで服を汚しました、だれかが。", "ワインで服が汚されました。"] },
+      { type: "particle", sentence: "ワイン＿＿服[ふく]が汚[よご]れました。", answer: "で", distractors: ["を", "に", "が"] }
+    ],
+    "気をつける": [
+      { type: "kanji", sentence: "風邪[かぜ]に＿＿ください。", distractors: ["気にする", "気がつく", "気に入る"] },
+      { type: "usage", sentence: "「気をつける」の正しい使い方はどれですか。", answer: "風邪に気をつけてください。", distractors: ["風邪に気がつけてください。", "風邪を気をつけてください。", "風邪に気をつかれてください。"] },
+      { type: "collocation", sentence: "風邪[かぜ]に＿＿つけてください。", answer: "気を", distractors: ["心を", "身を", "力を"] }
+    ],
+    "十分": [
+      { type: "kanji", sentence: "たくさん食[た]べましたから、もう＿＿です。", distractors: ["半分", "自分", "気分"] },
+      { type: "usage", sentence: "「十分」の正しい使い方はどれですか。", answer: "たくさん食べましたから、もう十分です。", distractors: ["たくさん食べましたから、もう十分いです。", "たくさん食べましたから、もう十分くです。", "たくさん食べましたから、もう十分をです。"] },
+      { type: "grammar", sentence: "十分[じゅうぶん]＿＿休[やす]みました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+
+    // ---------- 14課 生活④ ----------
+    "鏡": [
+      { type: "kanji", sentence: "部屋[へや]に大[おお]きな＿＿があります。", distractors: ["眼鏡", "窓", "画面"] },
+      { type: "usage", sentence: "「鏡」の正しい使い方はどれですか。", answer: "部屋に大きな鏡があります。", distractors: ["部屋に大きな鏡をあります。", "部屋は大きな鏡がありました、いつも。", "部屋に大きな鏡がございませんでした。"] },
+      { type: "particle", sentence: "部屋[へや]に大[おお]きな鏡[かがみ]＿＿あります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "人形": [
+      { type: "kanji", sentence: "かわいい＿＿を買[か]いました。", distractors: ["人間", "形", "変形"] },
+      { type: "usage", sentence: "「人形」の正しい使い方はどれですか。", answer: "かわいい人形を買いました。", distractors: ["かわいい人形が買いました。", "かわいい人形に買いました。", "かわいい人形を買われました。"] },
+      { type: "particle", sentence: "かわいい人形[にんぎょう]＿＿買[か]いました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "引き出し": [
+      { type: "kanji", sentence: "服[ふく]を＿＿に入[い]れます。", distractors: ["押し入れ", "出口", "貸し出し"] },
+      { type: "usage", sentence: "「引き出し」の正しい使い方はどれですか。", answer: "服を引き出しに入れます。", distractors: ["服が引き出しに入れます。", "服を引き出しが入れます。", "服を引き出しで入れられます。"] },
+      { type: "particle", sentence: "服[ふく]を引[ひ]き出[だ]し＿＿入[い]れます。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "枝": [
+      { type: "kanji", sentence: "長[なが]くなった＿＿を切[き]りました。", distractors: ["葉", "根", "幹"] },
+      { type: "usage", sentence: "「枝」の正しい使い方はどれですか。", answer: "長くなった枝を切りました。", distractors: ["長くなった枝が切りました。", "長くなった枝に切りました。", "長くなった枝は切られました、庭師に。"] },
+      { type: "particle", sentence: "長[なが]くなった枝[えだ]＿＿切[き]りました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "ガラス": [
+      { type: "kanji", sentence: "＿＿のお皿[さら]でご飯[はん]を食[た]べました。", distractors: ["プラスチック", "陶器", "木製"] },
+      { type: "usage", sentence: "「ガラス」の正しい使い方はどれですか。", answer: "ガラスのお皿でご飯を食べました。", distractors: ["ガラスのお皿がご飯を食べました。", "ガラスのお皿でご飯が食べました。", "ガラスのお皿でご飯を食べられました。"] }
+    ],
+    "真ん中": [
+      { type: "kanji", sentence: "部屋[へや]の＿＿にベッドを置[お]きました。", distractors: ["途中", "中心", "真っ直ぐ"] },
+      { type: "usage", sentence: "「真ん中」の正しい使い方はどれですか。", answer: "部屋の真ん中にベッドを置きました。", distractors: ["部屋の真ん中をベッドを置きました。", "部屋は真ん中にベッドを置きました、いつも。", "部屋の真ん中にベッドが置かれました。"] },
+      { type: "particle", sentence: "部屋[へや]の真[ま]ん中＿＿ベッドを置[お]きました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "隅": [
+      { type: "kanji", sentence: "部屋[へや]の＿＿にテレビがあります。", distractors: ["角", "端", "奥"] },
+      { type: "usage", sentence: "「隅」の正しい使い方はどれですか。", answer: "部屋の隅にテレビがあります。", distractors: ["部屋の隅をテレビがあります。", "部屋は隅にテレビがありました、いつも。", "部屋の隅にテレビをあります。"] },
+      { type: "particle", sentence: "部屋[へや]の隅[すみ]＿＿テレビがあります。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "落とす": [
+      { type: "kanji", sentence: "コップを＿＿ました。", distractors: ["落ちる", "落とし物", "落ち込む"] },
+      { type: "usage", sentence: "「落とす」の正しい使い方はどれですか。", answer: "コップを落としました。", distractors: ["コップが落としました。", "コップに落としました。", "コップを落とされました、私が。"] },
+      { type: "particle", sentence: "コップ＿＿落[お]としました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "変える": [
+      { type: "kanji", sentence: "机[つくえ]の場所[ばしょ]を＿＿ました。", distractors: ["変わる", "帰る", "換える"] },
+      { type: "usage", sentence: "「変える」の正しい使い方はどれですか。", answer: "机の場所を変えました。", distractors: ["机の場所が変えました。", "机の場所に変えました。", "机の場所を変わりました、だれかが。"] },
+      { type: "particle", sentence: "机[つくえ]の場所[ばしょ]＿＿変[か]えました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "かける": [
+      { type: "kanji", sentence: "ドアの横[よこ]にカレンダーを＿＿ました。", distractors: ["欠ける", "駆ける", "架ける"] },
+      { type: "usage", sentence: "「かける」の正しい使い方はどれですか。", answer: "魚にしょうゆをかけて食べました。", distractors: ["魚がしょうゆをかけて食べました。", "魚にしょうゆがかけて食べました。", "魚にしょうゆをかけられて食べました。"] },
+      { type: "particle", sentence: "ドアの横[よこ]にカレンダー＿＿かけました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "飾る": [
+      { type: "kanji", sentence: "玄関[げんかん]に絵[え]を＿＿ました。", distractors: ["飾り", "塗る", "並べる"] },
+      { type: "usage", sentence: "「飾る」の正しい使い方はどれですか。", answer: "玄関に絵を飾りました。", distractors: ["玄関が絵を飾りました。", "玄関に絵が飾りました。", "玄関に絵を飾られました。"] },
+      { type: "particle", sentence: "玄関[げんかん]に絵[え]＿＿飾[かざ]りました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "取り替える": [
+      { type: "kanji", sentence: "花瓶[かびん]の水[みず]を＿＿ました。", distractors: ["着替える", "入れ替える", "取り消す"] },
+      { type: "usage", sentence: "「取り替える」の正しい使い方はどれですか。", answer: "花瓶の水を取り替えました。", distractors: ["花瓶の水が取り替えました。", "花瓶の水に取り替えました。", "花瓶の水を取り替えられました。"] },
+      { type: "particle", sentence: "花瓶[かびん]の水[みず]＿＿取[と]り替[か]えました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "折れる": [
+      { type: "kanji", sentence: "強[つよ]い風[かぜ]で枝[えだ]が＿＿ました。", distractors: ["折る", "倒れる", "割れる"] },
+      { type: "usage", sentence: "「折れる」の正しい使い方はどれですか。", answer: "お箸が折れました。", distractors: ["お箸を折れました。", "お箸は折りました、だれかが。", "お箸が折られました。"] },
+      { type: "particle", sentence: "強[つよ]い風[かぜ]で枝[えだ]＿＿折[お]れました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "壊れる": [
+      { type: "kanji", sentence: "テレビが＿＿ました。", distractors: ["壊す", "怖い", "割れる"] },
+      { type: "usage", sentence: "「壊れる」の正しい使い方はどれですか。", answer: "テレビが壊れました。", distractors: ["テレビを壊れました。", "テレビは壊しました、だれかが。", "テレビが壊されました。"] },
+      { type: "particle", sentence: "テレビ＿＿壊[こわ]れました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "割れる": [
+      { type: "kanji", sentence: "お皿[さら]が＿＿ました。", distractors: ["割る", "破れる", "折れる"] },
+      { type: "usage", sentence: "「割れる」の正しい使い方はどれですか。", answer: "お皿が割れました。", distractors: ["お皿を割れました。", "お皿は割りました、だれかが。", "お皿が割られました。"] },
+      { type: "particle", sentence: "お皿[さら]＿＿割[わ]れました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+
+    // ---------- 15課 買い物② ----------
+    "財布": [
+      { type: "kanji", sentence: "＿＿を落[お]としてしまいました。", distractors: ["財産", "布", "小銭入れ"] },
+      { type: "usage", sentence: "「財布」の正しい使い方はどれですか。", answer: "財布を落としてしまいました。", distractors: ["財布が落としてしまいました。", "財布に落としてしまいました。", "財布を落とされてしまいました。"] },
+      { type: "particle", sentence: "財布[さいふ]＿＿落[お]としてしまいました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "品物": [
+      { type: "kanji", sentence: "あの店[みせ]は＿＿がいい物[もの]が多[おお]いです。", distractors: ["建物", "食べ物", "製品"] },
+      { type: "usage", sentence: "「品物」の正しい使い方はどれですか。", answer: "あの店は品物がいい物が多いです。", distractors: ["あの店は品物をいい物が多いです。", "あの店に品物がいい物が多いです。", "あの店は品物がいい物を多いです。"] },
+      { type: "particle", sentence: "あの店[みせ]は品物[しなもの]＿＿いい物[もの]が多[おお]いです。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "値段": [
+      { type: "kanji", sentence: "日本[にほん]は果物[くだもの]の＿＿が高[たか]いです。", distractors: ["段階", "値打ち", "料金"] },
+      { type: "usage", sentence: "「値段」の正しい使い方はどれですか。", answer: "日本は果物の値段が高いです。", distractors: ["日本は果物の値段を高いです。", "日本を果物の値段が高いです。", "日本は果物の値段が高くさせます。"] },
+      { type: "particle", sentence: "日本[にほん]は果物[くだもの]の値段[ねだん]＿＿高[たか]いです。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "ボーナス": [
+      { type: "kanji", sentence: "今年[ことし]は＿＿をたくさんもらいました。", distractors: ["きゅうりょう", "てあて", "ちょきん"] },
+      { type: "usage", sentence: "「ボーナス」の正しい使い方はどれですか。", answer: "今年はボーナスをたくさんもらいました。", distractors: ["今年はボーナスがたくさんもらいました。", "今年はボーナスにたくさんもらいました。", "今年はボーナスをたくさんもらわれました。"] }
+    ],
+    "平日": [
+      { type: "kanji", sentence: "＿＿は買[か]い物[もの]になかなか行[い]けません。", distractors: ["休日", "平和", "毎日"] },
+      { type: "usage", sentence: "「平日」の正しい使い方はどれですか。", answer: "平日は買い物になかなか行けません。", distractors: ["平日を買い物になかなか行けません。", "平日に買い物になかなか行けません。", "平日は買い物へなかなか行かれません。"] },
+      { type: "particle", sentence: "平日[へいじつ]＿＿買[か]い物[もの]になかなか行[い]けません。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "メモする": [
+      { type: "kanji", sentence: "忘[わす]れないように、電話番号[でんわばんごう]を＿＿しました。", distractors: ["記録", "確認", "連絡"] },
+      { type: "usage", sentence: "「メモする」の正しい使い方はどれですか。", answer: "買う物をメモしておきました。", distractors: ["買う物がメモしておきました。", "買う物にメモしておきました。", "買う物をメモされておきました。"] }
+    ],
+    "開く": [
+      { type: "kanji", sentence: "スーパーは朝[あさ]10時[じ]に＿＿ます。", distractors: ["開ける", "空く", "閉じる"] },
+      { type: "usage", sentence: "「開く」の正しい使い方はどれですか。", answer: "スーパーは朝10時に開きます。", distractors: ["スーパーを朝10時に開きます。", "スーパーは朝10時に開けます、店員が。", "スーパーは朝10時に開かれます。"] },
+      { type: "particle", sentence: "スーパー＿＿朝[あさ]10時[じ]に開[あ]きます。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "売れる": [
+      { type: "kanji", sentence: "きょうはケーキが＿＿ました。", distractors: ["売る", "買える", "流行る"] },
+      { type: "usage", sentence: "「売れる」の正しい使い方はどれですか。", answer: "きょうはケーキがたくさん売れました。", distractors: ["きょうはケーキをたくさん売れました。", "きょうはケーキがたくさん売りました、店員が。", "きょうはケーキがたくさん売られました。"] },
+      { type: "particle", sentence: "きょうはケーキ＿＿たくさん売[う]れました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "選ぶ": [
+      { type: "kanji", sentence: "母[はは]にプレゼントを＿＿でいます。", distractors: ["遊ぶ", "呼ぶ", "偉い"] },
+      { type: "usage", sentence: "「選ぶ」の正しい使い方はどれですか。", answer: "母にプレゼントを選んでいます。", distractors: ["母にプレゼントが選んでいます。", "母のプレゼントを選んでいます、いつも。", "母にプレゼントを選ばれています。"] },
+      { type: "particle", sentence: "母[はは]にプレゼント＿＿選[えら]んでいます。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "閉まる": [
+      { type: "kanji", sentence: "デパートは午後[ごご]8時[じ]に＿＿ます。", distractors: ["閉める", "始まる", "閉じる"] },
+      { type: "usage", sentence: "「閉まる」の正しい使い方はどれですか。", answer: "デパートは午後8時に閉まります。", distractors: ["デパートを午後8時に閉まります。", "デパートは午後8時に閉めます、店員が。", "デパートは午後8時に閉められます。"] },
+      { type: "particle", sentence: "デパート＿＿午後[ごご]8時[じ]に閉[し]まります。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "なくす": [
+      { type: "kanji", sentence: "カードを＿＿ました。", distractors: ["なくなる", "捜す", "忘れる"] },
+      { type: "usage", sentence: "「なくす」の正しい使い方はどれですか。", answer: "カードをなくしました。", distractors: ["カードがなくしました。", "カードはなくなりました、いつのまにか。", "カードをなくされました。"] },
+      { type: "particle", sentence: "カード＿＿なくしました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "足りる": [
+      { type: "kanji", sentence: "お金[かね]が＿＿ませんでした。", distractors: ["借りる", "頼る", "足"] },
+      { type: "usage", sentence: "「足りる」の正しい使い方はどれですか。", answer: "お金が足りませんでした。", distractors: ["お金を足りませんでした。", "お金は足られませんでした。", "お金が足りさせませんでした。"] },
+      { type: "particle", sentence: "お金[かね]＿＿足[た]りませんでした。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "見つける": [
+      { type: "kanji", sentence: "きれいな色[いろ]のシャツを＿＿ました。", distractors: ["見つかる", "見つめる", "探す"] },
+      { type: "usage", sentence: "「見つける」の正しい使い方はどれですか。", answer: "きれいな色のシャツを見つけました。", distractors: ["きれいな色のシャツが見つけました。", "きれいな色のシャツに見つけました。", "きれいな色のシャツを見つかりました。"] },
+      { type: "particle", sentence: "きれいな色[いろ]のシャツ＿＿見[み]つけました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "むだ": [
+      { type: "kanji", sentence: "＿＿な物[もの]を買[か]わないでください。", distractors: ["ひつような", "べんりな", "とくべつな"] },
+      { type: "usage", sentence: "「むだ」の正しい使い方はどれですか。", answer: "むだな物を買わないでください。", distractors: ["むだの物を買わないでください。", "むだい物を買わないでください。", "むだく物を買わないでください。"] }
     ]
   }
 };
