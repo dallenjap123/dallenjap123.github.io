@@ -23,6 +23,7 @@
         <button class="tab" data-view="wordlist" role="tab" aria-selected="false" data-i18n="tabWordlist">Word List</button>
         <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
         <button class="tab" data-view="exam" role="tab" aria-selected="false" data-i18n="tabExam">Exam</button>
+        <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
       </nav>
       <div class="sync-status" id="sync-status">
         <button class="sync-signin-pill" id="sync-open-btn" data-i18n="signInToSync">☁ Sign in</button>
@@ -331,6 +332,7 @@
       </div>
 
       <div id="exam-loading" class="exam-panel" hidden>
+        <div class="exam-spinner" aria-hidden="true"></div>
         <p class="exam-loading-text" id="exam-loading-text" data-i18n="examLoading">Generating your exam…</p>
       </div>
 

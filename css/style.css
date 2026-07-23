@@ -32,6 +32,7 @@
   --radius: 8px;
   --font-jp: 'Shippori Mincho', serif;
   --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --glow-color: rgba(43, 58, 103, 0.35);
 }
 
 /* Dark theme — same aizome-indigo identity, inverted for a dark backdrop.
@@ -53,6 +54,53 @@
   --learning-bg: #3A2E15;
   --mastered: #7FBF92;
   --mastered-bg: #1E3327;
+  --glow-color: rgba(195, 206, 239, 0.45);
+}
+
+/* ---------- motion ----------
+   Every keyframe used across the site lives here. Entrance animations are
+   attached to elements that get freshly created via innerHTML re-renders
+   (grammar detail, dashboard rows, exam banners) so they replay naturally
+   each time that content changes, with no JS bookkeeping required. The few
+   that need a JS-driven restart (flashcard refresh) are called out where
+   they're used. */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.7); }
+  70% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes stampImpact {
+  0% { opacity: 0; transform: rotate(-8deg) scale(1.9); }
+  55% { opacity: 1; transform: rotate(-8deg) scale(0.92); }
+  100% { opacity: 1; transform: rotate(-8deg) scale(1); }
+}
+@keyframes growFill {
+  from { width: 0; }
+}
+@keyframes shimmerSweep {
+  0% { background-position: -160% 0; }
+  100% { background-position: 160% 0; }
+}
+@keyframes softGlow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 18px var(--glow-color); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes flashCorrect {
+  0% { box-shadow: 0 0 0 0 var(--mastered-bg); }
+  40% { box-shadow: 0 0 0 6px var(--mastered-bg); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes flashWrong {
+  0% { box-shadow: 0 0 0 0 var(--seal-bg); }
+  40% { box-shadow: 0 0 0 6px var(--seal-bg); }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 * { box-sizing: border-box; }
@@ -99,7 +147,7 @@ body {
   margin-top: 2px;
 }
 
-.view-tabs { display: flex; gap: 4px; }
+.view-tabs { display: flex; gap: 4px; position: relative; }
 .tab {
   font-family: var(--font-ui);
   font-size: 0.9rem;
@@ -110,11 +158,23 @@ body {
   background: var(--paper-deep);
   color: var(--ink-soft);
   cursor: pointer;
+  transition: background .2s, color .2s, transform .15s;
 }
+.tab:hover:not(.active) { transform: translateY(-2px); color: var(--indigo-deep); }
+.tab:active { transform: translateY(0) scale(0.97); }
 .tab.active {
   background: var(--paper-alt);
   color: var(--indigo-deep);
   font-weight: 600;
+}
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  height: 2px;
+  background: var(--seal);
+  border-radius: 2px;
+  transition: left .25s cubic-bezier(.4, .2, .2, 1), width .25s cubic-bezier(.4, .2, .2, 1);
+  pointer-events: none;
 }
 
 .header-right {
@@ -143,7 +203,8 @@ body {
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.sync-signin-pill:hover { background: var(--indigo); color: #fff; }
+.sync-signin-pill:hover { background: var(--indigo); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(23, 32, 59, .18); }
+.sync-signin-pill:active { transform: translateY(0) scale(0.96); }
 
 .settings-gear-btn {
   background: none;
@@ -158,6 +219,7 @@ body {
   transition: border-color 0.15s, color 0.15s, transform 0.15s;
 }
 .settings-gear-btn:hover { border-color: var(--indigo); color: var(--indigo-deep); transform: rotate(20deg); }
+.settings-gear-btn:active { transform: rotate(20deg) scale(0.9); }
 
 .settings-row {
   display: flex;
@@ -230,7 +292,9 @@ body {
   padding: 12px;
   margin-bottom: 10px;
 }
-.modal-google-btn:hover { background: var(--indigo-deep); border-color: var(--indigo-deep); color: #fff; }
+.modal-google-btn:hover { background: var(--indigo-deep); border-color: var(--indigo-deep); color: #fff; transform: translateY(-1px); }
+.modal-google-btn:active { transform: translateY(0) scale(0.97); }
+.modal-box { animation: fadeInUp .25s ease; }
 .modal-close-x {
   position: absolute;
   top: 14px;
@@ -253,7 +317,7 @@ main {
   border-top: 1px solid var(--line);
 }
 .view { display: none; }
-.view.active { display: block; padding-top: 32px; }
+.view.active { display: block; padding-top: 32px; animation: fadeInUp 0.35s ease; }
 
 .controls {
   display: flex;
@@ -273,10 +337,11 @@ main {
   font-size: 0.85rem;
   color: var(--ink-soft);
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+  transition: background .2s, color .2s, border-color .2s, transform .15s, box-shadow .2s;
 }
-.chip:hover { border-color: var(--indigo); }
-.chip.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+.chip:hover { border-color: var(--indigo); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(23, 32, 59, .12); }
+.chip:active { transform: translateY(0) scale(0.96); }
+.chip.active { background: var(--indigo); border-color: var(--indigo); color: #fff; animation: popIn .25s ease; }
 .chip.n5.active { background: var(--n5); border-color: var(--n5); }
 .chip.n4.active { background: var(--n4); border-color: var(--n4); }
 .chip.n3.active { background: var(--n3); border-color: var(--n3); }
@@ -292,7 +357,10 @@ main {
   color: var(--ink-soft);
   border: none;
   cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
 }
+.dir-btn:hover:not(.active) { color: var(--indigo-deep); }
+.dir-btn:active { transform: scale(0.95); }
 .dir-btn.active { background: var(--indigo); color: #fff; }
 
 .lesson-chips {
@@ -372,6 +440,7 @@ main {
   text-align: center;
 }
 .card-back { transform: rotateY(180deg); gap: 8px; }
+.card-refresh .card-front .card-text { animation: fadeInUp .35s ease; }
 .card-front .card-text {
   font-family: var(--font-jp);
   font-size: clamp(1.8rem, 6vw, 3.2rem);
@@ -399,9 +468,10 @@ main {
   font-family: var(--font-jp);
   font-size: 1.2rem;
   transform: rotate(-8deg) scale(0);
-  transition: transform .3s ease .15s;
+  opacity: 0;
 }
-.card.flipped .seal { transform: rotate(-8deg) scale(1); }
+.card.flipped .seal { transform: rotate(-8deg) scale(1); opacity: 1; animation: stampImpact .45s ease .15s backwards; }
+.card.no-anim .seal { animation: none !important; }
 
 .card-hint { font-family: var(--font-ui); font-size: 0.8rem; color: var(--ink-soft); margin-top: 12px; }
 
@@ -416,8 +486,10 @@ main {
   border: 1.5px solid var(--line);
   background: var(--paper-alt);
   color: var(--ink);
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background .15s, color .15s, border-color .15s, transform .12s, box-shadow .15s;
 }
+.grade-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(23, 32, 59, .15); }
+.grade-btn:active { transform: translateY(0) scale(0.95); }
 .grade-wrong { border-color: var(--seal); color: var(--seal); }
 .grade-wrong:hover { background: var(--seal); color: #fff; }
 .grade-right { border-color: var(--mastered); color: var(--mastered); }
@@ -434,10 +506,12 @@ main {
   background: transparent;
   color: var(--ink);
   cursor: pointer;
+  transition: border-color .15s, color .15s, transform .12s;
 }
-.ghost-btn:hover { border-color: var(--indigo); color: var(--indigo-deep); }
+.ghost-btn:hover { border-color: var(--indigo); color: var(--indigo-deep); transform: translateY(-1px); }
+.ghost-btn:active:not(:disabled) { transform: translateY(0) scale(0.96); }
 .ghost-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.ghost-btn:disabled:hover { border-color: var(--line); color: var(--ink); }
+.ghost-btn:disabled:hover { border-color: var(--line); color: var(--ink); transform: none; }
 .progress { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); min-width: 60px; text-align: center; }
 
 /* ---------- grammar ---------- */
@@ -489,7 +563,7 @@ main {
   border-radius: 999px;
   margin-bottom: 8px;
 }
-.grammar-pattern { font-family: var(--font-jp); font-size: 1.8rem; color: var(--indigo-deep); margin: 0 0 6px; }
+.grammar-pattern { font-family: var(--font-jp); font-size: 1.8rem; color: var(--indigo-deep); margin: 0 0 6px; animation: fadeInUp .3s ease; }
 .grammar-meaning {
   font-family: var(--font-ui);
   font-size: 1rem;
@@ -515,7 +589,12 @@ main {
   border-top: 1px solid var(--line);
 }
 .grammar-uses, .grammar-mistakes { display: flex; flex-direction: column; gap: 16px; }
-.grammar-use { padding: 12px 14px; background: var(--learning-bg, var(--paper)); border-radius: 4px; }
+.grammar-use { padding: 12px 14px; background: var(--learning-bg, var(--paper)); border-radius: 4px; animation: fadeInUp .35s ease backwards; }
+.grammar-use:nth-child(2) { animation-delay: .05s; }
+.grammar-use:nth-child(3) { animation-delay: .1s; }
+.grammar-mistake { animation: fadeInUp .35s ease backwards; }
+.grammar-mistake:nth-child(2) { animation-delay: .05s; }
+.grammar-mistake:nth-child(3) { animation-delay: .1s; }
 .grammar-use-label { font-family: var(--font-ui); font-weight: 600; margin: 0 0 4px; color: var(--ink); }
 .grammar-use-explanation { line-height: 1.6; margin: 0 0 10px; color: var(--ink-soft); }
 .grammar-use .examples { gap: 10px; }
@@ -576,12 +655,13 @@ main {
   color: var(--ink);
   cursor: pointer;
   text-align: left;
-  transition: background .15s, border-color .15s;
+  transition: background .15s, border-color .15s, transform .12s;
 }
-.gp-option-btn:hover:not(:disabled) { border-color: var(--indigo); }
+.gp-option-btn:hover:not(:disabled) { border-color: var(--indigo); transform: translateX(3px); }
+.gp-option-btn:active:not(:disabled) { transform: translateX(3px) scale(0.98); }
 .gp-option-btn:disabled { cursor: default; }
-.gp-option-btn.correct { border-color: var(--mastered); background: var(--mastered-bg); color: var(--mastered); font-weight: 600; }
-.gp-option-btn.wrong { border-color: var(--seal); background: var(--seal-bg); color: var(--seal); font-weight: 600; }
+.gp-option-btn.correct { border-color: var(--mastered); background: var(--mastered-bg); color: var(--mastered); font-weight: 600; animation: flashCorrect .6s ease; }
+.gp-option-btn.wrong { border-color: var(--seal); background: var(--seal-bg); color: var(--seal); font-weight: 600; animation: flashWrong .6s ease; }
 .gp-answer { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); font-weight: 700; margin-top: 4px; }
 
 /* ---------- dashboard / home ---------- */
@@ -594,7 +674,7 @@ main {
   border-bottom: 1px solid var(--line);
   margin-bottom: 24px;
 }
-.dash-streak-number { font-family: var(--font-ui); font-size: 2.6rem; font-weight: 700; color: var(--indigo-deep); line-height: 1; }
+.dash-streak-number { font-family: var(--font-ui); font-size: 2.6rem; font-weight: 700; color: var(--indigo-deep); line-height: 1; animation: popIn .4s ease, softGlow 3.5s ease-in-out 0.4s infinite; }
 .dash-streak-label {
   font-family: var(--font-ui);
   font-size: 0.72rem;
@@ -631,8 +711,18 @@ main {
 .dash-lesson-title { font-family: var(--font-jp); font-size: 0.95rem; }
 .dash-lesson-count { color: var(--ink-soft); font-size: 0.75rem; font-family: var(--font-ui); }
 .dash-progress-track { height: 6px; border-radius: 999px; background: var(--paper-deep); overflow: hidden; }
-.dash-progress-fill { height: 100%; background: var(--indigo); border-radius: 999px; transition: background 0.15s; }
-.dash-progress-fill-complete { background: var(--mastered); }
+.dash-progress-fill {
+  height: 100%;
+  background: var(--indigo);
+  border-radius: 999px;
+  transition: background 0.15s;
+  animation: growFill .6s cubic-bezier(.3, .7, .2, 1) backwards;
+}
+.dash-progress-fill-complete {
+  background: linear-gradient(100deg, var(--mastered) 40%, rgba(255, 255, 255, 0.55) 50%, var(--mastered) 60%);
+  background-size: 250% 100%;
+  animation: growFill .6s cubic-bezier(.3, .7, .2, 1) backwards, shimmerSweep 3s linear infinite;
+}
 .dash-subsection-meta { font-family: var(--font-ui); font-size: 0.72rem; color: var(--ink-soft); margin: 6px 0 0; }
 .dash-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
 .dash-exam-passed-badge {
@@ -645,7 +735,9 @@ main {
   border: 1px solid var(--mastered);
   border-radius: 999px;
   padding: 3px 10px;
+  animation: popIn .3s ease backwards;
 }
+.dash-badges .dash-exam-passed-badge:nth-child(2) { animation-delay: .08s; }
 .dash-empty-note { font-family: var(--font-ui); font-size: 0.78rem; color: var(--ink-soft); font-style: italic; margin: 0; }
 
 .dash-weak-section { margin-top: 8px; }
@@ -826,12 +918,21 @@ main {
   margin: 12px 0 0;
   line-height: 1.5;
 }
+.exam-spinner {
+  width: 36px;
+  height: 36px;
+  margin: 48px auto 0;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--seal);
+  animation: spin 0.8s linear infinite;
+}
 .exam-loading-text {
   font-family: var(--font-ui);
   font-size: 0.95rem;
   color: var(--ink-soft);
   text-align: center;
-  padding: 48px 0;
+  padding: 12px 0 48px;
   font-style: italic;
 }
 .exam-phase-tag {
@@ -861,15 +962,17 @@ main {
   font-family: var(--font-jp);
   font-size: 1.05rem;
 }
+.exam-furigana-input input { transition: border-color .15s, background .15s; }
 .exam-furigana-input input:focus { border-color: var(--indigo); outline: none; }
-.exam-furigana-input input.exam-input-correct { border-color: var(--mastered); background: var(--mastered-bg); }
-.exam-furigana-input input.exam-input-wrong { border-color: var(--seal); background: var(--seal-bg); }
+.exam-furigana-input input.exam-input-correct { border-color: var(--mastered); background: var(--mastered-bg); animation: flashCorrect .6s ease; }
+.exam-furigana-input input.exam-input-wrong { border-color: var(--seal); background: var(--seal-bg); animation: flashWrong .6s ease; }
 
 .exam-result-banner {
   border-radius: 10px;
   padding: 24px;
   text-align: center;
   font-family: var(--font-ui);
+  animation: popIn .4s ease;
 }
 .exam-result-banner.pass { background: var(--mastered-bg); border: 1.5px solid var(--mastered); }
 .exam-result-banner.fail { background: var(--seal-bg); border: 1.5px solid var(--seal); }
@@ -898,6 +1001,12 @@ main {
 :focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
   .card, .seal { transition: none; }
 }
 

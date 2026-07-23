@@ -255,6 +255,14 @@
   // ---------- view tabs ----------
   const tabs = document.querySelectorAll(".tab");
   const views = document.querySelectorAll(".view");
+  const tabIndicatorEl = document.getElementById("tab-indicator");
+
+  function moveTabIndicator(tab) {
+    if (!tabIndicatorEl || !tab) return;
+    tabIndicatorEl.style.left = `${tab.offsetLeft}px`;
+    tabIndicatorEl.style.width = `${tab.offsetWidth}px`;
+  }
+
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       tabs.forEach((t) => {
@@ -263,6 +271,7 @@
       });
       tab.classList.add("active");
       tab.setAttribute("aria-selected", "true");
+      moveTabIndicator(tab);
       const target = tab.dataset.view;
       views.forEach((v) => v.classList.toggle("active", v.id === `${target}-view`));
       if (target === "wordlist" && typeof refreshWordList === "function") refreshWordList();
@@ -272,6 +281,8 @@
       }
     });
   });
+  moveTabIndicator(document.querySelector(".tab.active"));
+  window.addEventListener("resize", () => moveTabIndicator(document.querySelector(".tab.active")));
 
   // ---------- flashcards ----------
   const fcLevelChips = document.querySelectorAll("#fc-level-chips .chip");
@@ -342,12 +353,13 @@
     // Freeze the flip transition while we reset, so a card that was
     // showing its back never reveals the next card's content mid-rotation.
     cardEl.classList.add("no-anim");
-    cardEl.classList.remove("flipped");
+    cardEl.classList.remove("flipped", "card-refresh");
     state.flashcards.flipped = false;
     gradeButtonsEl.hidden = true;
     cardHintEl.hidden = false;
     void cardEl.offsetWidth; // force layout before re-enabling transitions
     cardEl.classList.remove("no-anim");
+    cardEl.classList.add("card-refresh"); // replays the front-face entrance animation
   }
 
   function flashcardEmptyText() {
@@ -1128,12 +1140,13 @@ resetProgressBtn.addEventListener("click", () => {
 
   function resetConjCardVisual() {
     conjCardEl.classList.add("no-anim");
-    conjCardEl.classList.remove("flipped");
+    conjCardEl.classList.remove("flipped", "card-refresh");
     conjState.flipped = false;
     conjGradeButtonsEl.hidden = true;
     conjHintEl.hidden = false;
     void conjCardEl.offsetWidth;
     conjCardEl.classList.remove("no-anim");
+    conjCardEl.classList.add("card-refresh");
   }
 
   function conjEmptyText() {
@@ -1283,12 +1296,13 @@ resetProgressBtn.addEventListener("click", () => {
 
   function resetVerbCardVisual() {
     conjVerbCardEl.classList.add("no-anim");
-    conjVerbCardEl.classList.remove("flipped");
+    conjVerbCardEl.classList.remove("flipped", "card-refresh");
     conjVerbState.flipped = false;
     conjVerbGradeButtonsEl.hidden = true;
     conjVerbHintEl.hidden = false;
     void conjVerbCardEl.offsetWidth;
     conjVerbCardEl.classList.remove("no-anim");
+    conjVerbCardEl.classList.add("card-refresh");
   }
 
   function showVerbCard() {
