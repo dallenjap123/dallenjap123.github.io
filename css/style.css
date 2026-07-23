@@ -351,6 +351,10 @@ main {
 }
 .view { display: none; }
 .view.active { display: block; padding-top: var(--space-6); animation: fadeInUp 0.35s ease; }
+/* the dashboard's stacked progress-bar rows all rode along with this
+   entrance animation every time you switched back to Home, reading as
+   the bars themselves still animating/jittering — so it's off here */
+#home-view.active { animation: none; }
 
 .controls {
   display: flex;
