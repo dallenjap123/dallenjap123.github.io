@@ -607,11 +607,8 @@ resetProgressBtn.addEventListener("click", () => {
     grammarDetailEl.innerHTML = `<p class="grammar-empty">${t("selectPattern")}</p>`;
   }
 
-  function selectGrammarItem(i) {
-    state.grammar.selectedIndex = i;
-    [...grammarListEl.children].forEach((li, idx) => li.classList.toggle("active", idx === i));
-    const item = state.grammar.items[i];
-    const examplesHtml = (item.examples || [])
+  function renderExamplesHtml(examples) {
+    return (examples || [])
       .map(
         (ex) => `
       <div class="example">
@@ -620,13 +617,47 @@ resetProgressBtn.addEventListener("click", () => {
       </div>`
       )
       .join("");
+  }
+
+  function selectGrammarItem(i) {
+    state.grammar.selectedIndex = i;
+    [...grammarListEl.children].forEach((li, idx) => li.classList.toggle("active", idx === i));
+    const item = state.grammar.items[i];
     const lessonTag = item.lesson !== undefined ? `<span class="grammar-lesson-tag">${item.lesson}課</span>` : "";
+
+    // legacy entries (flat usage/examples, not yet migrated to uses[]/commonMistakes[])
+    const usesHtml = item.uses
+      ? item.uses
+          .map(
+            (use) => `
+        <div class="grammar-use">
+          <p class="grammar-use-label">${use.label}</p>
+          <p class="grammar-use-explanation">${use.explanation}</p>
+          ${use.examples && use.examples.length ? `<div class="examples">${renderExamplesHtml(use.examples)}</div>` : ""}
+        </div>`
+          )
+          .join("")
+      : `<p class="grammar-usage">${item.usage || ""}</p>${item.examples && item.examples.length ? `<div class="examples">${renderExamplesHtml(item.examples)}</div>` : ""}`;
+
+    const mistakesHtml = (item.commonMistakes || [])
+      .map(
+        (m) => `
+      <div class="grammar-mistake">
+        <p class="grammar-mistake-wrong">✗ ${m.wrong}</p>
+        <p class="grammar-mistake-explanation">${m.explanation}</p>
+      </div>`
+      )
+      .join("");
+
     grammarDetailEl.innerHTML = `
       ${lessonTag}
       <p class="grammar-pattern">${item.pattern}</p>
       <p class="grammar-meaning">${item.meaning}</p>
-      <p class="grammar-usage">${item.usage}</p>
-      ${examplesHtml ? `<div class="examples">${examplesHtml}</div>` : ""}
+      <div class="grammar-uses">
+        <h4 class="grammar-section-heading">${t("grammarUsesHeading")}</h4>
+        ${usesHtml}
+      </div>
+      ${mistakesHtml ? `<div class="grammar-mistakes"><h4 class="grammar-section-heading">${t("grammarMistakesHeading")}</h4>${mistakesHtml}</div>` : ""}
     `;
   }
 

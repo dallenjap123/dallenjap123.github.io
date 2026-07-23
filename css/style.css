@@ -504,6 +504,24 @@ main {
 .example-jp { font-family: var(--font-jp); font-size: 1.1rem; margin: 0 0 4px; }
 .example-en { font-family: var(--font-ui); font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
 .grammar-empty { color: var(--ink-soft); font-style: italic; }
+.grammar-section-heading {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--indigo-deep);
+  margin: 24px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.grammar-uses, .grammar-mistakes { display: flex; flex-direction: column; gap: 16px; }
+.grammar-use { padding: 12px 14px; background: var(--learning-bg, var(--paper)); border-radius: 4px; }
+.grammar-use-label { font-family: var(--font-ui); font-weight: 600; margin: 0 0 4px; color: var(--ink); }
+.grammar-use-explanation { line-height: 1.6; margin: 0 0 10px; color: var(--ink-soft); }
+.grammar-use .examples { gap: 10px; }
+.grammar-mistake { padding: 12px 14px; background: var(--paper); border-left: 3px solid var(--seal); border-radius: 2px; }
+.grammar-mistake-wrong { font-family: var(--font-jp); font-size: 1rem; margin: 0 0 4px; color: var(--seal); }
+.grammar-mistake-explanation { font-family: var(--font-ui); font-size: 0.9rem; line-height: 1.6; color: var(--ink-soft); margin: 0; }
 
 /* ---------- grammar / sentence practice quiz card ---------- */
 .gp-card {
