@@ -1096,6 +1096,362 @@ window.VOCAB_EXAM_QUESTIONS = {
     "むだ": [
       { type: "kanji", sentence: "＿＿な物[もの]を買[か]わないでください。", distractors: ["ひつような", "べんりな", "とくべつな"] },
       { type: "usage", sentence: "「むだ」の正しい使い方はどれですか。", answer: "むだな物を買わないでください。", distractors: ["むだの物を買わないでください。", "むだい物を買わないでください。", "むだく物を買わないでください。"] }
+    ],
+    // ---------- 16課 学校② ----------
+    "講義": [
+      { type: "kanji", sentence: "田中先生[たなかせんせい]の＿＿はおもしろいです。", distractors: ["会議", "講演", "議論"] },
+      { type: "usage", sentence: "「講義」の正しい使い方はどれですか。", answer: "田中先生の講義はおもしろいです。", distractors: ["田中先生の講義をおもしろいです。", "田中先生は講義がおもしろくさせます。", "田中先生の講義におもしろいです。"] },
+      { type: "particle", sentence: "田中先生[たなかせんせい]の講義[こうぎ]＿＿おもしろいです。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "席": [
+      { type: "kanji", sentence: "この＿＿は空[あ]いていますか。", distractors: ["座席", "出席", "椅子"] },
+      { type: "usage", sentence: "「席」の正しい使い方はどれですか。", answer: "この席は空いていますか。", distractors: ["この席を空いていますか。", "この席が空けていますか、だれかが。", "この席は空けられていますか。"] },
+      { type: "particle", sentence: "この席[せき]＿＿空[あ]いていますか。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "出席する": [
+      { type: "kanji", sentence: "あしたの会議[かいぎ]に＿＿します。", distractors: ["出勤する", "出発する", "欠席する"] },
+      { type: "usage", sentence: "「出席する」の正しい使い方はどれですか。", answer: "あしたの会議に出席します。", distractors: ["あしたの会議を出席します。", "あしたの会議が出席されます。", "あしたの会議は出席させます。"] },
+      { type: "particle", sentence: "あしたの会議[かいぎ]＿＿出席[しゅっせき]します。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "返事する": [
+      { type: "kanji", sentence: "メールにすぐ＿＿しました。", distractors: ["返信する", "変化する", "返却する"] },
+      { type: "usage", sentence: "「返事する」の正しい使い方はどれですか。", answer: "メールにすぐ返事しました。", distractors: ["メールをすぐ返事しました。", "メールにすぐ返事されました。", "メールですぐ返事しました。"] },
+      { type: "particle", sentence: "メール＿＿すぐ返事[へんじ]しました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "予習する": [
+      { type: "kanji", sentence: "授業[じゅぎょう]の前[まえ]に＿＿します。", distractors: ["復習する", "練習する", "学習する"] },
+      { type: "usage", sentence: "「予習する」の正しい使い方はどれですか。", answer: "授業の前に予習します。", distractors: ["授業の前を予習します。", "授業の前に予習されます。", "授業の前が予習します。"] },
+      { type: "particle", sentence: "授業[じゅぎょう]の前[まえ]＿＿予習[よしゅう]します。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "復習する": [
+      { type: "kanji", sentence: "授業[じゅぎょう]の後[あと]で＿＿します。", distractors: ["予習する", "練習する", "学習する"] },
+      { type: "usage", sentence: "「復習する」の正しい使い方はどれですか。", answer: "授業の後で復習します。", distractors: ["授業の後を復習します。", "授業の後に復習されます。", "授業の後が復習します。"] },
+      { type: "particle", sentence: "授業[じゅぎょう]の後[あと]＿＿復習[ふくしゅう]します。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "連絡する": [
+      { type: "kanji", sentence: "先生[せんせい]に電話[でんわ]で＿＿しました。", distractors: ["連続する", "練習する", "記録する"] },
+      { type: "usage", sentence: "「連絡する」の正しい使い方はどれですか。", answer: "先生に電話で連絡しました。", distractors: ["先生を電話で連絡しました。", "先生に電話で連絡されました。", "先生が電話で連絡されます。"] },
+      { type: "particle", sentence: "先生[せんせい]に電話[でんわ]＿＿連絡[れんらく]しました。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "失敗する": [
+      { type: "kanji", sentence: "テストで＿＿しました。", distractors: ["失礼する", "心配する", "成功する"] },
+      { type: "usage", sentence: "「失敗する」の正しい使い方はどれですか。", answer: "テストで失敗しました。", distractors: ["テストを失敗しました。", "テストに失敗されました。", "テストが失敗させました。"] },
+      { type: "particle", sentence: "テスト＿＿失敗[しっぱい]しました。", answer: "で", distractors: ["を", "が", "に"] }
+    ],
+    "出す": [
+      { type: "kanji", sentence: "宿題[しゅくだい]を明日[あした]＿＿ください。", distractors: ["出る", "出かける", "貸す"] },
+      { type: "usage", sentence: "「出す」の正しい使い方はどれですか。", answer: "宿題を明日出してください。", distractors: ["宿題が明日出してください。", "宿題に明日出してください。", "宿題を明日出られてください。"] },
+      { type: "particle", sentence: "宿題[しゅくだい]＿＿明日[あした]出[だ]してください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "受ける": [
+      { type: "kanji", sentence: "来月[らいげつ]、試験[しけん]を＿＿ます。", distractors: ["受かる", "受け取る", "売れる"] },
+      { type: "usage", sentence: "「受ける」の正しい使い方はどれですか。", answer: "来月、試験を受けます。", distractors: ["来月、試験が受けます。", "来月、試験に受けられます。", "来月、試験は受けさせます。"] },
+      { type: "particle", sentence: "来月[らいげつ]、試験[しけん]＿＿受[う]けます。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "通う": [
+      { type: "kanji", sentence: "毎日[まいにち]、電車[でんしゃ]で学校[がっこう]に＿＿ています。", distractors: ["通る", "買う", "歌う"] },
+      { type: "usage", sentence: "「通う」の正しい使い方はどれですか。", answer: "毎日、電車で学校に通っています。", distractors: ["毎日、電車で学校を通っています。", "毎日、電車で学校が通わせています。", "毎日、電車で学校に通われています。"] },
+      { type: "particle", sentence: "毎日[まいにち]、電車[でんしゃ]で学校[がっこう]＿＿通[かよ]っています。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "急ぐ": [
+      { type: "kanji", sentence: "遅刻[ちこく]しそうなので＿＿ました。", distractors: ["泳ぐ", "騒ぐ", "忙しい"] },
+      { type: "usage", sentence: "「急ぐ」の正しい使い方はどれですか。", answer: "遅刻しそうなので急ぎました。", distractors: ["遅刻しそうなので急がれました。", "遅刻しそうなので急がせました。", "遅刻しそうなので急がさせました。"] }
+    ],
+    "間に合う": [
+      { type: "kanji", sentence: "急[いそ]いだので、電車[でんしゃ]に＿＿ました。", distractors: ["似合う", "知り合う", "都合"] },
+      { type: "usage", sentence: "「間に合う」の正しい使い方はどれですか。", answer: "急いだので、電車に間に合いました。", distractors: ["急いだので、電車を間に合いました。", "急いだので、電車が間に合わせました。", "急いだので、電車は間に合われました。"] },
+      { type: "particle", sentence: "急[いそ]いだので、電車[でんしゃ]＿＿間[ま]に合[あ]いました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "遅れる": [
+      { type: "kanji", sentence: "バスが＿＿ています。", distractors: ["遅い", "送れる", "遅らせる"] },
+      { type: "usage", sentence: "「遅れる」の正しい使い方はどれですか。", answer: "バスが遅れています。", distractors: ["バスを遅れています。", "バスは遅らせています、いつも。", "バスが遅れさせています。"] },
+      { type: "particle", sentence: "バス＿＿遅[おく]れています。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "まじめ": [
+      { type: "kanji", sentence: "彼[かれ]は＿＿な学生[がくせい]です。", distractors: ["ねっしんな", "しんせつな", "げんきな"] },
+      { type: "usage", sentence: "「まじめ」の正しい使い方はどれですか。", answer: "彼はまじめな学生です。", distractors: ["彼はまじめの学生です。", "彼はまじめい学生です。", "彼はまじめく学生です。"] }
+    ],
+    // ---------- 17課 学校③ ----------
+    "廊下": [
+      { type: "kanji", sentence: "＿＿を走[はし]らないでください。", distractors: ["地下", "階段", "教室"] },
+      { type: "usage", sentence: "「廊下」の正しい使い方はどれですか。", answer: "廊下を走らないでください。", distractors: ["廊下が走らないでください。", "廊下に走らないでください。", "廊下は走られないでください。"] },
+      { type: "particle", sentence: "廊下[ろうか]＿＿走[はし]らないでください。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "音": [
+      { type: "kanji", sentence: "変[へん]な＿＿が聞[き]こえます。", distractors: ["声", "音楽", "騒音"] },
+      { type: "usage", sentence: "「音」の正しい使い方はどれですか。", answer: "変な音が聞こえます。", distractors: ["変な音を聞こえます。", "変な音は聞かせます。", "変な音が聞かれさせます。"] },
+      { type: "particle", sentence: "変[へん]な音[おと]＿＿聞[き]こえます。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "規則": [
+      { type: "kanji", sentence: "この学校[がっこう]には＿＿がたくさんあります。", distractors: ["法律", "規定", "原則"] },
+      { type: "usage", sentence: "「規則」の正しい使い方はどれですか。", answer: "この学校には規則がたくさんあります。", distractors: ["この学校には規則をたくさんあります。", "この学校には規則がたくさんいます。", "この学校には規則がたくさんさせます。"] },
+      { type: "particle", sentence: "この学校[がっこう]には規則[きそく]＿＿たくさんあります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "意見": [
+      { type: "kanji", sentence: "私[わたし]の＿＿を言[い]ってもいいですか。", distractors: ["意味", "発見", "経験"] },
+      { type: "usage", sentence: "「意見」の正しい使い方はどれですか。", answer: "私の意見を言ってもいいですか。", distractors: ["私の意見が言ってもいいですか。", "私の意見に言ってもいいですか。", "私の意見は言われてもいいですか。"] },
+      { type: "particle", sentence: "私[わたし]の意見[いけん]＿＿言[い]ってもいいですか。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "注意する": [
+      { type: "kanji", sentence: "先生[せんせい]は学生[がくせい]に＿＿しました。", distractors: ["注目する", "中止する", "用意する"] },
+      { type: "usage", sentence: "「注意する」の正しい使い方はどれですか。", answer: "先生は学生に注意しました。", distractors: ["先生は学生を注意しました。", "先生は学生が注意されました。", "先生は学生で注意しました。"] },
+      { type: "particle", sentence: "先生[せんせい]は学生[がくせい]＿＿注意[ちゅうい]しました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "思い出す": [
+      { type: "kanji", sentence: "子供[こども]のころのことを＿＿ました。", distractors: ["思い出", "忘れる", "気がつく"] },
+      { type: "usage", sentence: "「思い出す」の正しい使い方はどれですか。", answer: "子供のころのことを思い出しました。", distractors: ["子供のころのことが思い出しました。", "子供のころのことに思い出しました。", "子供のころのことを思い出されました。"] },
+      { type: "particle", sentence: "子供[こども]のころのこと＿＿思[おも]い出[だ]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "続ける": [
+      { type: "kanji", sentence: "日本語[にほんご]の勉強[べんきょう]を＿＿ています。", distractors: ["続く", "片付ける", "止める"] },
+      { type: "usage", sentence: "「続ける」の正しい使い方はどれですか。", answer: "日本語の勉強を続けています。", distractors: ["日本語の勉強が続けています。", "日本語の勉強に続けています。", "日本語の勉強を続かれています。"] },
+      { type: "particle", sentence: "日本語[にほんご]の勉強[べんきょう]＿＿続[つづ]けています。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "直す": [
+      { type: "kanji", sentence: "間違[まちが]えたところを＿＿ました。", distractors: ["直る", "治す", "見直す"] },
+      { type: "usage", sentence: "「直す」の正しい使い方はどれですか。", answer: "間違えたところを直しました。", distractors: ["間違えたところが直しました。", "間違えたところに直しました。", "間違えたところを直られました。"] },
+      { type: "particle", sentence: "間違[まちが]えたところ＿＿直[なお]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "並べる": [
+      { type: "kanji", sentence: "机[つくえ]の上[うえ]に本[ほん]を＿＿ました。", distractors: ["並ぶ", "比べる", "食べる"] },
+      { type: "usage", sentence: "「並べる」の正しい使い方はどれですか。", answer: "机の上に本を並べました。", distractors: ["机の上が本を並べました。", "机の上に本が並べました。", "机の上に本を並びました。"] },
+      { type: "particle", sentence: "机[つくえ]の上[うえ]に本[ほん]＿＿並[なら]べました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "間違える": [
+      { type: "kanji", sentence: "答[こた]えを＿＿てしまいました。", distractors: ["間違う", "間違い", "間に合う"] },
+      { type: "usage", sentence: "「間違える」の正しい使い方はどれですか。", answer: "答えを間違えてしまいました。", distractors: ["答えが間違えてしまいました。", "答えに間違えてしまいました。", "答えを間違われてしまいました。"] },
+      { type: "particle", sentence: "答[こた]え＿＿間違[まちが]えてしまいました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "守る": [
+      { type: "kanji", sentence: "規則[きそく]を＿＿なければなりません。", distractors: ["止まる", "決まる", "習う"] },
+      { type: "usage", sentence: "「守る」の正しい使い方はどれですか。", answer: "規則を守らなければなりません。", distractors: ["規則が守らなければなりません。", "規則に守らなければなりません。", "規則を守られなければなりません。"] },
+      { type: "particle", sentence: "規則[きそく]＿＿守[まも]らなければなりません。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "やめる": [
+      { type: "kanji", sentence: "たばこを＿＿ました。", distractors: ["辞める", "止める", "終わる"] },
+      { type: "usage", sentence: "「やめる」の正しい使い方はどれですか。", answer: "たばこをやめました。", distractors: ["たばこがやめました。", "たばこにやめました。", "たばこをやめられました。"] },
+      { type: "particle", sentence: "たばこ＿＿やめました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "熱心": [
+      { type: "kanji", sentence: "彼[かれ]は仕事[しごと]に＿＿です。", distractors: ["感心", "安心", "関心"] },
+      { type: "usage", sentence: "「熱心」の正しい使い方はどれですか。", answer: "彼は仕事に熱心です。", distractors: ["彼は仕事に熱心いです。", "彼は仕事に熱心くです。", "彼は仕事を熱心です。"] },
+      { type: "particle", sentence: "彼[かれ]は仕事[しごと]＿＿熱心[ねっしん]です。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "無理": [
+      { type: "kanji", sentence: "今日中[きょうじゅう]に終[お]わらせるのは＿＿です。", distractors: ["無駄", "不便", "困難"] },
+      { type: "usage", sentence: "「無理」の正しい使い方はどれですか。", answer: "今日中に終わらせるのは無理です。", distractors: ["今日中に終わらせるのは無理いです。", "今日中に終わらせるのは無理くです。", "今日中に終わらせるのを無理です。"] }
+    ],
+    "ずっと": [
+      { type: "kanji", sentence: "朝[あさ]から＿＿雨[あめ]が降[ふ]っています。", distractors: ["すこし", "たまに", "すぐに"] },
+      { type: "usage", sentence: "「ずっと」の正しい使い方はどれですか。", answer: "朝からずっと雨が降っています。", distractors: ["朝からずっとを雨が降っています。", "朝からずっとが雨に降っています。", "朝からずっとに雨は降っています。"] }
+    ],
+    // ---------- 18課 町② ----------
+    "月": [
+      { type: "kanji", sentence: "空[そら]に＿＿が出[で]ています。", distractors: ["星", "太陽", "雲"] },
+      { type: "usage", sentence: "「月」の正しい使い方はどれですか。", answer: "空に月が出ています。", distractors: ["空を月が出ています。", "空に月を出ています。", "空は月が出されています。"] },
+      { type: "particle", sentence: "空[そら]に月[つき]＿＿出[で]ています。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "教会": [
+      { type: "kanji", sentence: "毎週日曜日[まいしゅうにちようび]に＿＿へ行[い]きます。", distractors: ["(お)寺", "神社", "会議"] },
+      { type: "usage", sentence: "「教会」の正しい使い方はどれですか。", answer: "毎週日曜日に教会へ行きます。", distractors: ["毎週日曜日を教会へ行きます。", "毎週日曜日は教会に行かせます。", "毎週日曜日に教会が行かれます。"] },
+      { type: "particle", sentence: "毎週日曜日[まいしゅうにちようび]に教会[きょうかい]＿＿行[い]きます。", answer: "へ", distractors: ["を", "が", "で"] }
+    ],
+    "景色": [
+      { type: "kanji", sentence: "山[やま]の上[うえ]からの＿＿はきれいです。", distractors: ["風景", "様子", "景気"] },
+      { type: "usage", sentence: "「景色」の正しい使い方はどれですか。", answer: "山の上からの景色はきれいです。", distractors: ["山の上からの景色をきれいです。", "山の上からの景色にきれいです。", "山の上からの景色はきれくです。"] },
+      { type: "particle", sentence: "山[やま]の上[うえ]からの景色[けしき]＿＿きれいです。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "緑": [
+      { type: "kanji", sentence: "公園[こうえん]には＿＿がたくさんあります。", distractors: ["森", "草", "青"] },
+      { type: "usage", sentence: "「緑」の正しい使い方はどれですか。", answer: "公園には緑がたくさんあります。", distractors: ["公園には緑をたくさんあります。", "公園には緑がたくさんいます。", "公園には緑がたくさんさせます。"] },
+      { type: "particle", sentence: "公園[こうえん]には緑[みどり]＿＿たくさんあります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "南": [
+      { type: "kanji", sentence: "沖縄[おきなわ]は日本[にほん]の＿＿にあります。", distractors: ["北", "東", "西"] },
+      { type: "usage", sentence: "「南」の正しい使い方はどれですか。", answer: "沖縄は日本の南にあります。", distractors: ["沖縄は日本の南をあります。", "沖縄は日本の南があります。", "沖縄は日本の南はあられます。"] },
+      { type: "particle", sentence: "沖縄[おきなわ]は日本[にほん]の南[みなみ]＿＿あります。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "形": [
+      { type: "kanji", sentence: "この雲[くも]は変[へん]な＿＿をしています。", distractors: ["色", "大きさ", "人形"] },
+      { type: "usage", sentence: "「形」の正しい使い方はどれですか。", answer: "この雲は変な形をしています。", distractors: ["この雲は変な形にしています。", "この雲が変な形をされています。", "この雲は変な形をさせています。"] },
+      { type: "particle", sentence: "この雲[くも]は変[へん]な形[かたち]＿＿しています。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "込む": [
+      { type: "kanji", sentence: "電車[でんしゃ]が＿＿ています。", distractors: ["混む", "頼む", "進む"] },
+      { type: "usage", sentence: "「込む」の正しい使い方はどれですか。", answer: "電車が込んでいます。", distractors: ["電車を込んでいます。", "電車は込ませています。", "電車が込まれています。"] },
+      { type: "particle", sentence: "電車[でんしゃ]＿＿込[こ]んでいます。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "すく": [
+      { type: "kanji", sentence: "この時間[じかん]はバスが＿＿ています。", distractors: ["込む", "晴れる", "空く"] },
+      { type: "usage", sentence: "「すく」の正しい使い方はどれですか。", answer: "この時間はバスがすいています。", distractors: ["この時間はバスをすいています。", "この時間はバスにすいています。", "この時間はバスがすかれています。"] },
+      { type: "particle", sentence: "この時間[じかん]はバス＿＿すいています。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "晴れる": [
+      { type: "kanji", sentence: "あしたは＿＿でしょう。", distractors: ["腫れる", "曇る", "降る"] },
+      { type: "usage", sentence: "「晴れる」の正しい使い方はどれですか。", answer: "あしたは晴れるでしょう。", distractors: ["あしたは晴れをでしょう。", "あしたは晴れにでしょう。", "あしたは晴れさせるでしょう。"] }
+    ],
+    "曇る": [
+      { type: "kanji", sentence: "午後[ごご]から空[そら]が＿＿ました。", distractors: ["雲", "晴れる", "降る"] },
+      { type: "usage", sentence: "「曇る」の正しい使い方はどれですか。", answer: "午後から空が曇りました。", distractors: ["午後から空を曇りました。", "午後から空に曇りました。", "午後から空が曇らせました。"] },
+      { type: "particle", sentence: "午後[ごご]から空[そら]＿＿曇[くも]りました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "やむ": [
+      { type: "kanji", sentence: "やっと雨[あめ]が＿＿ました。", distractors: ["止まる", "降る", "晴れる"] },
+      { type: "usage", sentence: "「やむ」の正しい使い方はどれですか。", answer: "やっと雨がやみました。", distractors: ["やっと雨をやみました。", "やっと雨にやみました。", "やっと雨がやまれました。"] },
+      { type: "particle", sentence: "やっと雨[あめ]＿＿やみました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "続く": [
+      { type: "kanji", sentence: "この天気[てんき]はしばらく＿＿でしょう。", distractors: ["続ける", "片付く", "気がつく"] },
+      { type: "usage", sentence: "「続く」の正しい使い方はどれですか。", answer: "この天気はしばらく続くでしょう。", distractors: ["この天気はしばらく続けるでしょう。", "この天気はしばらく続かせるでしょう。", "この天気はしばらく続かれるでしょう。"] }
+    ],
+    "建てる": [
+      { type: "kanji", sentence: "駅[えき]の近[ちか]くに家[いえ]を＿＿ました。", distractors: ["建つ", "立てる", "育てる"] },
+      { type: "usage", sentence: "「建てる」の正しい使い方はどれですか。", answer: "駅の近くに家を建てました。", distractors: ["駅の近くに家が建てました。", "駅の近くに家は建ちました、自然に。", "駅の近くに家を建たれました。"] },
+      { type: "particle", sentence: "駅[えき]の近[ちか]くに家[いえ]＿＿建[た]てました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "はっきり": [
+      { type: "kanji", sentence: "山[やま]の上[うえ]からは町[まち]が＿＿見[み]えます。", distractors: ["ゆっくり", "しっかり", "すっかり"] },
+      { type: "usage", sentence: "「はっきり」の正しい使い方はどれですか。", answer: "山の上からは町がはっきり見えます。", distractors: ["山の上からは町がはっきりを見えます。", "山の上からは町がはっきりに見えます。", "山の上からは町がはっきりで見えます。"] }
+    ],
+    // ---------- 19課 人と人③ ----------
+    "祖父": [
+      { type: "kanji", sentence: "私[わたし]の＿＿は80歳[さい]です。", distractors: ["祖母", "父", "おじ(さん)"] },
+      { type: "usage", sentence: "「祖父」の正しい使い方はどれですか。", answer: "私の祖父は80歳です。", distractors: ["私の祖父を80歳です。", "私は祖父が80歳です。", "私の祖父は80歳にです。"] },
+      { type: "particle", sentence: "私[わたし]の祖父[そふ]＿＿80歳[さい]です。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "祖母": [
+      { type: "kanji", sentence: "私[わたし]の＿＿は料理[りょうり]が上手[じょうず]です。", distractors: ["祖父", "母", "おば(さん)"] },
+      { type: "usage", sentence: "「祖母」の正しい使い方はどれですか。", answer: "私の祖母は料理が上手です。", distractors: ["私の祖母を料理が上手です。", "私は祖母が料理を上手です。", "私の祖母は料理に上手です。"] },
+      { type: "particle", sentence: "私[わたし]の祖母[そぼ]は料理[りょうり]＿＿上手[じょうず]です。", answer: "が", distractors: ["を", "に", "は"] }
+    ],
+    "おば(さん)": [
+      { type: "kanji", sentence: "＿＿は父[ちち]の妹[いもうと]です。", distractors: ["おじ(さん)", "祖母", "いとこ"] },
+      { type: "usage", sentence: "「おば(さん)」の正しい使い方はどれですか。", answer: "おばは父の妹です。", distractors: ["おばを父の妹です。", "おばに父の妹です。", "おばが父の妹をです。"] },
+      { type: "particle", sentence: "おば＿＿父[ちち]の妹[いもうと]です。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "おじ(さん)": [
+      { type: "kanji", sentence: "＿＿は母[はは]の兄[あに]です。", distractors: ["おば(さん)", "祖父", "いとこ"] },
+      { type: "usage", sentence: "「おじ(さん)」の正しい使い方はどれですか。", answer: "おじは母の兄です。", distractors: ["おじを母の兄です。", "おじに母の兄です。", "おじが母の兄をです。"] },
+      { type: "particle", sentence: "おじ＿＿母[はは]の兄[あに]です。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "お子さん": [
+      { type: "kanji", sentence: "山田[やまだ]さんの＿＿は何歳[なんさい]ですか。", distractors: ["息子", "娘", "赤ちゃん"] },
+      { type: "usage", sentence: "「お子さん」の正しい使い方はどれですか。", answer: "山田さんのお子さんは何歳ですか。", distractors: ["山田さんのお子さんを何歳ですか。", "山田さんはお子さんが何歳をですか。", "山田さんのお子さんに何歳ですか。"] },
+      { type: "particle", sentence: "山田[やまだ]さんのお子[こ]さん＿＿何歳[なんさい]ですか。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "赤ちゃん": [
+      { type: "kanji", sentence: "隣[となり]の家[いえ]に＿＿が生[う]まれました。", distractors: ["お子さん", "子供", "孫"] },
+      { type: "usage", sentence: "「赤ちゃん」の正しい使い方はどれですか。", answer: "隣の家に赤ちゃんが生まれました。", distractors: ["隣の家を赤ちゃんが生まれました。", "隣の家に赤ちゃんを生まれました。", "隣の家は赤ちゃんが生まれさせました。"] },
+      { type: "particle", sentence: "隣[となり]の家[いえ]に赤[あか]ちゃん＿＿生[う]まれました。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "お宅": [
+      { type: "kanji", sentence: "今度[こんど]、先生[せんせい]の＿＿に伺[うかが]います。", distractors: ["自宅", "家", "住所"] },
+      { type: "usage", sentence: "「お宅」の正しい使い方はどれですか。", answer: "今度、先生のお宅に伺います。", distractors: ["今度、先生のお宅を伺います。", "今度、先生はお宅に伺わせます。", "今度、先生のお宅が伺われます。"] },
+      { type: "particle", sentence: "今度[こんど]、先生[せんせい]のお宅[たく]＿＿伺[うかが]います。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "気持ち": [
+      { type: "kanji", sentence: "その＿＿はよく分[わ]かります。", distractors: ["気分", "持ち物", "天気"] },
+      { type: "usage", sentence: "「気持ち」の正しい使い方はどれですか。", answer: "その気持ちはよく分かります。", distractors: ["その気持ちをよく分かります。", "その気持ちがよく分けます。", "その気持ちに分かります。"] },
+      { type: "particle", sentence: "その気持[きも]ち＿＿よく分[わ]かります。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "お祝い": [
+      { type: "kanji", sentence: "誕生日[たんじょうび]の＿＿にプレゼントをもらいました。", distractors: ["お礼", "贈り物", "お見舞い"] },
+      { type: "usage", sentence: "「お祝い」の正しい使い方はどれですか。", answer: "誕生日のお祝いにプレゼントをもらいました。", distractors: ["誕生日のお祝いをプレゼントをもらいました。", "誕生日のお祝いがプレゼントをもらいました。", "誕生日のお祝いへプレゼントがもらいました。"] }
+    ],
+    "安心する": [
+      { type: "kanji", sentence: "子供[こども]が無事[ぶじ]だと聞[き]いて＿＿しました。", distractors: ["案内する", "感心する", "心配する"] },
+      { type: "usage", sentence: "「安心する」の正しい使い方はどれですか。", answer: "子供が無事だと聞いて安心しました。", distractors: ["子供が無事だと聞いて安心されました。", "子供が無事だと聞いて安心させました。", "子供が無事だと聞いて安心をしました、彼女は。"] }
+    ],
+    "褒める": [
+      { type: "kanji", sentence: "先生[せんせい]が私[わたし]を＿＿くれました。", distractors: ["認める", "決める", "叱る"] },
+      { type: "usage", sentence: "「褒める」の正しい使い方はどれですか。", answer: "先生が私を褒めてくれました。", distractors: ["先生が私に褒めてくれました。", "先生は私を褒められてくれました。", "先生が私を褒めさせてくれました。"] },
+      { type: "particle", sentence: "先生[せんせい]が私[わたし]＿＿褒[ほ]めてくれました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "びっくりする": [
+      { type: "kanji", sentence: "大[おお]きい音[おと]に＿＿しました。", distractors: ["安心", "感心", "心配"] },
+      { type: "usage", sentence: "「びっくりする」の正しい使い方はどれですか。", answer: "大きい音にびっくりしました。", distractors: ["大きい音をびっくりしました。", "大きい音がびっくりされました。", "大きい音でびっくりさせました。"] },
+      { type: "particle", sentence: "大[おお]きい音[おと]＿＿びっくりしました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "育てる": [
+      { type: "kanji", sentence: "両親[りょうしん]は私[わたし]を大切[たいせつ]に＿＿くれました。", distractors: ["育つ", "建てる", "褒める"] },
+      { type: "usage", sentence: "「育てる」の正しい使い方はどれですか。", answer: "両親は私を大切に育ててくれました。", distractors: ["両親は私が大切に育ててくれました。", "両親は私を大切に育ってくれました。", "両親は私を大切に育てさせてくれました。"] },
+      { type: "particle", sentence: "両親[りょうしん]は私[わたし]＿＿大切[たいせつ]に育[そだ]ててくれました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "親切": [
+      { type: "kanji", sentence: "隣[となり]の人[ひと]はとても＿＿です。", distractors: ["大切", "優しい", "丁寧"] },
+      { type: "usage", sentence: "「親切」の正しい使い方はどれですか。", answer: "隣の人はとても親切です。", distractors: ["隣の人はとても親切いです。", "隣の人はとても親切くです。", "隣の人をとても親切です。"] }
+    ],
+    // ---------- 20課 趣味⑤ ----------
+    "旅館": [
+      { type: "kanji", sentence: "温泉[おんせん]の＿＿に泊[と]まりました。", distractors: ["旅行", "会館", "民宿"] },
+      { type: "usage", sentence: "「旅館」の正しい使い方はどれですか。", answer: "温泉の旅館に泊まりました。", distractors: ["温泉の旅館を泊まりました。", "温泉の旅館は泊まらせました。", "温泉の旅館が泊まられました。"] },
+      { type: "particle", sentence: "温泉[おんせん]の旅館[りょかん]＿＿泊[と]まりました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "ラッシュ": [
+      { type: "kanji", sentence: "朝[あさ]の＿＿はいつも込[こ]んでいます。", distractors: ["じかん", "じこ", "こうつう"] },
+      { type: "usage", sentence: "「ラッシュ」の正しい使い方はどれですか。", answer: "朝のラッシュはいつも込んでいます。", distractors: ["朝のラッシュをいつも込んでいます。", "朝のラッシュがいつも込ませています。", "朝のラッシュに込んでいます。"] }
+    ],
+    "港": [
+      { type: "kanji", sentence: "船[ふね]は＿＿を出[で]ました。", distractors: ["空港", "海岸", "駅"] },
+      { type: "usage", sentence: "「港」の正しい使い方はどれですか。", answer: "船は港を出ました。", distractors: ["船は港が出ました。", "船は港に出されました。", "船は港へ出させました。"] },
+      { type: "particle", sentence: "船[ふね]は港[みなと]＿＿出[で]ました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "村": [
+      { type: "kanji", sentence: "祖父[そふ]は小[ちい]さい＿＿に住[す]んでいます。", distractors: ["町", "田舎", "市"] },
+      { type: "usage", sentence: "「村」の正しい使い方はどれですか。", answer: "祖父は小さい村に住んでいます。", distractors: ["祖父は小さい村を住んでいます。", "祖父は小さい村が住まわせています。", "祖父は小さい村で住まれています。"] },
+      { type: "particle", sentence: "祖父[そふ]は小[ちい]さい村[むら]＿＿住[す]んでいます。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "島": [
+      { type: "kanji", sentence: "沖縄[おきなわ]にはきれいな＿＿がたくさんあります。", distractors: ["港", "海岸", "陸"] },
+      { type: "usage", sentence: "「島」の正しい使い方はどれですか。", answer: "沖縄にはきれいな島がたくさんあります。", distractors: ["沖縄にはきれいな島をたくさんあります。", "沖縄にはきれいな島がたくさんいます。", "沖縄にはきれいな島がたくさんさせます。"] },
+      { type: "particle", sentence: "沖縄[おきなわ]にはきれいな島[しま]＿＿たくさんあります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "海岸": [
+      { type: "kanji", sentence: "＿＿を散歩[さんぽ]しました。", distractors: ["海", "岸", "港"] },
+      { type: "usage", sentence: "「海岸」の正しい使い方はどれですか。", answer: "海岸を散歩しました。", distractors: ["海岸が散歩しました。", "海岸に散歩されました。", "海岸は散歩させました。"] },
+      { type: "particle", sentence: "海岸[かいがん]＿＿散歩[さんぽ]しました。", answer: "を", distractors: ["が", "に", "で"] }
+    ],
+    "天気予報": [
+      { type: "kanji", sentence: "＿＿によると、あしたは雨[あめ]です。", distractors: ["天気", "予定", "予約"] },
+      { type: "usage", sentence: "「天気予報」の正しい使い方はどれですか。", answer: "天気予報によると、あしたは雨です。", distractors: ["天気予報をによると、あしたは雨です。", "天気予報がによると、あしたは雨です。", "天気予報はによると、あしたは雨です。"] }
+    ],
+    "会場": [
+      { type: "kanji", sentence: "コンサートの＿＿はどこですか。", distractors: ["会議室", "劇場", "広場"] },
+      { type: "usage", sentence: "「会場」の正しい使い方はどれですか。", answer: "コンサートの会場はどこですか。", distractors: ["コンサートの会場をどこですか。", "コンサートは会場がどこにですか。", "コンサートの会場へどこですか。"] },
+      { type: "particle", sentence: "コンサートの会場[かいじょう]＿＿どこですか。", answer: "は", distractors: ["を", "に", "が"] }
+    ],
+    "出発する": [
+      { type: "kanji", sentence: "朝[あさ]6時[じ]に空港[くうこう]へ＿＿します。", distractors: ["出席する", "出張する", "到着する"] },
+      { type: "usage", sentence: "「出発する」の正しい使い方はどれですか。", answer: "朝6時に空港へ出発します。", distractors: ["朝6時に空港を出発します。", "朝6時に空港が出発させます。", "朝6時に空港は出発されます。"] },
+      { type: "particle", sentence: "朝[あさ]6時[じ]に空港[くうこう]＿＿出発[しゅっぱつ]します。", answer: "へ", distractors: ["を", "が", "で"] }
+    ],
+    "ハイキングする": [
+      { type: "kanji", sentence: "週末[しゅうまつ]、山[やま]で＿＿しました。", distractors: ["キャンプ", "サイクリング", "ドライブ"] },
+      { type: "usage", sentence: "「ハイキングする」の正しい使い方はどれですか。", answer: "週末、山でハイキングしました。", distractors: ["週末、山をハイキングしました。", "週末、山にハイキングされました。", "週末、山はハイキングさせました。"] }
+    ],
+    "通る": [
+      { type: "kanji", sentence: "この道[みち]は毎日[まいにち]バスが＿＿ます。", distractors: ["通う", "泊まる", "止まる"] },
+      { type: "usage", sentence: "「通る」の正しい使い方はどれですか。", answer: "この道は毎日バスが通ります。", distractors: ["この道は毎日バスを通ります。", "この道は毎日バスに通わせます。", "この道は毎日バスが通われます。"] },
+      { type: "particle", sentence: "この道[みち]は毎日[まいにち]バス＿＿通[とお]ります。", answer: "が", distractors: ["を", "に", "で"] }
+    ],
+    "誘う": [
+      { type: "kanji", sentence: "友達[ともだち]を映画[えいが]に＿＿ました。", distractors: ["争う", "招待する", "呼ぶ"] },
+      { type: "usage", sentence: "「誘う」の正しい使い方はどれですか。", answer: "友達を映画に誘いました。", distractors: ["友達が映画に誘いました。", "友達に映画を誘いました。", "友達を映画に誘われました。"] },
+      { type: "particle", sentence: "友達[ともだち]を映画[えいが]＿＿誘[さそ]いました。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "美しい": [
+      { type: "kanji", sentence: "この島[しま]の海[うみ]はとても＿＿です。", distractors: ["素晴らしい", "きれい", "美味しい"] },
+      { type: "usage", sentence: "「美しい」の正しい使い方はどれですか。", answer: "この島の海はとても美しいです。", distractors: ["この島の海はとても美しいなです。", "この島の海はとても美しくなです。", "この島の海はとても美しいでした。"] },
+      { type: "grammar", sentence: "この島[しま]の海[うみ]はとても＿＿見[み]えます。", answer: "美しく", distractors: ["美しいで", "美しくて", "美しいに"] }
+    ],
+    "必要": [
+      { type: "kanji", sentence: "旅行[りょこう]にはパスポートが＿＿です。", distractors: ["重要", "主要", "不要"] },
+      { type: "usage", sentence: "「必要」の正しい使い方はどれですか。", answer: "旅行にはパスポートが必要です。", distractors: ["旅行にはパスポートを必要です。", "旅行にはパスポートが必要いです。", "旅行にはパスポートが必要くです。"] },
+      { type: "particle", sentence: "パスポートは旅行[りょこう]＿＿必要[ひつよう]です。", answer: "に", distractors: ["を", "が", "で"] }
+    ],
+    "特別": [
+      { type: "kanji", sentence: "きょうは＿＿な日[ひ]です。", distractors: ["特徴", "別", "普通"] },
+      { type: "usage", sentence: "「特別」の正しい使い方はどれですか。", answer: "きょうは特別な日です。", distractors: ["きょうは特別の日です。", "きょうは特別い日です。", "きょうは特別く日です。"] }
     ]
   }
 };
