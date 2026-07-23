@@ -716,12 +716,9 @@ main {
   background: var(--indigo);
   border-radius: 999px;
   transition: background 0.15s;
-  animation: growFill .6s cubic-bezier(.3, .7, .2, 1) backwards;
 }
 .dash-progress-fill-complete {
-  background: linear-gradient(100deg, var(--mastered) 40%, rgba(255, 255, 255, 0.55) 50%, var(--mastered) 60%);
-  background-size: 250% 100%;
-  animation: growFill .6s cubic-bezier(.3, .7, .2, 1) backwards, shimmerSweep 3s linear infinite;
+  background: var(--mastered);
 }
 .dash-subsection-meta { font-family: var(--font-ui); font-size: 0.72rem; color: var(--ink-soft); margin: 6px 0 0; }
 .dash-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
