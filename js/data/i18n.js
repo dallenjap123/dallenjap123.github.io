@@ -76,6 +76,8 @@ window.I18N = {
     dashNoGrammarYet: "no grammar added yet",
     dashNoWeak: "nothing weak right now — nice work.",
     dashExamPassedBadge: "🏅 Exam passed",
+    dashPhase1PassedBadge: "🏅 Phase 1 passed",
+    dashPhase2PassedBadge: "🏅 Phase 2 passed",
     dashWeakVocab: "Weak vocab",
     dashWeakGrammar: "Weak grammar",
     footer:
@@ -192,6 +194,8 @@ window.I18N = {
     dashNoGrammarYet: "まだ文法が追加されていません",
     dashNoWeak: "今のところ苦手なものはありません。よくできました。",
     dashExamPassedBadge: "🏅 試験合格",
+    dashPhase1PassedBadge: "🏅 フェーズ1合格",
+    dashPhase2PassedBadge: "🏅 フェーズ2合格",
     dashWeakVocab: "苦手な単語",
     dashWeakGrammar: "苦手な文法",
     footer:

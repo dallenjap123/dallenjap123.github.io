@@ -1516,15 +1516,17 @@ resetProgressBtn.addEventListener("click", () => {
   const ALL_LEVELS = ["N5", "N4", "N3", "N2", "N1"];
   let dashSelectedLevel = "N4"; // the only populated level today; will still work once others are added
 
-  // Set by the Exam tab (js/exam.js) when a vocab exam's final phase is
-  // passed — every lesson included in that exam gets marked here, keyed
-  // "{level}::{lesson}". Local-only (not synced to the cloud yet). Read
-  // fresh on every render rather than cached, since it's a plain
-  // localStorage key exam.js writes to independently of this file.
-  const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
-  function getVocabExamPassedStore() {
+  // Set by the Exam tab (js/exam.js) when a vocab exam phase is passed —
+  // every lesson included in that phase attempt gets marked here, keyed
+  // "{level}::{lesson}". Phase 1 and Phase 2 are tracked separately since
+  // they can now be practiced independently; local-only (not synced to the
+  // cloud yet). Read fresh on every render rather than cached, since these
+  // are plain localStorage keys exam.js writes to independently of this file.
+  const VOCAB_PHASE1_PASSED_KEY = "jpstudy_vocab_phase1_passed_v1";
+  const VOCAB_PHASE2_PASSED_KEY = "jpstudy_vocab_phase2_passed_v1";
+  function readVocabPassedStore(key) {
     try {
-      return JSON.parse(localStorage.getItem(VOCAB_EXAM_PASSED_KEY) || "{}");
+      return JSON.parse(localStorage.getItem(key) || "{}");
     } catch (e) {
       return {};
     }
@@ -1539,7 +1541,8 @@ resetProgressBtn.addEventListener("click", () => {
     }
     const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
     const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
-    const examPassed = getVocabExamPassedStore();
+    const phase1Passed = readVocabPassedStore(VOCAB_PHASE1_PASSED_KEY);
+    const phase2Passed = readVocabPassedStore(VOCAB_PHASE2_PASSED_KEY);
     const rows = lessonNums
       .map((n) => {
         const lessonItems = items.filter((item) => item.lesson === n);
@@ -1554,16 +1557,24 @@ resetProgressBtn.addEventListener("click", () => {
         const pct = total ? Math.round((mastered / total) * 100) : 0;
         const meta = weak ? t("dashWeakCountLine", { n: weak }) : mastered ? "" : t("dashNotStartedYet");
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
-        const badge = examPassed[`${level}::${n}`] ? `<p class="dash-exam-passed-badge">${t("dashExamPassedBadge")}</p>` : "";
+        const key = `${level}::${n}`;
+        const p1 = !!phase1Passed[key];
+        const p2 = !!phase2Passed[key];
+        const fullyMastered = p1 && p2 && total > 0 && mastered === total;
+        const badges = [];
+        if (p1) badges.push(`<span class="dash-exam-passed-badge">${t("dashPhase1PassedBadge")}</span>`);
+        if (p2) badges.push(`<span class="dash-exam-passed-badge">${t("dashPhase2PassedBadge")}</span>`);
+        const badgeHtml = badges.length ? `<div class="dash-badges">${badges.join("")}</div>` : "";
+        const fillClass = fullyMastered ? "dash-progress-fill dash-progress-fill-complete" : "dash-progress-fill";
         return `
         <div class="dash-lesson-row">
           <div class="dash-lesson-row-header">
             <span class="dash-lesson-title">${title}</span>
             <span class="dash-lesson-count">${t("masteredProgress", { n: mastered, total })}</span>
           </div>
-          <div class="dash-progress-track"><div class="dash-progress-fill" style="width:${pct}%"></div></div>
+          <div class="dash-progress-track"><div class="${fillClass}" style="width:${pct}%"></div></div>
           <p class="dash-subsection-meta">${meta}</p>
-          ${badge}
+          ${badgeHtml}
         </div>`;
       })
       .join("");

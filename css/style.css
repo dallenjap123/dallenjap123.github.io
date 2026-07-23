@@ -613,8 +613,10 @@ main {
 .dash-lesson-title { font-family: var(--font-jp); font-size: 0.95rem; }
 .dash-lesson-count { color: var(--ink-soft); font-size: 0.75rem; font-family: var(--font-ui); }
 .dash-progress-track { height: 6px; border-radius: 999px; background: var(--paper-deep); overflow: hidden; }
-.dash-progress-fill { height: 100%; background: var(--indigo); border-radius: 999px; }
+.dash-progress-fill { height: 100%; background: var(--indigo); border-radius: 999px; transition: background 0.15s; }
+.dash-progress-fill-complete { background: var(--mastered); }
 .dash-subsection-meta { font-family: var(--font-ui); font-size: 0.72rem; color: var(--ink-soft); margin: 6px 0 0; }
+.dash-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
 .dash-exam-passed-badge {
   display: inline-block;
   font-family: var(--font-ui);
@@ -625,7 +627,6 @@ main {
   border: 1px solid var(--mastered);
   border-radius: 999px;
   padding: 3px 10px;
-  margin: 8px 0 0;
 }
 .dash-empty-note { font-family: var(--font-ui); font-size: 0.78rem; color: var(--ink-soft); font-style: italic; margin: 0; }
 
