@@ -48,6 +48,7 @@
   // where the blank goes, since speechSynthesis plays queued utterances
   // back to back with a brief pause between them.
   function speakExamSentence(rawJp) {
+    if (window.JPStudySettings && window.JPStudySettings.isSilent()) return;
     if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return;
     const clean = stripFuriganaBrackets(rawJp);
     window.speechSynthesis.cancel();
@@ -66,7 +67,7 @@
 
   const examState = {
     type: "vocab", // vocab | grammar | conjugation
-    vocab: { level: "N4", lessons: [] },
+    vocab: { level: "N4", lessons: [], phase: "both" }, // phase: "both" | "1" | "2"
     grammar: { level: "N4", lessons: [] },
     conjugation: { forms: [] }, // empty = all forms
   };
@@ -104,6 +105,7 @@
   const examRunnerEl = document.getElementById("exam-runner");
   const examResultEl = document.getElementById("exam-result");
   const examErrorEl = document.getElementById("exam-error");
+  const examVocabPhaseToggleEl = document.getElementById("exam-vocab-phase-toggle");
   const examLevelChipsEl = document.getElementById("exam-level-chips");
   const examLessonChipsEl = document.getElementById("exam-lesson-chips");
   const examGenerateBtn = document.getElementById("exam-generate-btn");
@@ -228,14 +230,32 @@
     });
   }
 
+  function renderVocabPhaseToggle() {
+    if (!examVocabPhaseToggleEl) return;
+    examVocabPhaseToggleEl.hidden = examState.type !== "vocab";
+    examVocabPhaseToggleEl.querySelectorAll(".dir-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.vocabPhase === examState.vocab.phase);
+    });
+  }
+
   function renderSetupPanel() {
     const introKey = { vocab: "examIntroVocab", grammar: "examIntroGrammar", conjugation: "examIntroConjugation" }[examState.type];
     const noteKey = { vocab: "examNoteVocab", grammar: "examNoteGrammar", conjugation: "examNoteConjugation" }[examState.type];
     document.getElementById("exam-setup-intro").textContent = t(introKey);
     document.getElementById("exam-setup-note").textContent = t(noteKey);
     examErrorEl.hidden = true;
+    renderVocabPhaseToggle();
     renderLevelChips();
     renderLessonChips();
+  }
+
+  if (examVocabPhaseToggleEl) {
+    examVocabPhaseToggleEl.querySelectorAll(".dir-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        examState.vocab.phase = btn.dataset.vocabPhase;
+        renderVocabPhaseToggle();
+      });
+    });
   }
 
   const examTypeToggleBtns = document.querySelectorAll("#exam-type-toggle .dir-btn");
@@ -465,26 +485,55 @@
   }
 
   // ---------- vocab exam: passed-lesson tracking (for the Home dashboard) ----------
-  // Local-only (not part of cloud sync yet) — an independent "you cleared
-  // this lesson's exam" flag, keyed by level+lesson.
-  // Once set it stays set; it doesn't un-mark itself if you later reset
-  // your flashcard progress for that lesson.
+  // Local-only (not part of cloud sync yet). Phase 1 and Phase 2 can now be
+  // practiced independently, so each phase gets its own "cleared" flag,
+  // keyed by level+lesson; the Home dashboard badge (VOCAB_EXAM_PASSED_KEY)
+  // is a derived flag that only lights up once BOTH phases have been
+  // cleared for a lesson — whether that happened in the same combined run
+  // or across two separate practice sessions. Once a flag is set it stays
+  // set; it doesn't un-mark itself if you later reset flashcard progress.
+  const VOCAB_PHASE1_PASSED_KEY = "jpstudy_vocab_phase1_passed_v1";
+  const VOCAB_PHASE2_PASSED_KEY = "jpstudy_vocab_phase2_passed_v1";
   const VOCAB_EXAM_PASSED_KEY = "jpstudy_vocab_exam_passed_v1";
-  function markLessonsExamPassed(level, words) {
-    let store = {};
+
+  function readVocabPassedStore(key) {
     try {
-      store = JSON.parse(localStorage.getItem(VOCAB_EXAM_PASSED_KEY) || "{}");
+      return JSON.parse(localStorage.getItem(key) || "{}");
     } catch (e) {
-      store = {};
+      return {};
     }
-    [...new Set(words.map((w) => w.lesson).filter((n) => n !== undefined))].forEach((n) => {
-      store[`${level}::${n}`] = true;
-    });
+  }
+  function writeVocabPassedStore(key, store) {
     try {
-      localStorage.setItem(VOCAB_EXAM_PASSED_KEY, JSON.stringify(store));
+      localStorage.setItem(key, JSON.stringify(store));
     } catch (e) {
       /* ignore */
     }
+  }
+  function vocabLessonKeys(level, words) {
+    return [...new Set(words.map((w) => w.lesson).filter((n) => n !== undefined))].map((n) => `${level}::${n}`);
+  }
+  function refreshCombinedVocabBadge(level, words) {
+    const phase1 = readVocabPassedStore(VOCAB_PHASE1_PASSED_KEY);
+    const phase2 = readVocabPassedStore(VOCAB_PHASE2_PASSED_KEY);
+    const badge = readVocabPassedStore(VOCAB_EXAM_PASSED_KEY);
+    vocabLessonKeys(level, words).forEach((key) => {
+      if (phase1[key] && phase2[key]) badge[key] = true;
+    });
+    writeVocabPassedStore(VOCAB_EXAM_PASSED_KEY, badge);
+  }
+  function markVocabPhasePassed(phaseKey, level, words) {
+    const store = readVocabPassedStore(phaseKey);
+    vocabLessonKeys(level, words).forEach((key) => {
+      store[key] = true;
+    });
+    writeVocabPassedStore(phaseKey, store);
+    refreshCombinedVocabBadge(level, words);
+  }
+  function isVocabBadgeSet(level, words) {
+    const badge = readVocabPassedStore(VOCAB_EXAM_PASSED_KEY);
+    const keys = vocabLessonKeys(level, words);
+    return keys.length > 0 && keys.every((key) => badge[key]);
   }
 
   function startVocabExam() {
@@ -493,15 +542,29 @@
       showExamError(t("examErrNoContent"));
       return;
     }
-    runVocabFuriganaPhase(words);
+    const phase = examState.vocab.phase;
+    if (phase === "2") {
+      runVocabMcqPhase(words);
+    } else {
+      runVocabFuriganaPhase(words, { standalone: phase === "1" });
+    }
   }
 
-  // Phase 1 — furigana, typed. Needs 100%: the moment one is wrong, the
-  // exam just ends there (no auto-reshuffle-and-retry) — you'd generate a
-  // fresh exam from setup if you want another attempt.
-  function runVocabFuriganaPhase(words) {
+  // Phase 1 — furigana, typed. Needs 100% to pass, but no longer ends the
+  // exam early on a mistake — you go through every selected word regardless,
+  // then see your score and whether you cleared the 100% bar at the end
+  // (same shape as Phase 2's maxWrong result). `standalone` is true when
+  // practicing Phase 1 on its own from the setup toggle, rather than as the
+  // first half of the combined two-phase exam — it just changes whether a
+  // pass offers to continue into Phase 2 or simply reports the result.
+  function runVocabFuriganaPhase(words, opts) {
+    const standalone = !!(opts && opts.standalone);
     const testable = shuffle(words.filter((w) => w.reading && w.reading.trim()));
     if (!testable.length) {
+      if (standalone) {
+        showExamError(t("examErrEmpty"));
+        return;
+      }
       // nothing to test (all kana-only words) — treat as an automatic pass
       // straight through to phase 2.
       runVocabMcqPhase(words);
@@ -513,26 +576,20 @@
     const questions = testable.map((w) => ({ type: "furigana", jp: w.word, en: "", answer: w.reading, tag: t("examPhase1Tag") }));
     runExam(questions, {
       phaseTagText: t("examPhase1Tag"),
-      passThreshold: 1,
-      strictFailFast: true,
+      maxWrong: 0,
       onDone: (result) => {
+        let passText = standalone ? t("examPhase1StandalonePassMsg") : t("examPhase1PassMsg");
         if (result.passed) {
-          renderResultBanner(result, {
-            passText: t("examPhase1PassMsg"),
-            failText: "",
-            onNext: { label: t("examContinuePhase2"), fn: () => runVocabMcqPhase(words) },
-            onBack: { label: t("examBackToSetup"), fn: backToSetup },
-          });
-        } else {
-          renderResultBanner(result, {
-            passText: "",
-            failText: t("examPhase1FailMsg", {
-              word: result.failFastItem ? result.failFastItem.jp : "",
-              reading: result.failFastItem ? result.failFastItem.answer : "",
-            }),
-            onBack: { label: t("examBackToSetup"), fn: backToSetup },
-          });
+          markVocabPhasePassed(VOCAB_PHASE1_PASSED_KEY, examState.vocab.level, words);
+          if (standalone && isVocabBadgeSet(examState.vocab.level, words)) passText = t("examAllPassedMsg");
         }
+        renderResultBanner(result, {
+          passText,
+          failText: t("examPhase1FailMsg"),
+          onNext: standalone ? undefined : { label: t("examContinuePhase2"), fn: () => runVocabMcqPhase(words) },
+          onRetry: { label: t("examTryAgain"), fn: () => runVocabFuriganaPhase(words, opts) },
+          onBack: { label: t("examBackToSetup"), fn: backToSetup },
+        });
       },
     });
   }
@@ -541,8 +598,11 @@
   // bank (js/data/vocab-exam-questions.js). Allows at most 1 wrong answer
   // total, regardless of set size. Failing picks a fresh random set (new
   // question per word, where more than one is authored) rather than
-  // repeating the exact same attempt. Passing this is the whole exam
-  // passing, since phase 1 already had to be cleared to get here.
+  // repeating the exact same attempt. Can be reached either as the second
+  // half of the combined exam or practiced standalone from the setup
+  // toggle — either way, clearing it marks Phase 2 passed for these
+  // lessons; the Home dashboard badge only lights up once Phase 1 has also
+  // been cleared at some point (see markVocabPhasePassed).
   function runVocabMcqPhase(words) {
     const questions = buildVocabClozeQuestions(words, examState.vocab.level);
     if (!questions.length) {
@@ -554,9 +614,13 @@
       phaseTagText: t("examPhase2Tag"),
       maxWrong: 1,
       onDone: (result) => {
-        if (result.passed) markLessonsExamPassed(examState.vocab.level, words);
+        let passText = t("examPhase2OnlyPassMsg");
+        if (result.passed) {
+          markVocabPhasePassed(VOCAB_PHASE2_PASSED_KEY, examState.vocab.level, words);
+          if (isVocabBadgeSet(examState.vocab.level, words)) passText = t("examAllPassedMsg");
+        }
         renderResultBanner(result, {
-          passText: t("examAllPassedMsg"),
+          passText,
           failText: t("examPhase2FailMsg"),
           onRetry: { label: t("examTryAgain"), fn: () => runVocabMcqPhase(words) },
           onBack: { label: t("examBackToSetup"), fn: backToSetup },
@@ -582,9 +646,10 @@
     patterns.forEach((p) => {
       const bankQuestions = bank[p.pattern];
       if (!bankQuestions || !bankQuestions.length) return;
+      const tag = p.lesson !== undefined ? `${p.lesson}課　${p.pattern}` : p.pattern;
       shuffle(bankQuestions)
         .slice(0, Math.min(GRAMMAR_QUESTIONS_PER_PATTERN, bankQuestions.length))
-        .forEach((q) => questions.push({ ...q, tag: p.pattern }));
+        .forEach((q) => questions.push({ ...q, tag }));
     });
     return questions;
   }
