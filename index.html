@@ -37,6 +37,7 @@
         <button class="dir-btn active" data-lang="en">EN</button>
         <button class="dir-btn" data-lang="ja">日本語</button>
       </div>
+      <button class="settings-gear-btn" id="settings-open-btn" aria-label="Settings" data-i18n-aria="settingsOpen" title="Settings">⚙</button>
     </div>
   </header>
 
@@ -317,6 +318,11 @@
 
       <div id="exam-setup" class="exam-panel">
         <p class="exam-panel-note" id="exam-setup-intro"></p>
+        <div class="direction-toggle" id="exam-vocab-phase-toggle" hidden>
+          <button class="dir-btn active" data-vocab-phase="both" data-i18n="examPhaseBoth">Both phases</button>
+          <button class="dir-btn" data-vocab-phase="1" data-i18n="examPhaseOnly1">Phase 1 only</button>
+          <button class="dir-btn" data-vocab-phase="2" data-i18n="examPhaseOnly2">Phase 2 only</button>
+        </div>
         <div class="level-chips" id="exam-level-chips"></div>
         <div class="lesson-chips" id="exam-lesson-chips"></div>
         <p class="exam-panel-note" id="exam-setup-note"></p>
@@ -372,6 +378,27 @@
       <p class="modal-note" data-i18n="syncModalNote">Sign in to save your progress to the cloud and access it from any device.</p>
       <p class="modal-error" id="sync-error" hidden></p>
       <button id="sync-google-btn" class="ghost-btn modal-google-btn" data-i18n="signInGoogle">Sign in with Google</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settings-modal" hidden>
+    <div class="modal-box">
+      <button class="modal-close-x" id="settings-close-x" aria-label="Close">×</button>
+      <h3 data-i18n="settingsTitle">Settings</h3>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label" data-i18n="settingsSilentMode">Silent mode</span>
+          <span class="settings-row-desc" data-i18n="settingsSilentModeDesc">Mute pronunciation audio on flashcards and exam sentences.</span>
+        </div>
+        <button class="settings-toggle" id="settings-silent-toggle" role="switch" aria-checked="false"></button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label" data-i18n="settingsDarkMode">Dark mode</span>
+          <span class="settings-row-desc" data-i18n="settingsDarkModeDesc">Switch to a dark color theme.</span>
+        </div>
+        <button class="settings-toggle" id="settings-dark-toggle" role="switch" aria-checked="false"></button>
+      </div>
     </div>
   </div>
 
