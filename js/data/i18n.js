@@ -11,8 +11,9 @@ window.I18N = {
   en: {
     subtitle: "kanji, vocab & grammar",
     tabHome: "Home",
+    tabVocab: "Vocab",
     tabFlashcards: "Flashcards",
-    tabKanjiWrite: "Write",
+    tabKanjiWrite: "Writing",
     tabGrammar: "Grammar",
     tabWordlist: "Word List",
     tabConjugation: "Conjugation",
@@ -135,6 +136,7 @@ window.I18N = {
   ja: {
     subtitle: "漢字・単語・文法",
     tabHome: "ホーム",
+    tabVocab: "単語",
     tabFlashcards: "単語カード",
     tabKanjiWrite: "書き取り",
     tabGrammar: "文法",

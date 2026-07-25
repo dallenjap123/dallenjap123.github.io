@@ -163,6 +163,17 @@ body {
   gap: var(--space-4);
   padding: var(--space-6) clamp(20px, 5vw, 64px) 0;
 }
+.brand {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.brand:hover { opacity: 0.75; }
 .brand-jp {
   display: block;
   font-family: var(--font-jp);
@@ -370,6 +381,12 @@ main {
    entrance animation every time you switched back to Home, reading as
    the bars themselves still animating/jittering — so it's off here */
 #home-view.active { animation: none; }
+
+/* a view can now hold several sub-sections (Vocab: word list/flashcards/
+   writing; Grammar: grammar/conjugation), switched by a .direction-toggle
+   at the top of the view instead of the main tab bar */
+.subview { display: none; }
+.subview.active { display: block; margin-top: var(--space-5); }
 
 .controls {
   display: flex;

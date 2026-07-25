@@ -263,15 +263,52 @@
   };
 
   // ---------- view tabs ----------
+  // Nav is down to 3 top-level tabs (Vocab / Grammar / Exam); Word
+  // List/Flashcards/Writing and Grammar/Conjugation each live as
+  // .subview sections switched by their own in-view .direction-toggle
+  // instead of eating a slot in the main tab bar. Home has no tab at
+  // all — it's the default view, reachable again via the logo.
   const tabs = document.querySelectorAll(".tab");
   const views = document.querySelectorAll(".view");
   const tabIndicatorEl = document.getElementById("tab-indicator");
+  const brandHomeBtn = document.getElementById("brand-home-btn");
 
   function moveTabIndicator(tab) {
-    if (!tabIndicatorEl || !tab) return;
+    if (!tabIndicatorEl) return;
+    if (!tab) {
+      tabIndicatorEl.style.width = "0px";
+      return;
+    }
     tabIndicatorEl.style.left = `${tab.offsetLeft}px`;
     tabIndicatorEl.style.width = `${tab.offsetWidth}px`;
   }
+
+  // Runs whenever the Word List/Flashcards/Writing subview becomes
+  // visible, whether that's from clicking its own sub-tab or from
+  // re-clicking "Vocab" while that subview was already selected.
+  function vocabSubShow(sub) {
+    if (sub === "wordlist" && typeof refreshWordList === "function") refreshWordList();
+    if (sub === "kanjiwrite" && typeof kwOnTabShow === "function") kwOnTabShow();
+  }
+
+  function setupSubnav(navId, onShow) {
+    const nav = document.getElementById(navId);
+    const container = nav.parentElement;
+    const btns = nav.querySelectorAll(".dir-btn");
+    btns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btns.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const sub = btn.dataset.subview;
+        container.querySelectorAll(".subview").forEach((el) => {
+          el.classList.toggle("active", el.id === `${sub}-subview`);
+        });
+        if (onShow) onShow(sub);
+      });
+    });
+  }
+  setupSubnav("vocab-subnav", vocabSubShow);
+  setupSubnav("grammar-subnav", null);
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -284,14 +321,26 @@
       moveTabIndicator(tab);
       const target = tab.dataset.view;
       views.forEach((v) => v.classList.toggle("active", v.id === `${target}-view`));
-      if (target === "wordlist" && typeof refreshWordList === "function") refreshWordList();
-      if (target === "home" && typeof renderDashboard === "function") renderDashboard();
+      if (target === "vocab") {
+        const activeSub = document.querySelector("#vocab-view .subview.active");
+        if (activeSub) vocabSubShow(activeSub.id.replace("-subview", ""));
+      }
       if (target === "exam" && window.JPStudyExam && typeof window.JPStudyExam.onTabShow === "function") {
         window.JPStudyExam.onTabShow();
       }
-      if (target === "kanjiwrite" && typeof kwOnTabShow === "function") kwOnTabShow();
     });
   });
+
+  brandHomeBtn.addEventListener("click", () => {
+    tabs.forEach((t) => {
+      t.classList.remove("active");
+      t.setAttribute("aria-selected", "false");
+    });
+    moveTabIndicator(null);
+    views.forEach((v) => v.classList.toggle("active", v.id === "home-view"));
+    if (typeof renderDashboard === "function") renderDashboard();
+  });
+
   moveTabIndicator(document.querySelector(".tab.active"));
   window.addEventListener("resize", () => moveTabIndicator(document.querySelector(".tab.active")));
 
@@ -591,7 +640,8 @@ resetProgressBtn.addEventListener("click", () => {
   });
 
   document.addEventListener("keydown", (e) => {
-    if (!document.getElementById("flashcards-view").classList.contains("active")) return;
+    if (!document.getElementById("vocab-view").classList.contains("active")) return;
+    if (!document.getElementById("flashcards-subview").classList.contains("active")) return;
     const fc = state.flashcards;
     if (e.code === "Space") {
       e.preventDefault();
@@ -721,7 +771,12 @@ resetProgressBtn.addEventListener("click", () => {
   });
   kwClearBtn.addEventListener("click", kwClearCanvas);
   window.addEventListener("resize", () => {
-    if (document.getElementById("kanjiwrite-view").classList.contains("active")) kwSetupCanvas();
+    if (
+      document.getElementById("vocab-view").classList.contains("active") &&
+      document.getElementById("kanjiwrite-subview").classList.contains("active")
+    ) {
+      kwSetupCanvas();
+    }
   });
   function kwOnTabShow() {
     kwSetupCanvas();
@@ -1730,7 +1785,8 @@ resetProgressBtn.addEventListener("click", () => {
   conjVerbGradeRightBtn.addEventListener("click", () => gradeVerbCurrent(true));
 
   document.addEventListener("keydown", (e) => {
-    if (!document.getElementById("conjugation-view").classList.contains("active")) return;
+    if (!document.getElementById("grammar-view").classList.contains("active")) return;
+    if (!document.getElementById("conjugation-subview").classList.contains("active")) return;
     if (!conjPracticeEl.classList.contains("active")) return;
     const byVerbActive = conjPracticeByVerbEl.classList.contains("active");
     if (byVerbActive) {

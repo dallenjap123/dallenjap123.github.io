@@ -11,18 +11,14 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="brand">
+    <button class="brand" id="brand-home-btn" type="button" data-i18n-aria="tabHome" aria-label="Home">
       <span class="brand-jp">日本語ノート</span>
       <span class="brand-en" data-i18n="subtitle">kanji, vocab &amp; grammar</span>
-    </div>
+    </button>
     <div class="header-right">
       <nav class="view-tabs" role="tablist">
-        <button class="tab active" data-view="home" role="tab" aria-selected="true" data-i18n="tabHome">Home</button>
-        <button class="tab" data-view="flashcards" role="tab" aria-selected="false" data-i18n="tabFlashcards">Flashcards</button>
-        <button class="tab" data-view="kanjiwrite" role="tab" aria-selected="false" data-i18n="tabKanjiWrite">Write</button>
+        <button class="tab" data-view="vocab" role="tab" aria-selected="false" data-i18n="tabVocab">Vocab</button>
         <button class="tab" data-view="grammar" role="tab" aria-selected="false" data-i18n="tabGrammar">Grammar</button>
-        <button class="tab" data-view="wordlist" role="tab" aria-selected="false" data-i18n="tabWordlist">Word List</button>
-        <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
         <button class="tab" data-view="exam" role="tab" aria-selected="false" data-i18n="tabExam">Exam</button>
         <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
       </nav>
@@ -66,297 +62,312 @@
       </div>
     </section>
 
-    <section id="flashcards-view" class="view">
-      <div class="controls">
-        <div class="level-chips" id="fc-level-chips">
-          <button class="chip active" data-level="all" data-i18n="all">All</button>
-          <button class="chip n5" data-level="N5">N5</button>
-          <button class="chip n4" data-level="N4">N4</button>
-          <button class="chip n3" data-level="N3">N3</button>
-          <button class="chip n2" data-level="N2">N2</button>
-          <button class="chip n1" data-level="N1">N1</button>
-        </div>
-        <div class="direction-toggle" id="fc-direction-toggle">
-          <button class="dir-btn active" data-direction="word-meaning" data-i18n="dirWordMeaning">word → meaning</button>
-          <button class="dir-btn" data-direction="meaning-word" data-i18n="dirMeaningWord">meaning → word</button>
-        </div>
-      </div>
-      <div class="lesson-chips" id="fc-lesson-chips" hidden></div>
-
-      <div class="study-options">
-        <button class="chip isolate-chip" id="fc-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
-        <button class="text-link" id="fc-reset-progress" data-i18n="resetProgress">reset progress</button>
-      </div>
-      <p class="isolate-note" id="isolate-note" hidden data-i18n="isolateNote">practice mode — right/wrong here won't affect your stats</p>
-
-      <div class="card-stage">
-        <button class="card" id="flashcard" aria-live="polite">
-          <div class="card-face card-front">
-            <span class="card-text" id="card-front-text"></span>
-          </div>
-          <div class="card-face card-back">
-            <span class="seal" aria-hidden="true">済</span>
-            <span class="card-reading" id="card-back-reading"></span>
-            <span class="card-text" id="card-back-text"></span>
-          </div>
-        </button>
-        <p class="card-hint" id="card-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
-        <div class="grade-buttons" id="grade-buttons" hidden>
-          <button class="grade-btn grade-wrong" id="grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-          <button class="grade-btn grade-right" id="grade-right" data-i18n="knewIt">✓ knew it</button>
-        </div>
+    <section id="vocab-view" class="view">
+      <div class="direction-toggle" id="vocab-subnav">
+        <button class="dir-btn active" data-subview="wordlist" data-i18n="tabWordlist">Word List</button>
+        <button class="dir-btn" data-subview="flashcards" data-i18n="tabFlashcards">Flashcards</button>
+        <button class="dir-btn" data-subview="kanjiwrite" data-i18n="tabKanjiWrite">Writing</button>
       </div>
 
-      <div class="deck-controls">
-        <div class="nav-group">
-          <button id="fc-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
-          <button id="fc-skip" class="ghost-btn" data-i18n="skip">skip</button>
-        </div>
-        <span id="fc-progress" class="progress">0 / 0</span>
-      </div>
-    </section>
-
-    <section id="kanjiwrite-view" class="view">
-      <div class="controls">
-        <div class="level-chips" id="kw-level-chips">
-          <button class="chip active" data-level="all" data-i18n="all">All</button>
-          <button class="chip n5" data-level="N5">N5</button>
-          <button class="chip n4" data-level="N4">N4</button>
-          <button class="chip n3" data-level="N3">N3</button>
-          <button class="chip n2" data-level="N2">N2</button>
-          <button class="chip n1" data-level="N1">N1</button>
-        </div>
-      </div>
-      <div class="lesson-chips" id="kw-lesson-chips" hidden></div>
-
-      <div class="study-options">
-        <button class="chip isolate-chip" id="kw-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
-        <button class="text-link" id="kw-reset-progress" data-i18n="resetProgress">reset progress</button>
-      </div>
-      <p class="isolate-note" id="kw-isolate-note" hidden data-i18n="kwIsolateNote">practice mode — write it correctly to clear it from this list</p>
-
-      <div class="kw-stage">
-        <p class="kw-hint" data-i18n="kwHint">write the kanji for this word from memory, then reveal to check</p>
-        <p class="kw-reading" id="kw-reading"></p>
-        <p class="kw-meaning" id="kw-meaning"></p>
-
-        <div class="kw-canvas-wrap">
-          <canvas id="kw-canvas" class="kw-canvas"></canvas>
-          <button class="kw-canvas-clear" id="kw-clear" aria-label="clear drawing" data-i18n-aria="kwClear" title="clear">↺</button>
-        </div>
-
-        <div class="kw-answer" id="kw-answer" hidden>
-          <span class="kw-answer-word" id="kw-answer-word"></span>
-          <span class="kw-answer-reading" id="kw-answer-reading"></span>
-        </div>
-
-        <button class="ghost-btn btn-primary kw-reveal-btn" id="kw-reveal" data-i18n="showAnswer">show answer</button>
-
-        <div class="grade-buttons" id="kw-grade-buttons" hidden>
-          <button class="grade-btn grade-wrong" id="kw-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-          <button class="grade-btn grade-right" id="kw-grade-right" data-i18n="knewIt">✓ knew it</button>
-        </div>
-      </div>
-
-      <div class="deck-controls">
-        <div class="nav-group">
-          <button id="kw-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
-          <button id="kw-skip" class="ghost-btn" data-i18n="skip">skip</button>
-        </div>
-        <span id="kw-progress" class="progress">0 / 0</span>
-      </div>
-    </section>
-
-    <section id="grammar-view" class="view">
-      <div class="direction-toggle" id="gr-mode-toggle">
-        <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
-        <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
-      </div>
-
-      <div id="grammar-reference" class="conj-mode active">
+      <div id="wordlist-subview" class="subview active">
         <div class="controls">
-          <div class="level-chips" id="gr-level-chips">
-            <button class="chip n5 active" data-level="N5">N5</button>
+          <div class="level-chips" id="wl-level-chips">
+            <button class="chip active" data-level="all" data-i18n="all">All</button>
+            <button class="chip n5" data-level="N5">N5</button>
             <button class="chip n4" data-level="N4">N4</button>
             <button class="chip n3" data-level="N3">N3</button>
             <button class="chip n2" data-level="N2">N2</button>
             <button class="chip n1" data-level="N1">N1</button>
           </div>
         </div>
-
-        <div class="grammar-layout">
-          <ul class="grammar-list" id="grammar-list"></ul>
-          <div class="grammar-detail" id="grammar-detail">
-            <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
-          </div>
-        </div>
+        <div id="wordlist-container"></div>
       </div>
 
-      <div id="grammar-practice" class="conj-mode">
-        <div class="lesson-chips" id="gp-lesson-chips"></div>
+      <div id="flashcards-subview" class="subview">
+        <div class="controls">
+          <div class="level-chips" id="fc-level-chips">
+            <button class="chip active" data-level="all" data-i18n="all">All</button>
+            <button class="chip n5" data-level="N5">N5</button>
+            <button class="chip n4" data-level="N4">N4</button>
+            <button class="chip n3" data-level="N3">N3</button>
+            <button class="chip n2" data-level="N2">N2</button>
+            <button class="chip n1" data-level="N1">N1</button>
+          </div>
+          <div class="direction-toggle" id="fc-direction-toggle">
+            <button class="dir-btn active" data-direction="word-meaning" data-i18n="dirWordMeaning">word → meaning</button>
+            <button class="dir-btn" data-direction="meaning-word" data-i18n="dirMeaningWord">meaning → word</button>
+          </div>
+        </div>
+        <div class="lesson-chips" id="fc-lesson-chips" hidden></div>
+
+        <div class="study-options">
+          <button class="chip isolate-chip" id="fc-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
+          <button class="text-link" id="fc-reset-progress" data-i18n="resetProgress">reset progress</button>
+        </div>
+        <p class="isolate-note" id="isolate-note" hidden data-i18n="isolateNote">practice mode — right/wrong here won't affect your stats</p>
 
         <div class="card-stage">
-          <div class="gp-card" id="gp-card">
-            <p class="gp-pattern-tag" id="gp-pattern-tag"></p>
-            <p class="gp-sentence" id="gp-sentence"></p>
-            <p class="gp-hint" id="gp-hint"></p>
-            <div class="gp-options" id="gp-options" hidden></div>
-            <button class="ghost-btn" id="gp-reveal" hidden data-i18n="showAnswer">show answer</button>
-            <p class="gp-answer" id="gp-answer" hidden></p>
-            <div class="grade-buttons" id="gp-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="gp-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="gp-grade-right" data-i18n="knewIt">✓ knew it</button>
+          <button class="card" id="flashcard" aria-live="polite">
+            <div class="card-face card-front">
+              <span class="card-text" id="card-front-text"></span>
             </div>
+            <div class="card-face card-back">
+              <span class="seal" aria-hidden="true">済</span>
+              <span class="card-reading" id="card-back-reading"></span>
+              <span class="card-text" id="card-back-text"></span>
+            </div>
+          </button>
+          <p class="card-hint" id="card-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
+          <div class="grade-buttons" id="grade-buttons" hidden>
+            <button class="grade-btn grade-wrong" id="grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+            <button class="grade-btn grade-right" id="grade-right" data-i18n="knewIt">✓ knew it</button>
           </div>
         </div>
 
         <div class="deck-controls">
           <div class="nav-group">
-            <button id="gp-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
-            <button id="gp-skip" class="ghost-btn" data-i18n="skip">skip</button>
+            <button id="fc-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+            <button id="fc-skip" class="ghost-btn" data-i18n="skip">skip</button>
           </div>
-          <span id="gp-progress" class="progress">0 / 0</span>
+          <span id="fc-progress" class="progress">0 / 0</span>
+        </div>
+      </div>
+
+      <div id="kanjiwrite-subview" class="subview">
+        <div class="controls">
+          <div class="level-chips" id="kw-level-chips">
+            <button class="chip active" data-level="all" data-i18n="all">All</button>
+            <button class="chip n5" data-level="N5">N5</button>
+            <button class="chip n4" data-level="N4">N4</button>
+            <button class="chip n3" data-level="N3">N3</button>
+            <button class="chip n2" data-level="N2">N2</button>
+            <button class="chip n1" data-level="N1">N1</button>
+          </div>
+        </div>
+        <div class="lesson-chips" id="kw-lesson-chips" hidden></div>
+
+        <div class="study-options">
+          <button class="chip isolate-chip" id="kw-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
+          <button class="text-link" id="kw-reset-progress" data-i18n="resetProgress">reset progress</button>
+        </div>
+        <p class="isolate-note" id="kw-isolate-note" hidden data-i18n="kwIsolateNote">practice mode — write it correctly to clear it from this list</p>
+
+        <div class="kw-stage">
+          <p class="kw-hint" data-i18n="kwHint">write the kanji for this word from memory, then reveal to check</p>
+          <p class="kw-reading" id="kw-reading"></p>
+          <p class="kw-meaning" id="kw-meaning"></p>
+
+          <div class="kw-canvas-wrap">
+            <canvas id="kw-canvas" class="kw-canvas"></canvas>
+            <button class="kw-canvas-clear" id="kw-clear" aria-label="clear drawing" data-i18n-aria="kwClear" title="clear">↺</button>
+          </div>
+
+          <div class="kw-answer" id="kw-answer" hidden>
+            <span class="kw-answer-word" id="kw-answer-word"></span>
+            <span class="kw-answer-reading" id="kw-answer-reading"></span>
+          </div>
+
+          <button class="ghost-btn btn-primary kw-reveal-btn" id="kw-reveal" data-i18n="showAnswer">show answer</button>
+
+          <div class="grade-buttons" id="kw-grade-buttons" hidden>
+            <button class="grade-btn grade-wrong" id="kw-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+            <button class="grade-btn grade-right" id="kw-grade-right" data-i18n="knewIt">✓ knew it</button>
+          </div>
+        </div>
+
+        <div class="deck-controls">
+          <div class="nav-group">
+            <button id="kw-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+            <button id="kw-skip" class="ghost-btn" data-i18n="skip">skip</button>
+          </div>
+          <span id="kw-progress" class="progress">0 / 0</span>
         </div>
       </div>
     </section>
 
-    <section id="wordlist-view" class="view">
-      <div class="controls">
-        <div class="level-chips" id="wl-level-chips">
-          <button class="chip active" data-level="all" data-i18n="all">All</button>
-          <button class="chip n5" data-level="N5">N5</button>
-          <button class="chip n4" data-level="N4">N4</button>
-          <button class="chip n3" data-level="N3">N3</button>
-          <button class="chip n2" data-level="N2">N2</button>
-          <button class="chip n1" data-level="N1">N1</button>
-        </div>
-      </div>
-      <div id="wordlist-container"></div>
-    </section>
-
-    <section id="conjugation-view" class="view">
-      <div class="direction-toggle" id="conj-mode-toggle">
-        <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
-        <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
+    <section id="grammar-view" class="view">
+      <div class="direction-toggle" id="grammar-subnav">
+        <button class="dir-btn active" data-subview="grammar" data-i18n="tabGrammar">Grammar</button>
+        <button class="dir-btn" data-subview="conjugation" data-i18n="tabConjugation">Conjugation</button>
       </div>
 
-      <div id="conjugation-reference" class="conj-mode active">
-        <div class="grammar-layout">
-          <ul class="grammar-list" id="conjugation-list"></ul>
-          <div class="grammar-detail" id="conjugation-detail">
-            <p class="grammar-empty" data-i18n="selectForm">select a form from the list</p>
-          </div>
-        </div>
-      </div>
-
-      <div id="conjugation-practice" class="conj-mode">
-        <div class="direction-toggle" id="conj-practice-mode-toggle">
-          <button class="dir-btn active" data-practice-mode="by-form" data-i18n="byForm">By form</button>
-          <button class="dir-btn" data-practice-mode="by-verb" data-i18n="byVerb">By verb</button>
-          <button class="dir-btn" data-practice-mode="sentences" data-i18n="bySentence">Sentences</button>
+      <div id="grammar-subview" class="subview active">
+        <div class="direction-toggle" id="gr-mode-toggle">
+          <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
+          <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
         </div>
 
-        <div id="conj-practice-by-form" class="conj-practice-mode active">
+        <div id="grammar-reference" class="conj-mode active">
           <div class="controls">
-            <div class="level-chips" id="conj-form-chips">
-              <button class="chip active" data-form="all" data-i18n="allForms">All forms</button>
-              <button class="chip" data-form="te">て形</button>
-              <button class="chip" data-form="ta">た形</button>
-              <button class="chip" data-form="potential">可能形</button>
-              <button class="chip" data-form="ba">ば形</button>
-              <button class="chip" data-form="volitional">う・よう形</button>
-              <button class="chip" data-form="passive">受身形</button>
-              <button class="chip" data-form="causative">使役形</button>
-              <button class="chip" data-form="causativePassive">使役受身形</button>
+            <div class="level-chips" id="gr-level-chips">
+              <button class="chip n5 active" data-level="N5">N5</button>
+              <button class="chip n4" data-level="N4">N4</button>
+              <button class="chip n3" data-level="N3">N3</button>
+              <button class="chip n2" data-level="N2">N2</button>
+              <button class="chip n1" data-level="N1">N1</button>
             </div>
           </div>
 
-          <div class="card-stage">
-            <button class="card" id="conj-card" aria-live="polite">
-              <div class="card-face card-front">
-                <span class="conj-form-label" id="conj-form-label"></span>
-                <span class="conj-reading" id="conj-front-reading"></span>
-                <span class="card-text" id="conj-front-text"></span>
-                <span class="conj-meaning" id="conj-front-meaning"></span>
-              </div>
-              <div class="card-face card-back">
-                <span class="seal" aria-hidden="true">済</span>
-                <span class="card-text" id="conj-back-text"></span>
-              </div>
-            </button>
-            <p class="card-hint" id="conj-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
-            <div class="grade-buttons" id="conj-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="conj-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="conj-grade-right" data-i18n="knewIt">✓ knew it</button>
+          <div class="grammar-layout">
+            <ul class="grammar-list" id="grammar-list"></ul>
+            <div class="grammar-detail" id="grammar-detail">
+              <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
             </div>
-          </div>
-
-          <div class="deck-controls">
-            <div class="nav-group">
-              <button id="conj-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
-              <button id="conj-skip" class="ghost-btn" data-i18n="skip">skip</button>
-            </div>
-            <span id="conj-progress" class="progress">0 / 0</span>
           </div>
         </div>
 
-        <div id="conj-practice-by-verb" class="conj-practice-mode">
-          <div class="controls">
-            <select class="verb-select" id="conj-verb-select" aria-label="Choose a verb" data-i18n-aria="chooseVerb"></select>
-            <button id="conj-verb-next" class="ghost-btn" data-i18n="nextVerb">next verb →</button>
-          </div>
-
-          <div class="form-breadcrumb" id="conj-form-breadcrumb"></div>
+        <div id="grammar-practice" class="conj-mode">
+          <div class="lesson-chips" id="gp-lesson-chips"></div>
 
           <div class="card-stage">
-            <button class="card" id="conj-verb-card" aria-live="polite">
-              <div class="card-face card-front">
-                <span class="conj-form-label" id="conj-verb-form-label"></span>
-                <span class="conj-reading" id="conj-verb-reading"></span>
-                <span class="card-text" id="conj-verb-front-text"></span>
-                <span class="conj-meaning" id="conj-verb-meaning"></span>
-              </div>
-              <div class="card-face card-back">
-                <span class="seal" aria-hidden="true">済</span>
-                <span class="card-text" id="conj-verb-back-text"></span>
-              </div>
-            </button>
-            <p class="card-hint" id="conj-verb-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
-            <div class="grade-buttons" id="conj-verb-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="conj-verb-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="conj-verb-grade-right" data-i18n="knewIt">✓ knew it</button>
-            </div>
-          </div>
-
-          <div class="deck-controls">
-            <span id="conj-verb-progress" class="progress">0 / 8</span>
-          </div>
-        </div>
-
-        <div id="conj-practice-sentences" class="conj-practice-mode">
-          <div class="level-chips" id="cs-form-chips"></div>
-
-          <div class="card-stage">
-            <div class="gp-card" id="cs-card">
-              <p class="gp-pattern-tag" id="cs-form-tag"></p>
-              <p class="gp-sentence" id="cs-sentence"></p>
-              <p class="gp-hint" id="cs-hint"></p>
-              <div class="gp-options" id="cs-options" hidden></div>
-              <button class="ghost-btn" id="cs-reveal" hidden data-i18n="showAnswer">show answer</button>
-              <p class="gp-answer" id="cs-answer" hidden></p>
-              <div class="grade-buttons" id="cs-grade-buttons" hidden>
-                <button class="grade-btn grade-wrong" id="cs-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-                <button class="grade-btn grade-right" id="cs-grade-right" data-i18n="knewIt">✓ knew it</button>
+            <div class="gp-card" id="gp-card">
+              <p class="gp-pattern-tag" id="gp-pattern-tag"></p>
+              <p class="gp-sentence" id="gp-sentence"></p>
+              <p class="gp-hint" id="gp-hint"></p>
+              <div class="gp-options" id="gp-options" hidden></div>
+              <button class="ghost-btn" id="gp-reveal" hidden data-i18n="showAnswer">show answer</button>
+              <p class="gp-answer" id="gp-answer" hidden></p>
+              <div class="grade-buttons" id="gp-grade-buttons" hidden>
+                <button class="grade-btn grade-wrong" id="gp-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+                <button class="grade-btn grade-right" id="gp-grade-right" data-i18n="knewIt">✓ knew it</button>
               </div>
             </div>
           </div>
 
           <div class="deck-controls">
             <div class="nav-group">
-              <button id="cs-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
-              <button id="cs-skip" class="ghost-btn" data-i18n="skip">skip</button>
+              <button id="gp-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+              <button id="gp-skip" class="ghost-btn" data-i18n="skip">skip</button>
             </div>
-            <span id="cs-progress" class="progress">0 / 0</span>
+            <span id="gp-progress" class="progress">0 / 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="conjugation-subview" class="subview">
+        <div class="direction-toggle" id="conj-mode-toggle">
+          <button class="dir-btn active" data-mode="reference" data-i18n="refModeReference">Reference</button>
+          <button class="dir-btn" data-mode="practice" data-i18n="refModePractice">Practice</button>
+        </div>
+
+        <div id="conjugation-reference" class="conj-mode active">
+          <div class="grammar-layout">
+            <ul class="grammar-list" id="conjugation-list"></ul>
+            <div class="grammar-detail" id="conjugation-detail">
+              <p class="grammar-empty" data-i18n="selectForm">select a form from the list</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="conjugation-practice" class="conj-mode">
+          <div class="direction-toggle" id="conj-practice-mode-toggle">
+            <button class="dir-btn active" data-practice-mode="by-form" data-i18n="byForm">By form</button>
+            <button class="dir-btn" data-practice-mode="by-verb" data-i18n="byVerb">By verb</button>
+            <button class="dir-btn" data-practice-mode="sentences" data-i18n="bySentence">Sentences</button>
+          </div>
+
+          <div id="conj-practice-by-form" class="conj-practice-mode active">
+            <div class="controls">
+              <div class="level-chips" id="conj-form-chips">
+                <button class="chip active" data-form="all" data-i18n="allForms">All forms</button>
+                <button class="chip" data-form="te">て形</button>
+                <button class="chip" data-form="ta">た形</button>
+                <button class="chip" data-form="potential">可能形</button>
+                <button class="chip" data-form="ba">ば形</button>
+                <button class="chip" data-form="volitional">う・よう形</button>
+                <button class="chip" data-form="passive">受身形</button>
+                <button class="chip" data-form="causative">使役形</button>
+                <button class="chip" data-form="causativePassive">使役受身形</button>
+              </div>
+            </div>
+
+            <div class="card-stage">
+              <button class="card" id="conj-card" aria-live="polite">
+                <div class="card-face card-front">
+                  <span class="conj-form-label" id="conj-form-label"></span>
+                  <span class="conj-reading" id="conj-front-reading"></span>
+                  <span class="card-text" id="conj-front-text"></span>
+                  <span class="conj-meaning" id="conj-front-meaning"></span>
+                </div>
+                <div class="card-face card-back">
+                  <span class="seal" aria-hidden="true">済</span>
+                  <span class="card-text" id="conj-back-text"></span>
+                </div>
+              </button>
+              <p class="card-hint" id="conj-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
+              <div class="grade-buttons" id="conj-grade-buttons" hidden>
+                <button class="grade-btn grade-wrong" id="conj-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+                <button class="grade-btn grade-right" id="conj-grade-right" data-i18n="knewIt">✓ knew it</button>
+              </div>
+            </div>
+
+            <div class="deck-controls">
+              <div class="nav-group">
+                <button id="conj-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+                <button id="conj-skip" class="ghost-btn" data-i18n="skip">skip</button>
+              </div>
+              <span id="conj-progress" class="progress">0 / 0</span>
+            </div>
+          </div>
+
+          <div id="conj-practice-by-verb" class="conj-practice-mode">
+            <div class="controls">
+              <select class="verb-select" id="conj-verb-select" aria-label="Choose a verb" data-i18n-aria="chooseVerb"></select>
+              <button id="conj-verb-next" class="ghost-btn" data-i18n="nextVerb">next verb →</button>
+            </div>
+
+            <div class="form-breadcrumb" id="conj-form-breadcrumb"></div>
+
+            <div class="card-stage">
+              <button class="card" id="conj-verb-card" aria-live="polite">
+                <div class="card-face card-front">
+                  <span class="conj-form-label" id="conj-verb-form-label"></span>
+                  <span class="conj-reading" id="conj-verb-reading"></span>
+                  <span class="card-text" id="conj-verb-front-text"></span>
+                  <span class="conj-meaning" id="conj-verb-meaning"></span>
+                </div>
+                <div class="card-face card-back">
+                  <span class="seal" aria-hidden="true">済</span>
+                  <span class="card-text" id="conj-verb-back-text"></span>
+                </div>
+              </button>
+              <p class="card-hint" id="conj-verb-hint" data-i18n="cardHint">click the card, or press space, to flip</p>
+              <div class="grade-buttons" id="conj-verb-grade-buttons" hidden>
+                <button class="grade-btn grade-wrong" id="conj-verb-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+                <button class="grade-btn grade-right" id="conj-verb-grade-right" data-i18n="knewIt">✓ knew it</button>
+              </div>
+            </div>
+
+            <div class="deck-controls">
+              <span id="conj-verb-progress" class="progress">0 / 8</span>
+            </div>
+          </div>
+
+          <div id="conj-practice-sentences" class="conj-practice-mode">
+            <div class="level-chips" id="cs-form-chips"></div>
+
+            <div class="card-stage">
+              <div class="gp-card" id="cs-card">
+                <p class="gp-pattern-tag" id="cs-form-tag"></p>
+                <p class="gp-sentence" id="cs-sentence"></p>
+                <p class="gp-hint" id="cs-hint"></p>
+                <div class="gp-options" id="cs-options" hidden></div>
+                <button class="ghost-btn" id="cs-reveal" hidden data-i18n="showAnswer">show answer</button>
+                <p class="gp-answer" id="cs-answer" hidden></p>
+                <div class="grade-buttons" id="cs-grade-buttons" hidden>
+                  <button class="grade-btn grade-wrong" id="cs-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+                  <button class="grade-btn grade-right" id="cs-grade-right" data-i18n="knewIt">✓ knew it</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="deck-controls">
+              <div class="nav-group">
+                <button id="cs-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+                <button id="cs-skip" class="ghost-btn" data-i18n="skip">skip</button>
+              </div>
+              <span id="cs-progress" class="progress">0 / 0</span>
+            </div>
           </div>
         </div>
       </div>
