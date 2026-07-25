@@ -47,7 +47,6 @@ js/
     vocab-data.js
     vocab-exam-questions.js        (Vocab exam's question bank — see below)
     grammar-data.js
-    grammar-practice-data.js
     conjugation-data.js
     conjugation-sentences-data.js
     i18n.js
@@ -72,17 +71,15 @@ the GitHub web uploader so it preserves their nesting.
 - **Grammar reference** — `js/data/grammar-data.js`. Each entry needs
   `pattern`, `meaning`, `usage`, `lesson`, and an `examples` array of
   `{ jp, en }` pairs.
-- **Grammar practice questions** — `js/data/grammar-practice-data.js`,
-  keyed by the *exact* pattern string used in `grammar-data.js`. Each
-  question is `{ type: "fill", jp, en, answer }` or
-  `{ type: "choice", jp, en, options: [...], correct: <index> }`.
 - **Conjugation reference** — `js/data/conjugation-data.js`
   (`CONJUGATION_TOPICS`) and the practice verb bank
   (`CONJUGATION_PRACTICE_VERBS`, hand-checked forms only — see the comment
   in that file before adding verbs).
 - **Conjugation sentence practice** — `js/data/conjugation-sentences-data.js`,
   keyed by form id (`te`, `ta`, `potential`, `ba`, `volitional`, `passive`,
-  `causative`, `causativePassive`), same question shape as grammar practice.
+  `causative`, `causativePassive`). Each question is
+  `{ type: "fill", jp, en, answer }` or
+  `{ type: "choice", jp, en, options: [...], correct: <index> }`.
 - **UI translations** — `js/data/i18n.js`. Only chrome text (buttons,
   labels), not study content.
 
@@ -143,18 +140,14 @@ something already verified elsewhere in this repo.
     random question per word rather than repeating the identical attempt.
   - Passing both phases marks every included lesson "exam passed" on the
     Home dashboard.
-- **Grammar** — pick a level and lesson(s); samples real questions straight
-  from the existing curated Grammar Practice bank
-  (`js/data/grammar-practice-data.js`). Single phase, needs **80%** to pass.
 - **Conjugation** — pick which forms to include (defaults to all); samples
   real, hand-checked sentences from the existing Conjugation "Sentences"
   bank (`js/data/conjugation-sentences-data.js`). Single phase, needs **80%**
   to pass.
 
-All three reuse the same self/auto-grading conventions as the rest of the
+Both reuse the same self/auto-grading conventions as the rest of the
 app: multiple-choice is graded automatically, fill-in-the-blank is graded on
-your own honesty (reveal → "✓ knew it" / "✗ didn't know"), same as Grammar
-Practice. Sentence questions show furigana above the kanji and have a
+your own honesty (reveal → "✓ knew it" / "✗ didn't know"). Sentence questions show furigana above the kanji and have a
 "🔊 play sentence" button (reads the sentence aloud via your browser's
 built-in text-to-speech, skipping the blank so it never gives away the
 answer) — except Phase 1, since that phase IS the reading test.
@@ -175,9 +168,9 @@ means repeat attempts feel fresher.
 By default, all progress (your vocab right/wrong stats — the same numbers
 behind the Word List and weak-word highlighting) lives in your browser's
 `localStorage`. That means it's **per-browser, per-device** — studying on
-your phone and then opening the site on your laptop starts fresh. Grammar
-and conjugation practice sessions are always local-only/per-session by
-design, on every device, regardless of sync.
+your phone and then opening the site on your laptop starts fresh.
+Conjugation practice sessions are always local-only/per-session by design,
+on every device, regardless of sync.
 
 To sync your vocab progress across devices, this app can optionally use
 [Firebase](https://firebase.google.com/) (a free Google service) — Cloud

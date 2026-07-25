@@ -1,14 +1,12 @@
-// Exam tab — mock tests for Vocab / Grammar / Conjugation, scoped to
-// whichever lessons (or, for Conjugation, forms) you select. Entirely
-// local: no API key, no network call, no external service. Content comes
-// from hand-authored data files —
+// Exam tab — mock tests for Vocab / Conjugation, scoped to whichever
+// lessons (or, for Conjugation, forms) you select. Entirely local: no API
+// key, no network call, no external service. Content comes from
+// hand-authored data files —
 //   - Vocab meaning-in-context phase: js/data/vocab-exam-questions.js
 //     (up to 10 questions per word; one is picked at random per attempt)
-//   - Grammar: sampled from the existing js/data/grammar-practice-data.js
 //   - Conjugation: sampled from the existing
 //     js/data/conjugation-sentences-data.js
-// See buildVocabClozeQuestions, buildGrammarQuestions, and
-// buildConjugationQuestions.
+// See buildVocabClozeQuestions and buildConjugationQuestions.
 (function () {
   function t(key, vars) {
     if (window.JPStudyProgress && typeof window.JPStudyProgress.t === "function") {
@@ -66,9 +64,8 @@
   }
 
   const examState = {
-    type: "vocab", // vocab | grammar | conjugation
+    type: "vocab", // vocab | conjugation
     vocab: { level: "N4", lessons: [], phase: "both" }, // phase: "both" | "1" | "2"
-    grammar: { level: "N4", lessons: [] },
     conjugation: { forms: [] }, // empty = all forms
   };
 
@@ -90,12 +87,6 @@
   }
   function vocabLessonNums(level) {
     return [...new Set(vocabItemsForLevel(level).map((i) => i.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
-  }
-  function grammarPatternsForLevel(level) {
-    return (window.GRAMMAR_DATA && window.GRAMMAR_DATA[level]) || [];
-  }
-  function grammarLessonNums(level) {
-    return [...new Set(grammarPatternsForLevel(level).map((i) => i.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
   }
 
   // ---------- DOM refs ----------
@@ -196,8 +187,8 @@
       return;
     }
     const level = examState[type].level;
-    const lessonNums = type === "vocab" ? vocabLessonNums(level) : grammarLessonNums(level);
-    const lessonTitles = type === "vocab" ? (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {} : {};
+    const lessonNums = vocabLessonNums(level);
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
     const selected = examState[type].lessons;
     if (!lessonNums.length) {
       examLessonChipsEl.hidden = true;
@@ -239,8 +230,8 @@
   }
 
   function renderSetupPanel() {
-    const introKey = { vocab: "examIntroVocab", grammar: "examIntroGrammar", conjugation: "examIntroConjugation" }[examState.type];
-    const noteKey = { vocab: "examNoteVocab", grammar: "examNoteGrammar", conjugation: "examNoteConjugation" }[examState.type];
+    const introKey = { vocab: "examIntroVocab", conjugation: "examIntroConjugation" }[examState.type];
+    const noteKey = { vocab: "examNoteVocab", conjugation: "examNoteConjugation" }[examState.type];
     document.getElementById("exam-setup-intro").textContent = t(introKey);
     document.getElementById("exam-setup-note").textContent = t(noteKey);
     examErrorEl.hidden = true;
@@ -272,7 +263,6 @@
   examGenerateBtn.addEventListener("click", () => {
     examErrorEl.hidden = true;
     if (examState.type === "vocab") startVocabExam();
-    else if (examState.type === "grammar") startGrammarExam();
     else startConjugationExam();
   });
 
@@ -623,60 +613,6 @@
           passText,
           failText: t("examPhase2FailMsg"),
           onRetry: { label: t("examTryAgain"), fn: () => runVocabMcqPhase(words) },
-          onBack: { label: t("examBackToSetup"), fn: backToSetup },
-        });
-      },
-    });
-  }
-
-  // ---------- Grammar exam ----------
-  function grammarSelectedPatterns() {
-    const { level, lessons } = examState.grammar;
-    const items = grammarPatternsForLevel(level);
-    return lessons.length ? items.filter((i) => lessons.includes(i.lesson)) : items;
-  }
-
-  // Samples real questions straight from the existing curated Grammar
-  // Practice bank (js/data/grammar-practice-data.js) — no generation
-  // needed, that bank already has ~6 hand-written questions per pattern.
-  const GRAMMAR_QUESTIONS_PER_PATTERN = 3;
-  function buildGrammarQuestions(patterns) {
-    const bank = window.GRAMMAR_PRACTICE || {};
-    const questions = [];
-    patterns.forEach((p) => {
-      const bankQuestions = bank[p.pattern];
-      if (!bankQuestions || !bankQuestions.length) return;
-      const tag = p.lesson !== undefined ? `${p.lesson}課　${p.pattern}` : p.pattern;
-      shuffle(bankQuestions)
-        .slice(0, Math.min(GRAMMAR_QUESTIONS_PER_PATTERN, bankQuestions.length))
-        .forEach((q) => questions.push({ ...q, tag }));
-    });
-    return questions;
-  }
-
-  function startGrammarExam() {
-    const patterns = grammarSelectedPatterns();
-    if (!patterns.length) {
-      showExamError(t("examErrNoContent"));
-      return;
-    }
-    runGrammarExam(patterns);
-  }
-
-  function runGrammarExam(patterns) {
-    const questions = buildGrammarQuestions(patterns);
-    if (!questions.length) {
-      showExamError(t("examErrEmpty"));
-      return;
-    }
-    runExam(shuffle(questions), {
-      phaseTagText: t("examGrammarTag"),
-      passThreshold: 0.8,
-      onDone: (result) => {
-        renderResultBanner(result, {
-          passText: t("examPassMsg"),
-          failText: t("examFailMsg80"),
-          onRetry: { label: t("examTryAgain"), fn: () => runGrammarExam(patterns) },
           onBack: { label: t("examBackToSetup"), fn: backToSetup },
         });
       },

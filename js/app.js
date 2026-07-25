@@ -174,10 +174,9 @@
   }
 
   // ---------- persisted grammar practice progress (per pattern) ----------
-  // Same shape as vocab progress, but keyed by pattern string (matches
-  // grammar-data.js / grammar-practice-data.js exactly) instead of word id.
-  // This is new — grammar practice was session-only before the dashboard
-  // needed something to actually show. Conjugation stays session-only.
+  // Legacy: kept only so cloud-sync restores of older snapshots (which may
+  // include a "grammar" field) don't lose data. Nothing writes to this
+  // anymore now that Grammar Practice has been removed.
   const GRAMMAR_PROGRESS_KEY = "jpstudy_grammar_progress_v1";
   let grammarProgressStore = {};
   try {
@@ -1026,26 +1025,6 @@ resetProgressBtn.addEventListener("click", () => {
 
   renderGrammarList("N5");
 
-  const grModeToggle = document.querySelectorAll("#gr-mode-toggle .dir-btn");
-  const grammarReferenceEl = document.getElementById("grammar-reference");
-  const grammarPracticeEl = document.getElementById("grammar-practice");
-  let grammarPracticeStarted = false;
-
-  grModeToggle.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      grModeToggle.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const mode = btn.dataset.mode;
-      grammarReferenceEl.classList.toggle("active", mode === "reference");
-      grammarPracticeEl.classList.toggle("active", mode === "practice");
-      if (mode === "practice" && !grammarPracticeStarted) {
-        grammarPracticeStarted = true;
-        renderGpLessonChips();
-        gpQuiz.start(gpBuildDeck);
-      }
-    });
-  });
-
   // Turns "漢字[かんじ]" bracket notation into <ruby><rt> furigana — escape
   // first so any stray < > & in the source text can't leak into the markup.
   function escapeHtml(str) {
@@ -1186,81 +1165,6 @@ resetProgressBtn.addEventListener("click", () => {
 
     return { start, state: qs, cardEl };
   }
-
-  // ---------- grammar: practice ----------
-  const gpLessonChipsEl = document.getElementById("gp-lesson-chips");
-  const gpState = { lessons: [] }; // empty = all lessons
-
-  function patternLessonMap() {
-    const map = {};
-    ((window.GRAMMAR_DATA && window.GRAMMAR_DATA.N4) || []).forEach((e) => {
-      if (e.lesson !== undefined) map[e.pattern] = e.lesson;
-    });
-    return map;
-  }
-
-  function gpBuildDeck() {
-    const bank = window.GRAMMAR_PRACTICE || {};
-    const lessonMap = patternLessonMap();
-    const items = [];
-    Object.keys(bank).forEach((pattern) => {
-      const lesson = lessonMap[pattern];
-      if (gpState.lessons.length && !gpState.lessons.includes(lesson)) return;
-      bank[pattern].forEach((q) => {
-        items.push({ ...q, tag: lesson !== undefined ? `${lesson}課　${pattern}` : pattern });
-      });
-    });
-    return items;
-  }
-
-  function renderGpLessonChips() {
-    const lessonMap = patternLessonMap();
-    const lessonNums = [...new Set(Object.values(lessonMap))].sort((a, b) => a - b);
-    const selected = gpState.lessons;
-    const allActive = selected.length === 0;
-    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
-    const chips = lessonNums
-      .map((n) => {
-        const isActive = selected.includes(n);
-        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}">${n}課</button>`;
-      })
-      .join("");
-    gpLessonChipsEl.innerHTML = allChip + chips;
-    gpLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        if (chip.dataset.lesson === "all") {
-          gpState.lessons = [];
-        } else {
-          const n = Number(chip.dataset.lesson);
-          const idx = gpState.lessons.indexOf(n);
-          if (idx === -1) gpState.lessons.push(n);
-          else gpState.lessons.splice(idx, 1);
-          gpState.lessons.sort((a, b) => a - b);
-        }
-        renderGpLessonChips();
-        gpQuiz.start(gpBuildDeck);
-      });
-    });
-  }
-
-  const gpQuiz = setupQuizMode(
-    {
-      card: "gp-card",
-      tag: "gp-pattern-tag",
-      sentence: "gp-sentence",
-      hint: "gp-hint",
-      options: "gp-options",
-      reveal: "gp-reveal",
-      answer: "gp-answer",
-      gradeButtons: "gp-grade-buttons",
-      gradeWrong: "gp-grade-wrong",
-      gradeRight: "gp-grade-right",
-      progress: "gp-progress",
-      shuffle: "gp-shuffle",
-      skip: "gp-skip",
-    },
-    { onGrade: (item, isCorrect) => recordGrammarGrade(item.tag, isCorrect) }
-  );
 
   // ---------- word list ----------
   const wlLevelChips = document.querySelectorAll("#wl-level-chips .chip");
