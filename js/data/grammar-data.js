@@ -2808,6 +2808,1505 @@ window.GRAMMAR_DATA = {
     },
   ],
   N3: [
+{
+  pattern: "〜うちに",
+  lesson: 1,
+  meaning: "Used either to say that you should do an intentional action before some state or situation changes (before it's too late), or to describe a change that happens naturally, without the speaker's intention, while some continuous state or action is still going on.",
+  uses: [
+    {
+      label: "Do something before a state changes",
+      explanation: "This use expresses that the subject deliberately performs an intentional action before the current state or situation changes into something else. It carries a sense of urgency — do it now, while conditions still allow it, because they won't last.",
+      examples: [
+        { jp: "日本にいるうちに一度富士山に登ってみたい。", en: "While I'm in Japan, I want to climb Mt. Fuji at least once." },
+        { jp: "はい、アイスクリーム。溶けないうちに早く食べてくださいね。", en: "Here's your ice cream. Please eat it quickly before it melts." },
+        { jp: "明るいうちに庭の掃除をしてしまおう。", en: "Let's finish cleaning the garden while it's still light out." },
+      ],
+    },
+    {
+      label: "A change happens while a state continues (unintentional)",
+      explanation: "This use describes a change that occurs naturally during a continuous state or ongoing action, without the speaker intending it or even noticing it happening. The clause after うちに expresses a change, not another continuous state.",
+      examples: [
+        { jp: "音楽を聞いているうちに眠ってしまった。", en: "While listening to music, I ended up falling asleep." },
+        { jp: "少し難しい曲でも、練習を重ねるうちに弾けるようになりますよ。", en: "Even a somewhat difficult piece, if you keep practicing, you'll gradually become able to play it." },
+        { jp: "気がつかないうちに外は暗くなっていた。", en: "Before I realized it, it had gotten dark outside." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "電気が消えてしまったうちに、本を読み続けた。",
+      explanation: "うちに requires that the state described NOT have changed yet — it means 'while it is still the case that...'. Once てしまった shows the change has already happened (the light going out), うちに no longer fits. You could instead say 電気が消えないうちに (before the light goes out) or simply drop うちに and describe the events with と or たら.",
+    },
+  ],
+},
+{
+  pattern: "〜間・〜間に",
+  lesson: 1,
+  meaning: "Both express something happening during a period when another state continues. 〜間 is used when the following clause is itself a continuous action or state lasting the whole period; 〜間に is used when the following clause is a momentary, one-time action or change that happens at some point within that period.",
+  uses: [
+    {
+      label: "間 — a continuous action/state fills the whole period",
+      explanation: "Use 間 (without に) when the action or state in the second clause continues for the entire duration of the first clause's state, describing two things happening in parallel throughout the period.",
+      examples: [
+        { jp: "お母さんが昼寝をしている間、子どもたちはテレビを見ていた。", en: "While Mom was taking a nap, the children were watching TV." },
+        { jp: "わたしが旅行で留守の間、うちの犬の世話をお願いできないでしょうか。", en: "Could you take care of our dog while I'm away traveling?" },
+      ],
+    },
+    {
+      label: "間に — a momentary event happens at some point within the period",
+      explanation: "Use 間に when the second clause describes a single, momentary action or an unexpected change that occurs at some point during the period described by the first clause, rather than continuing throughout it.",
+      examples: [
+        { jp: "お母さんが昼寝をしている間に、子どもたちは遊びに出かけた。", en: "While Mom was taking a nap, the children went out to play." },
+        { jp: "わたしが旅行で留守の間に、庭に草がたくさん生えてしまった。", en: "While I was away traveling, a lot of weeds grew in the garden." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "彼が寝ている間に、ずっとテレビを見ていた。",
+      explanation: "ずっと見ていた describes a continuous action that lasts the whole time he was sleeping, so 間 should be used instead of 間に. The correct sentence is 彼が寝ている間、ずっとテレビを見ていた.",
+    },
+  ],
+},
+{
+  pattern: "〜てからでないと・〜てからでなければ",
+  lesson: 1,
+  meaning: "Means that until or unless something happens first, a certain action cannot be done or a certain state cannot be reached. It is always paired with a negative statement in the second clause — that something is impossible, not allowed, or cannot be decided.",
+  uses: [
+    {
+      label: "One thing must happen before another becomes possible",
+      explanation: "This pattern attaches to the te-form of a verb and states a precondition: before ~ happens, the following (negative) action or state cannot occur. It's often used for rules, requirements, or personal conditions that must be satisfied first.",
+      examples: [
+        { jp: "高い物なので、家族と相談してからでないと買うかどうか決められませんね。", en: "It's expensive, so I can't decide whether to buy it unless I talk it over with my family first." },
+        { jp: "運転免許を取ってからでなければ車を運転してはいけない。", en: "You mustn't drive a car unless you've gotten a driver's license first." },
+        { jp: "病気が治ってからでなければ激しい運動は無理だ。", en: "Vigorous exercise is impossible unless the illness has healed first." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "免許を取ってからでないと、運転しました。",
+      explanation: "〜てからでないと must be followed by a negative or prohibitive statement (can't do, isn't allowed, is impossible) — it cannot be followed by an affirmative past-tense action like 運転しました. Correct usage requires something like 運転してはいけない or 運転できない.",
+    },
+  ],
+},
+{
+  pattern: "〜ところだ・〜ところ",
+  lesson: 1,
+  meaning: "Describes timing relative to an action: about to happen (dictionary form + ところだ), currently happening/in progress (ている form + ところ), or just having happened (た form + ところ). The particle after ところ changes depending on the verb that follows in the sentence.",
+  uses: [
+    {
+      label: "About to happen (辞書形 + ところだ)",
+      explanation: "Attached to a verb's dictionary form, ~ところだ expresses that an action is on the verge of starting — it hasn't happened yet but is imminent.",
+      examples: [
+        { jp: "ロケットは間もなく飛び立つところです。緊張の瞬間です。", en: "The rocket is just about to take off. It's a tense moment." },
+        { jp: "今、電車が出発するところだ。", en: "The train is just about to depart now." },
+      ],
+    },
+    {
+      label: "In the middle of happening (ている形 + ところ)",
+      explanation: "Attached to the ている form, ~ところ describes an action that is currently in progress, right in the middle of happening.",
+      examples: [
+        { jp: "試験中、となりの人の答えを見ているところを先生に注意された。", en: "During the exam, I was caught by the teacher in the middle of looking at the answers of the person next to me." },
+      ],
+    },
+    {
+      label: "Just finished happening (た形 + ところ)",
+      explanation: "Attached to the past (た) form, ~ところ expresses that an action or event has just finished, and something else happens right at that moment.",
+      examples: [
+        { jp: "楽しみにしていたテレビドラマが始まったところで電話が鳴った。", en: "Just as the TV drama I had been looking forward to started, the phone rang." },
+        { jp: "ケーキができ上がったところへ子どもたちが帰ってきた。", en: "Just as the cake finished baking, the children came home." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "昼ごはんを食べるところです。（さっき食べ終わったばかりの意味で）",
+      explanation: "Using the dictionary form + ところです means the action is about to start (about to eat lunch), not that it just finished. To say 'I just ate lunch,' the correct form is 食べたところです (た form), not 食べるところです.",
+    },
+  ],
+},
+{
+  pattern: "〜とおりだ・〜とおり(に)／〜どおりだ・〜どおり(に)",
+  lesson: 2,
+  meaning: "Means 'exactly as ~' or 'in the same way as ~' — doing or being the same as something already said, written, or expected. とおり follows verbs and の, while どおり attaches directly to a noun.",
+  uses: [
+    {
+      label: "とおり(に) — following a verb or noun+の (as told, written, done)",
+      explanation: "Used after a verb (dictionary, た, or ている form) or after 名詞+の, meaning to do something in exactly the manner already described, instructed, or shown.",
+      examples: [
+        { jp: "交番で教えてもらったとおりに歩いていったので、迷わず会場に着いた。", en: "I walked exactly as I was told at the police box, so I reached the venue without getting lost." },
+        { jp: "初めて作る料理だから、この本に書いてあるとおりのやり方で作ってみよう。", en: "Since it's a dish I'm making for the first time, let's try making it exactly the way it's written in this book." },
+      ],
+    },
+    {
+      label: "どおり(に) — attached directly to a noun (as expected/according to)",
+      explanation: "Used by attaching どおり directly to a noun (without の), meaning that something matches or conforms to that noun exactly, such as a plan, expectation, or schedule.",
+      examples: [
+        { jp: "サッカーの試合の結果はわたしたちの期待どおりだった。", en: "The result of the soccer match was exactly as we had expected." },
+        { jp: "今日のスポーツ大会は予定どおり行います。", en: "Today's sports meet will be held exactly as scheduled." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "スポーツ大会は予定とおりに行います。",
+      explanation: "When attaching directly after a noun without の, the reading and form should be どおり, not とおり — so it should be 予定どおりに, not 予定とおりに. とおり is used after verbs or after の (e.g., 予定のとおりに is also possible, but 予定とおりに mixing the two forms incorrectly is a common error).",
+    },
+  ],
+},
+{
+  pattern: "〜によって・〜によっては",
+  lesson: 2,
+  meaning: "Expresses that a state, behavior, or outcome changes or varies depending on something, such as person, country, day, or situation. 〜によっては singles out one particular case from a range of possible outcomes, and is often paired with words like さまざまだ or 変わる.",
+  uses: [
+    {
+      label: "State or behavior varies depending on something",
+      explanation: "Attached to a noun, によって shows that whatever follows differs depending on that noun — it's commonly used with words meaning 'varies' or 'differs,' such as 違う or さまざまだ.",
+      examples: [
+        { jp: "国によって習慣が違う。", en: "Customs differ depending on the country." },
+        { jp: "感じ方は人によってさまざまだ。", en: "How people feel about it varies from person to person." },
+      ],
+    },
+    {
+      label: "によっては — pinpointing one possible outcome among many",
+      explanation: "によっては is used to single out one particular case out of a range of possibilities, implying that under some circumstances (but not all), a certain outcome could occur.",
+      examples: [
+        { jp: "わたしの帰宅時間は毎日違う。日によっては夜中になることもある。", en: "The time I get home is different every day. Depending on the day, it can even be the middle of the night." },
+        { jp: "場合によっては今年の文化祭は中止になるかもしれない。", en: "Depending on the circumstances, this year's cultural festival might be cancelled." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生によって、宿題を出さなければならない。",
+      explanation: "This によって is used to mean 'depending on ~, things vary' — it is not the causal/means-of-action によって (as in 'due to the teacher'). Confusing the two uses produces a nonsensical sentence here. The 'depending on' usage requires a following clause that expresses variation, e.g. 先生によって、宿題の量が違う (the amount of homework differs depending on the teacher).",
+    },
+  ],
+},
+{
+  pattern: "〜たびに",
+  lesson: 2,
+  meaning: "Means 'whenever ~ happens, ... also always happens' — used to emphasize that an action or event is repeated every single time, without exception. It's not used for everyday, obviously routine matters, and the clause after たびに cannot simply describe a state.",
+  uses: [
+    {
+      label: "An action always recurs whenever a triggering event happens",
+      explanation: "Attached to a verb's dictionary form or a noun + の, たびに expresses that every single time the first event occurs, the second event or action reliably follows as well, highlighting the repeated, consistent nature of the connection.",
+      examples: [
+        { jp: "この地方は台風が来るたびに大水の害が起こる。", en: "In this region, flood damage occurs every time a typhoon comes." },
+        { jp: "母はわたしが電話をかけるたびに、ちゃんとご飯を食べているかと聞く。", en: "Every time I call, my mother asks whether I'm eating properly." },
+        { jp: "このチームは試合のたびに強くなっていく。", en: "This team gets stronger with every match." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "毎日、学校に行くたびに、朝ごはんを食べる。",
+      explanation: "たびに is meant to emphasize a notable repeated correlation, not to describe an everyday, obviously routine matter like eating breakfast before school every day. For ordinary daily habits, it's more natural to simply state the habit directly (毎朝、朝ごはんを食べてから学校に行く) rather than using たびに.",
+    },
+  ],
+},
+{
+  pattern: "〜ば〜ほど／〜なら〜ほど",
+  lesson: 2,
+  meaning: "Means 'the more ~ happens or is, the more ... happens or is' — a correlative pattern showing that as the degree of one thing increases, the degree of another increases (or decreases) to match.",
+  uses: [
+    {
+      label: "Correlative degree: the more X, the more Y",
+      explanation: "Formed by repeating the same word first in a conditional form (ば-form for verbs/i-adjectives, なら for na-adjectives) and then in its plain form followed by ほど. It shows that the extent of the second clause progresses in step with the extent of the first.",
+      examples: [
+        { jp: "物が増えれば増えるほど整理が大変になる。", en: "The more things increase, the harder it becomes to organize them." },
+        { jp: "休みの日は多ければ多いほどうれしい。", en: "The more days off there are, the happier I am." },
+        { jp: "忙しい人ほど時間の使い方が上手だ。", en: "The busier a person is, the better they are at using their time." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "忙しければ、忙しい。",
+      explanation: "This pattern requires the word to appear twice — once in the conditional (ば/なら) form and once in its plain form before ほど. Simply saying 忙しければ、忙しい is incomplete and doesn't make sense; the correct form is 忙しければ忙しいほど (the busier, the more...).",
+    },
+  ],
+},
+{
+  pattern: "〜ついでに",
+  lesson: 2,
+  meaning: "Means 'when doing ~, take the opportunity to also do ...' — describes a secondary, incidental action performed while carrying out a main action, taking advantage of the opportunity it creates.",
+  uses: [
+    {
+      label: "Doing a secondary task while performing a main one",
+      explanation: "The clause before ついでに is the main, originally-intended action, and the clause after it is a secondary action done opportunistically because the main action created a convenient chance to do it too.",
+      examples: [
+        { jp: "散歩のついでにこのはがきをポストに出してきて。", en: "While you're out for a walk, please mail this postcard for me." },
+        { jp: "玄関の掃除をするついでに靴の整理をしよう。", en: "While cleaning the entryway, let's also tidy up the shoes." },
+        { jp: "インターネットで本を注文したついでに新しく出たDVDも調べた。", en: "While ordering a book online, I also looked up the newly released DVD." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "会議に出るついでに、大事な資料を作った。",
+      explanation: "ついでに implies the second action is minor and incidental compared to the main action. If preparing important materials was actually a major, independently planned task (not something done opportunistically while attending the meeting), ついでに is the wrong choice — a simple まま or separate sentence with そして would fit better.",
+    },
+  ],
+},
+{
+  pattern: "〜くらいだ／〜ぐらいだ／〜ほどだ",
+  lesson: 3,
+  meaning: "Expresses the degree or extent of something by giving a concrete example that illustrates just how strong or extreme it is — often translated as 'to the extent that...' or 'so much that...'.",
+  uses: [
+    {
+      label: "Illustrating extent with a concrete example",
+      explanation: "After a plain-form clause, くらいだ/ぐらいだ/ほどだ presents an example situation to show just how strong a feeling, state, or degree is. It can also appear as くらい/ぐらい/ほど directly modifying a following adjective or noun, and can combine with と思うくらい/と思うほど to mean 'to the extent that I even thought...'.",
+      examples: [
+        { jp: "この店のパンはおいしい。毎日食べたいくらいだ。", en: "The bread at this shop is delicious—so much so that I want to eat it every day." },
+        { jp: "ようこさんの腕は折れそうなくらい細い。", en: "Yoko's arms are so thin they look like they could break." },
+        { jp: "さっき地震があった。本棚が倒れるかと思うほど激しく揺れた。", en: "There was an earthquake just now. It shook so violently that I thought the bookshelf would fall over." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "この店のパンはおいしいくらいだ。",
+      explanation: "くらいだ/ほどだ needs a concrete example clause that illustrates just how extreme the degree is (such as 'I want to eat it every day') — simply repeating the adjective itself (おいしい) without an illustrative example doesn't convey the intended degree and sounds incomplete/redundant.",
+    },
+  ],
+},
+{
+  pattern: "〜くらい…はない／〜ぐらい…はない／〜ほど…はない",
+  lesson: 3,
+  meaning: "Means 'nothing is more ... than ~' — used to express the speaker's subjective judgment that something represents the most extreme example of a quality they know of, not an objective, verifiable fact.",
+  uses: [
+    {
+      label: "Superlative subjective claim ('nothing is more ... than ~')",
+      explanation: "By naming something as the standard of comparison and then negating the existence of anything greater (…はない), the speaker expresses, subjectively, that nothing surpasses it in that particular quality.",
+      examples: [
+        { jp: "リーさんぐらい動物好きな人はいない。", en: "There's no one who loves animals as much as Mr. Lee." },
+        { jp: "ああ、あしたも漢字のテストがある。テストほどいやなものはない。", en: "Ugh, there's a kanji test again tomorrow. There's nothing I hate more than tests." },
+        { jp: "2年前に病気だとわかったときほど不安になったことはない。", en: "I've never felt as anxious as I did two years ago when I found out I was sick." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "彼女ぐらい料理が上手な人がいる。",
+      explanation: "This pattern requires the negative はない at the end to create the superlative meaning ('no one is as good as her'). Leaving off はない and using an affirmative いる instead just states that a skilled person exists, losing the intended 'nothing/no one surpasses ~' meaning entirely.",
+    },
+  ],
+},
+{
+  pattern: "〜くらいなら／〜ぐらいなら",
+  lesson: 3,
+  meaning: "Means 'If it comes to the point of doing ~ (an undesirable option), then ... (a relatively better alternative) is preferable.' It expresses the speaker's subjective preference between two undesirable-to-acceptable options, not an objective comparison.",
+  uses: [
+    {
+      label: "Rejecting an undesirable option in favor of an alternative",
+      explanation: "The clause before くらいなら/ぐらいなら names an option the speaker considers troublesome or undesirable; the clause after it names what the speaker would rather do instead — an option that may not be great either, but is preferable to the first.",
+      examples: [
+        { jp: "毎朝自分で弁当を作るくらいなら、コンビニ弁当でいい。", en: "If it comes to making my own lunch every morning, I'd rather just buy a convenience store lunch." },
+        { jp: "気が合わない人といっしょに生活するぐらいなら、このまま独身でいたい。", en: "If it means living together with someone I don't get along with, I'd rather stay single." },
+        { jp: "30分も遅れて説明会に行くくらいなら、参加しないほうがいい。", en: "If it means showing up 30 minutes late to the orientation, it's better not to go at all." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "コンビニ弁当を食べるくらいなら、自分で弁当を作りたい。",
+      explanation: "The clause before くらいなら must be the option the speaker views as WORSE or less desirable, with the preferred alternative coming after. If the speaker actually prefers convenience-store lunches, this sentence has the preference backwards — it should instead be 自分で弁当を作るくらいなら、コンビニ弁当でいい, matching the intended meaning.",
+    },
+  ],
+},
+{
+  pattern: "〜に限る",
+  lesson: 3,
+  meaning: "Means '~ is the best (choice/way)' — used to express the speaker's subjective recommendation about the best option in a given situation, rather than an objective, universally agreed-upon fact.",
+  uses: [
+    {
+      label: "Recommending the best option (subjective)",
+      explanation: "Attached to a noun or a verb's dictionary/nai form, に限る states that, in the speaker's opinion, this is clearly the best choice among the possibilities, often used for practical advice.",
+      examples: [
+        { jp: "やっぱり映画は映画館で見るに限る。", en: "Movies are best watched in a movie theater, after all." },
+        { jp: "かぜがはやっているときは、人が多い所には行かないに限る。", en: "When a cold is going around, it's best not to go to crowded places." },
+        { jp: "湖の写真を撮るならこの場所に限ります。すてきな写真が撮れますよ。", en: "If you want to take pictures of the lake, this spot is the best. You'll get wonderful photos." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "疲れたときは早く寝るのに限る。",
+      explanation: "When に限る attaches directly to a verb's dictionary form or nai-form, no の is needed in between — 早く寝るに限る is correct. Inserting an extra の (寝るのに限る), as learners sometimes do by analogy with nominalizing の, is unnecessary and non-standard here.",
+    },
+  ],
+},
+{
+  pattern: "〜に対して",
+  lesson: 4,
+  meaning: "Used to clearly contrast two things or actions — 'unlike ~, ...' or 'in contrast to ~, ...'. It draws a sharp distinction between two people, groups, or situations being compared directly against each other.",
+  uses: [
+    {
+      label: "Drawing a clear contrast between two things",
+      explanation: "Attached after a noun (+の) or a plain-form clause (+の), に対して highlights that the situation, action, or trait described afterward stands in direct contrast to the one described before it.",
+      examples: [
+        { jp: "きのうは大阪では大雨だったのに対して、東京はいい天気だった。", en: "Whereas it rained heavily in Osaka yesterday, the weather in Tokyo was nice." },
+        { jp: "うちの課は女性がよく飲みに行くのに対して、男性は皆まっすぐ家に帰る。", en: "In our section, the women often go out drinking, whereas the men all go straight home." },
+        { jp: "外遊びが好きな長男に対して、次男は家の中で遊ぶことが好きだ。", en: "Unlike my eldest son who likes playing outside, my second son likes playing indoors." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "日本の歴史に対して興味がある。",
+      explanation: "This に対して means 'in contrast to,' used to set up a clear contrast between two different things — it is not the same as について ('about/regarding'), which is used to name a topic of interest. To say 'I'm interested in Japanese history,' the correct phrase is 日本の歴史について興味がある or 日本の歴史に興味がある, not 日本の歴史に対して興味がある.",
+    },
+  ],
+},
+{
+  pattern: "〜反面",
+  lesson: 4,
+  meaning: "Means '~, but on the other hand ...' — used to present two contrasting sides or facets of the very same thing, topic, or situation.",
+  uses: [
+    {
+      label: "Two contrasting facets of the same subject",
+      explanation: "Attached after a plain-form clause (with na-adjectives dropping だ and adding な, and nouns adding である), 反面 introduces an opposite or contrasting aspect that coexists with the first, both describing the same underlying topic.",
+      examples: [
+        { jp: "都会の生活は面白いことが多い反面、ストレスも多い。", en: "City life has a lot of interesting things, but on the other hand, it also has a lot of stress." },
+        { jp: "一人旅は気楽な反面、何でも一人でやらなければならないので、不便だ。", en: "Traveling alone is carefree, but on the other hand, it's inconvenient since you have to do everything by yourself." },
+        { jp: "仕事を辞めて自由な時間が増えた反面、緊張感もなくなってしまった。", en: "Since quitting my job, I've had more free time, but on the other hand, I've also lost my sense of tension/focus." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "肉は体にいい反面、野菜は体に悪い。",
+      explanation: "反面 must describe two contrasting sides of the SAME subject or topic, not compare two entirely different subjects (meat vs. vegetables). A correct use would keep the subject the same on both sides, e.g. 肉は体にいい反面、食べ過ぎるとよくない (meat is good for you, but on the other hand, eating too much of it isn't).",
+    },
+  ],
+},
+{
+  pattern: "〜一方(で)",
+  lesson: 4,
+  meaning: "Means '~, but at the same time, on the other hand ...'. It can describe two actions or states existing simultaneously side by side, or — similar to 反面 — present two contrasting facets of one situation.",
+  uses: [
+    {
+      label: "Two things happening or existing at the same time",
+      explanation: "Describes doing or maintaining one thing while also doing or maintaining another at the same time, without necessarily implying a strong contrast — more like 'while also...'.",
+      examples: [
+        { jp: "会議では自分の意見を言う一方で、ほかの人の話もよく聞いてください。", en: "In meetings, while stating your own opinion, please also listen carefully to what others say." },
+        { jp: "教授は新しい研究に取り組む一方で、しっかり学生の世話もしなければならない。", en: "The professor has to work on new research while also properly taking care of the students." },
+      ],
+    },
+    {
+      label: "Two contrasting sides of one situation (similar to 反面)",
+      explanation: "When used to express opposing facets of the same issue, 一方(で) carries roughly the same meaning as 反面 — presenting one side of a situation and then its contrasting counterpart.",
+      examples: [
+        { jp: "子どもが生まれてうれしかった一方で、重い責任も感じた。", en: "I was happy when my child was born, but at the same time, I also felt a heavy sense of responsibility." },
+        { jp: "世の中には人と話すことが好きな人がいる一方、それが苦手な人も多い。", en: "In the world, there are people who love talking with others, while at the same time there are many who are not good at it." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "彼はサッカーが好きな一方で、明日は雨です。",
+      explanation: "一方(で) connects two clauses that share a logical relationship — either two aspects of the same subject/topic, or two things happening in the same context. Here, 'he likes soccer' and 'it will rain tomorrow' have no logical connection to each other, so 一方で doesn't work; the two clauses need to be meaningfully related.",
+    },
+  ],
+},
+{
+  pattern: "〜というより",
+  lesson: 4,
+  meaning: "Means 'rather than saying ~, it would be more accurate/appropriate to say ...' — used when correcting or refining how something should be described, replacing a less fitting description with a more fitting one.",
+  uses: [
+    {
+      label: "Correcting a description to a more fitting one",
+      explanation: "The word or phrase before というより is the less accurate way of putting something; what follows is presented as the more appropriate or precise description.",
+      examples: [
+        { jp: "ぼくと彼が友だち？いや、ぼくたちは友だちというよりいい競争相手なんだよ。", en: "Him and me, friends? No, we're more like good rivals than friends." },
+        { jp: "美知子は歩くのが速い。歩くというより走るという感じだ。", en: "Michiko walks fast. It's more like running than walking." },
+        { jp: "A「へえ、この絵、社長に頼まれてかいたんですか。」B「頼まれて、というより命令されたんだよ。」", en: "A: \"Oh, you painted this because the president asked you to?\" B: \"It's not so much that he asked—more that he ordered me to.\"" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "いい競争相手というより友だちなんだよ。",
+      explanation: "The word order matters: the less accurate/initial description goes BEFORE というより, and the more fitting, corrected description comes AFTER it. If the speaker means 'we're rivals rather than friends,' it must be 友だちというよりいい競争相手, not the reverse.",
+    },
+  ],
+},
+{
+  pattern: "〜かわりに",
+  lesson: 4,
+  meaning: "Can mean a trade-off where one positive aspect is offset by a negative one (or vice versa) in exchange, or it can mean doing something different but roughly equivalent instead of the action one would usually or normally be expected to do.",
+  uses: [
+    {
+      label: "Trade-off / in exchange for something",
+      explanation: "Describes a situation where one quality or benefit comes together with an offsetting drawback (or one favor is done in exchange for another), similar to 'on the one hand ~, but in return...'.",
+      examples: [
+        { jp: "フリーの仕事は自由な時間が多いかわりに、お金のことがいつも心配だ。", en: "Freelance work gives you a lot of free time, but in exchange, you always have to worry about money." },
+        { jp: "会長の山田さんは、実行力があるかわりに、深く考えることはしない。", en: "Chairman Yamada has strong execution ability, but in exchange, he doesn't think things through deeply." },
+        { jp: "リーさんに英語を教えてもらっているかわりに、リーさんの仕事を手伝っている。", en: "In exchange for having Mr. Lee teach me English, I help him with his work." },
+      ],
+    },
+    {
+      label: "Doing something different instead of the usual/expected action",
+      explanation: "Describes refraining from an action one would normally or usually do, and instead doing something different but of roughly equivalent weight or significance.",
+      examples: [
+        { jp: "今度の正月はいつものようにふるさとに帰るかわりに、両親と海外旅行をしたい。", en: "This coming New Year, instead of going back to my hometown as usual, I want to take an overseas trip with my parents." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "田中さんかわりに、わたしが行きます。",
+      explanation: "This grammar point (clause + かわりに, describing a trade-off or substitute action) is different from the related noun-based pattern 名詞＋の＋かわりに, meaning 'in place of (a person)'. To say 'in place of Mr. Tanaka,' the noun form requires の: 田中さんのかわりに、わたしが行きます — leaving out の is a common error learners make when conflating the two related but distinct patterns.",
+    },
+  ],
+},
+// 5課
+{
+  pattern: "〜ためだ・〜ため（に）",
+  lesson: 5,
+  meaning:
+    "This pattern states that something is the cause or reason for a result, similar to 'because of ~' or 'in order to ~'. It is a slightly formal way of speaking, and — unlike everyday causal expressions — it cannot be followed by a sentence that expresses the speaker's hope, intention, or an attempt to induce another person to act, since it is used purely to describe a resulting fact.",
+  uses: [
+    {
+      label: "Stating the cause behind a resulting fact",
+      explanation:
+        "〜ためだ・〜ため（に）follows a noun with の, or the plain form of a verb/adjective (with な for な-adjectives and の for nouns), and presents that clause as the cause of the situation described afterward. The sentence that follows simply reports a fact or state that resulted from the cause; it is not used to express the speaker's own wish, plan, or a request/command directed at someone else, because it reads as a fairly objective, almost report-like statement of causation.",
+      examples: [
+        { jp: "報告書にミスが多かったのは、よく見直しをしなかったためだろう。", en: "The reason there were so many mistakes in the report is probably that I didn't check it over carefully." },
+        { jp: "この村には医者がいないために、病気のときはとなりの町まで行かなければならない。", en: "Because there is no doctor in this village, when someone gets sick they have to go to the neighboring town." },
+        { jp: "出張のため、明日の会議は欠席させていただきます。", en: "Because of a business trip, I will be absent from tomorrow's meeting." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "熱があるために、今日は休みたいです。",
+      explanation:
+        "〜ため（に）cannot be followed by a clause expressing the speaker's own hope or request, such as 休みたい (want to rest). Since this sentence expresses a wish, it should instead use a plain causal connector like から: 熱があるから、今日は休みたいです。",
+    },
+  ],
+},
+{
+  pattern: "〜によって…・〜による",
+  lesson: 5,
+  meaning:
+    "によって has two related but distinct uses in this pattern. It can mark the cause of a resulting fact or state (similar to English 'due to ~'), or it can mark the means or method by which something is done (similar to 'by means of ~'). In both cases it is a somewhat formal expression, and when used to state a cause it cannot be followed by a sentence expressing the speaker's own hope, intention, or an attempt to move another person to act.",
+  uses: [
+    {
+      label: "Marking the cause of a resulting fact (〜によって… / 〜による＋名詞)",
+      explanation:
+        "When によって is attached to a noun representing a cause, the rest of the sentence describes a resulting fact or state that came about because of it. による + noun is the attributive form used to modify a following noun directly. This use cannot be paired with a sentence that expresses the speaker's own wish, intention, or a request/command to someone else — it purely reports that one thing caused another.",
+      examples: [
+        { jp: "うちの工場では、材料不足によってたたみの生産もできなくなった。", en: "At our factory, due to a shortage of materials, we became unable to even produce tatami mats." },
+        { jp: "今年のインフルエンザは、今までにない型のウイルスによるものである。", en: "This year's influenza is caused by a strain of virus unlike any seen before." },
+      ],
+    },
+    {
+      label: "Marking the means or method (〜によって… / 〜による＋名詞)",
+      explanation:
+        "によって can also mark the method or means used to accomplish something, corresponding to 'by using the means of ~, do ...'. This is likewise a fairly formal way of speaking and is common in written notices, instructions, and explanations.",
+      examples: [
+        { jp: "外国語を学ぶことによってその国の人たちの考え方も知ることができる。", en: "By learning a foreign language, you can also come to understand the way people of that country think." },
+        { jp: "クレジットカードによるお支払いを希望される方は、次の注意をお読みください。", en: "Those who wish to pay by credit card, please read the following notice." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "台風によって、旅行に行きたくない。",
+      explanation:
+        "When によって states a cause, it cannot be followed by a clause expressing the speaker's own wish (行きたい). Since this is a personal intention, a plain causal form should be used instead, e.g. 台風だから、旅行に行きたくない。",
+    },
+    {
+      wrong: "彼は自転車のによって学校へ行く。",
+      explanation:
+        "によって attaches directly to the noun (means/method) without an intervening の — the correct form is 彼は自転車によって学校へ行く, though in this everyday, simple case the more natural particle is actually で (自転車で学校へ行く), since によって tends to be reserved for more formal contexts.",
+    },
+  ],
+},
+{
+  pattern: "〜から…・〜ことから…",
+  lesson: 5,
+  meaning:
+    "This pattern uses から or ことから to mean that a certain fact is the origin or basis of a resulting situation, or of a conclusion the speaker draws. It is close to English 'from ~' or 'because of the fact that ~, ...', and cannot be followed by a sentence that expresses the speaker's own hope, intention, or an attempt to induce another person to act.",
+  uses: [
+    {
+      label: "Noun ＋ から: a fact as the starting point of a result",
+      explanation:
+        "から attaches directly to a noun representing the originating fact, and the following clause describes the resulting situation that grew out of it. This use emphasizes that a small or specific fact was the trigger for a larger consequence.",
+      examples: [
+        { jp: "わずかな誤解から友だちとの関係が悪くなってしまった。", en: "A slight misunderstanding caused the relationship with my friend to sour." },
+      ],
+    },
+    {
+      label: "Plain form ＋ ことから: concluding something from a fact",
+      explanation:
+        "ことから attaches to the plain form of a verb, adjective, or noun (with な/である for な-adjectives and の/である for nouns) and means 'because of the fact that ~, one can conclude/it came to be that...'. It is often used when the speaker is inferring or judging something based on an observed fact, rather than simply describing a mechanical cause-and-effect chain.",
+      examples: [
+        { jp: "日本語の授業でとなりの席になったことから、わたしたちは親しくなった。", en: "Because we happened to sit next to each other in Japanese class, we became close friends." },
+        { jp: "顔がよく似ていることから、二人は親子だとすぐにわかった。", en: "Because their faces looked so much alike, it was immediately clear that the two of them were parent and child." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "道が混んでいることから、早く出発しましょう。",
+      explanation:
+        "ことから describes a fact leading to a resulting situation or conclusion — it cannot be followed by a sentence expressing the speaker's intention or a suggestion to another person like 出発しましょう. Use a plain causal form instead: 道が混んでいるから、早く出発しましょう。",
+    },
+  ],
+},
+{
+  pattern: "〜おかげだ・〜おかげで…／〜せいだ・〜せいで…",
+  lesson: 5,
+  meaning:
+    "おかげで and せいで both mean 'because of the influence of ~', but おかげで is used when the result is something good ('thanks to ~'), while せいで is used when the result is something bad ('because of ~', in a blaming sense). Neither can be followed by a sentence expressing the speaker's own hope, intention, or an attempt to induce someone else to act.",
+  uses: [
+    {
+      label: "〜おかげだ・〜おかげで: a good result thanks to something",
+      explanation:
+        "おかげで attaches to a noun with の, or to the plain form of a verb/adjective, and credits that cause with bringing about a favorable outcome. It is frequently used to express gratitude toward a person or fortunate circumstance.",
+      examples: [
+        { jp: "いい会社に就職が決まったのは先生のおかげです。ありがとうございました。", en: "The fact that I landed a job at a good company is thanks to you, teacher. Thank you very much." },
+        { jp: "天気のいい日が続いたおかげで、工事が早く終わった。", en: "Thanks to a stretch of good weather, the construction finished early." },
+      ],
+    },
+    {
+      label: "〜せいだ・〜せいで: a bad result because of something",
+      explanation:
+        "せいで attaches the same way as おかげで but is used when the outcome is negative or undesirable, often carrying a nuance of blame directed at the cause.",
+      examples: [
+        { jp: "最近忙しかったせいで、かなり疲れている。", en: "Because I've been busy lately, I'm quite exhausted." },
+        { jp: "弟のせいで、母にしかられた。", en: "Because of my younger brother, I got scolded by my mother." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生のせいで、試験に合格しました。",
+      explanation:
+        "せいで is reserved for negative/undesirable outcomes; using it for a good result like passing an exam sounds like blame instead of gratitude. For a good outcome, use おかげで instead: 先生のおかげで、試験に合格しました。",
+    },
+  ],
+},
+{
+  pattern: "〜のだから…",
+  lesson: 5,
+  meaning:
+    "〜のだから presents a fact as the natural, self-evident basis for a following judgment, request, or piece of advice, with the nuance that the listener is assumed to already know or accept this fact. The clause that follows commonly expresses the speaker's own judgment, hope, intention, or an attempt to move the listener to action — which sets it apart from purely descriptive causal patterns like 〜ため or 〜によって.",
+  uses: [
+    {
+      label: "Using an assumed shared fact to justify a judgment or request",
+      explanation:
+        "のだから attaches to the plain form (with な for な-adjectives/nouns) and means 'since it is a fact that ~, naturally...'. Because the fact is treated as something the listener should already be aware of, this pattern often carries a slightly insistent or reproachful tone, and it is frequently followed by advice, a warning, or a statement of the speaker's own conclusion or intention.",
+      examples: [
+        { jp: "世界は広いのだから、いろいろな習慣があるのは当然だ。", en: "Since the world is such a big place, it's only natural that there are all kinds of customs." },
+        { jp: "あなたはけがをしているんだから、無理をしてはいけませんよ。", en: "Since you're injured, you mustn't push yourself too hard." },
+        { jp: "笑わないでください。真剣にやっているんですから。", en: "Please don't laugh. I'm doing this seriously, after all." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "雨が降っているのだから、傘を持っている。",
+      explanation:
+        "のだから is meant to lead into a judgment, piece of advice, or an appeal to the listener, not a plain neutral statement of fact with no follow-through. A more natural use would pair it with advice or a conclusion, e.g. 雨が降っているんだから、傘を持っていったほうがいいよ。",
+    },
+  ],
+},
+// 6課
+{
+  pattern: "〜（の）なら…",
+  lesson: 6,
+  meaning:
+    "〜（の）なら is used when the speaker makes an assumption based on information just received — something another person said, or a situation observed — and then states a judgment, intention, or request built on that assumption. It corresponds to English 'if that's the case, then ~' or 'in light of ~'.",
+  uses: [
+    {
+      label: "Reacting to information with a judgment or suggestion",
+      explanation:
+        "（の）なら attaches to the plain form of verbs and い-adjectives directly, and to な-adjectives/nouns without の (i.e., simply な or plain noun + なら), while the の is added when referring back to something already mentioned as a fact (a なら nominalized with の). It expresses that, given what the speaker has just learned from someone else's remark or from the situation, they are forming a judgment, an intention, or making a suggestion/request.",
+      examples: [
+        { jp: "その箱、もう使わないんですか。使わないならわたしにください。", en: "You're not using that box anymore? If you're not using it, please give it to me." },
+        { jp: "ああ、あしたは雨か。雨ならサイクリングには行けそうもないね。", en: "Oh, it's going to rain tomorrow? If it's going to rain, it looks like we won't be able to go cycling." },
+        { jp: "その本、読んでしまったのならわたしに貸してくれませんか。", en: "If you've already finished reading that book, could you lend it to me?" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "雨が降るなら、傘を持っていく。 (said as a general habitual truth, unconnected to any specific new information)",
+      explanation:
+        "〜（の）なら is meant to react to a specific piece of information or situation just presented, not to state a generic habitual condition unrelated to context. For a general habitual conditional, 〜たら or 〜と would be more natural: 雨が降ったら、傘を持っていく。",
+    },
+  ],
+},
+{
+  pattern: "〜ては…・〜（の）では…",
+  lesson: 6,
+  meaning:
+    "〜ては and 〜（の）では present a hypothetical or actual circumstance and state that, given it, an undesirable result can be expected. The sentence always carries a negative nuance about the outcome, and it cannot be used to express the speaker's own hope, intention, or an attempt to induce someone else to act.",
+  uses: [
+    {
+      label: "Predicting an unwanted outcome from a given situation",
+      explanation:
+        "〜ては attaches to the て-form of verbs or the て-form of い-adjectives (くて), while 〜（の）では attaches to な-adjectives (な-で), nouns (で), or the plain non-past form with の. The clause that follows describes a negative or undesirable consequence that would result if the stated circumstance holds — it is essentially saying 'given ~, you can expect a bad result like...'.",
+      examples: [
+        { jp: "山中さんは手術したばかりだから、お見舞いに行ってはかえって迷惑だろう。", en: "Mr. Yamanaka just had surgery, so visiting him now would probably just be a bother." },
+        { jp: "そんな無責任な態度ではみんなにきらわれますよ。", en: "With such an irresponsible attitude, everyone will end up disliking you." },
+        { jp: "今から家を建て始めるのでは年内にはでき上がらない。", en: "If we start building the house only now, it won't be finished within the year." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "たくさん勉強しては、試験に合格したい。",
+      explanation:
+        "〜ては leads into a clause describing an undesirable outcome, not the speaker's own hope like 合格したい (want to pass). This sentence should instead use a different connector, such as たくさん勉強すれば試験に合格したい, since 〜ては cannot express a positive intention.",
+    },
+  ],
+},
+{
+  pattern: "〜さえ〜ば…・〜さえ〜なら…",
+  lesson: 6,
+  meaning:
+    "〜さえ〜ば・〜さえ〜なら indicates the single minimum condition that must be met for something to hold true or take place — 'as long as just ~ happens, that's all it takes.' It highlights one element as sufficient on its own, implying that nothing else is really necessary.",
+  uses: [
+    {
+      label: "Naming the one minimum condition necessary for something",
+      explanation:
+        "さえ attaches to a noun, and is then followed by the conditional ば-form of a verb or い-adjective, or なら for な-adjectives/nouns. For verbs, さえ can also attach to the ます-stem followed by すれば. The overall meaning is that fulfilling just this one condition is all that is needed — everything else is treated as unnecessary or unimportant by comparison.",
+      examples: [
+        { jp: "太郎は漫画さえ読んでいれば退屈しないようだ。", en: "As long as Taro has manga to read, he never seems to get bored." },
+        { jp: "体さえ丈夫ならどんなことにも挑戦できる。", en: "As long as you have a healthy body, you can take on any challenge." },
+        { jp: "一言「ごめんなさい。」と言いさえすれば、相手は許してくれるだろう。", en: "Just saying one word, 'I'm sorry,' should be enough for the other person to forgive you." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "お金さえあるば、幸せになる。",
+      explanation:
+        "The conditional form after さえ must be the correct ば-form of the verb (ある → あれば), not the plain form with ば simply tacked on. The correct sentence is お金さえあれば、幸せになる。",
+    },
+  ],
+},
+{
+  pattern: "たとえ〜ても…・たとえ〜でも…",
+  lesson: 6,
+  meaning:
+    "たとえ〜ても・たとえ〜でも means 'even if ~, ...' — it emphasizes that even under an extreme or unfavorable hypothetical condition, the stated outcome will still hold or the stated action will still be carried out regardless.",
+  uses: [
+    {
+      label: "Emphasizing that something holds true regardless of a condition",
+      explanation:
+        "たとえ is placed before the hypothetical clause to emphasize it, and the clause itself ends in the て-form (ても for verbs, くて for い-adjectives) or で for な-adjectives/nouns, followed by も. The combination stresses that even assuming the stated (often extreme) circumstance is true, it makes no difference to the outcome that follows.",
+      examples: [
+        { jp: "たとえ周りの人たちにどんなに反対されても、ぼくはプロの歌手になりたい。", en: "Even if the people around me oppose it however strongly, I still want to become a professional singer." },
+        { jp: "たとえ高くても、仕事に必要なものは買わなければならない。", en: "Even if it's expensive, I have to buy what's necessary for work." },
+        { jp: "たとえ面倒でも、健康診断は毎年受けたほうがいいですよ。", en: "Even if it's a hassle, it's better to get a health checkup every year." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "たとえ雨が降ったら、試合を行います。",
+      explanation:
+        "たとえ must be paired with the ても/でも form, not たら. The correct form is たとえ雨が降っても、試合を行います (Even if it rains, we will hold the match)."
+    },
+  ],
+},
+{
+  pattern: "〜ば…・〜たら…・〜なら…",
+  lesson: 6,
+  meaning:
+    "This use of 〜ば・〜たら・〜なら refers to a hypothetical, unrealized situation — describing what the result would have been if a certain (untrue) condition had held. It is often paired with a clause ending in 〜た、〜のだが、or 〜のに, expressing regret or contrast with what actually happened.",
+  uses: [
+    {
+      label: "Describing an unrealized hypothetical and its would-be result",
+      explanation:
+        "The conditional form (ば for verbs/い-adjectives, なら for な-adjectives/nouns, or the past-tense plain form + ら, which is the most common form for verbs in this use) sets up a condition contrary to fact, and the following clause — often ending in た, のだが, or のに — describes what would have happened, contrasting with the way things actually turned out.",
+      examples: [
+        { jp: "お金とひまがあればわたしも海外旅行するんだけど……。", en: "If I had money and free time, I'd travel abroad too, but..." },
+        { jp: "もし寝坊していたらこの飛行機には乗れなかった。間に合ってよかった。", en: "If I had overslept, I wouldn't have been able to catch this flight. I'm glad I made it in time." },
+        { jp: "ああ、残念だ。学生なら学生割引でチケットが買えたのに……。", en: "Ah, what a shame. If I were a student, I could have bought the ticket with a student discount..." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "お金があれば、旅行します。 (intended as a regretful 'if only I had money')",
+      explanation:
+        "To express regret about an unrealized, contrary-to-fact situation, the sentence typically needs a past-oriented follow-up such as 〜のに or 〜んだけど, and often a past-tense main clause: お金があれば、旅行するんだけど（実際はない）。 Without such markers, the sentence just reads as an ordinary open hypothetical rather than one expressing regret about the way things actually are.",
+    },
+  ],
+},
+// 7課
+{
+  pattern: "〜ということだ・〜とのことだ",
+  lesson: 7,
+  meaning:
+    "〜ということだ and 〜とのことだ are used to pass along information the speaker has acquired from another source, similar to 'I hear that ~' or 'according to ~'. They are slightly more formal than 〜だそうだ, and the source of the information is often indicated with phrases like 〜では、〜によると、or 〜によれば.",
+  uses: [
+    {
+      label: "Reporting acquired information from a stated or implied source",
+      explanation:
+        "Both patterns attach to the plain form of the reported statement. 〜ということだ is commonly used when reporting information from an announcement, notice, or general source (often marked with 〜によれば or 〜では), while 〜とのことだ is often used when passing along something a specific individual said personally, and can also appear in written letters to convey news.",
+      examples: [
+        { jp: "市のお知らせによれば、この道路は来週から工事が始まるということです。", en: "According to the city's notice, construction on this road is set to begin next week." },
+        { jp: "店の人の話では、この地方の米はとてもおいしいということだ。", en: "According to what the shop staff said, the rice from this region is supposed to be very delicious." },
+        { jp: "さっき川村さんから電話がありました。今日は社に戻れないとのことです。", en: "Mr. Kawamura called just now. He says he won't be able to return to the office today." },
+        { jp: "【手紙】新しい仕事が決まったとのこと、おめでとうございます。", en: "[Letter] I hear you've settled on a new job — congratulations." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "天気予報によれば、あしたは晴れるだそうです。",
+      explanation:
+        "〜ということだ/〜とのことだ (or 〜そうだ) attaches to the plain form, and だそうです cannot be stacked directly after another だ. When quoting a plain-form prediction, the correct form is あしたは晴れるということです or あしたは晴れるそうです.",
+    },
+  ],
+},
+{
+  pattern: "〜と言われている",
+  lesson: 7,
+  meaning:
+    "〜と言われている expresses a commonly held belief or general opinion — 'it is said that ~' or 'people generally believe that ~' — rather than something one specific individual told the speaker. It reports what people in general say or think.",
+  uses: [
+    {
+      label: "Expressing a widely held belief or common saying",
+      explanation:
+        "と言われている attaches to the plain form of the reported statement and indicates that this is something 'the people of the world' generally say, rather than a specific piece of news relayed by one person. It is often used for well-known facts, popular beliefs, predictions, or common sayings.",
+      examples: [
+        { jp: "今年は黒い服が流行すると言われている。", en: "It's said that black clothing will be in fashion this year." },
+        { jp: "納豆は体にいいと言われている。", en: "Natto is said to be good for your health." },
+        { jp: "今度の大会では中川選手が優勝するだろうと言われています。", en: "It is said that Nakagawa is likely to win the upcoming competition." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "田中さんは来月結婚すると言われている。 (when this was told directly and personally by Tanaka, not a general rumor)",
+      explanation:
+        "と言われている is for widely held general beliefs or common knowledge, not for a specific piece of news told to the speaker by one person. If Tanaka personally told the speaker, a form like 田中さんから聞いたんですが、来月結婚するそうです or 結婚するとのことです is more appropriate.",
+    },
+  ],
+},
+{
+  pattern: "〜とか",
+  lesson: 7,
+  meaning:
+    "〜とか is a casual way to say 'I heard that ~', used when the information comes from unconfirmed hearsay — gossip, rumor, or something vaguely remembered — and the speaker is not fully confident in its accuracy.",
+  uses: [
+    {
+      label: "Passing along unconfirmed hearsay",
+      explanation:
+        "とか attaches to the plain form of the reported statement and signals that the speaker heard this somewhere but isn't entirely sure it's accurate. It's often used in casual conversation to bring up a topic before asking a follow-up question, or just to comment on something heard secondhand.",
+      examples: [
+        { jp: "来月また出張だとか。今度はどちらに行かれるんですか。", en: "I heard you're going on another business trip next month. Where will you be going this time?" },
+        { jp: "お宅ではいろいろな動物を飼っているとか。にぎやかでしょうね。", en: "I heard your household keeps all sorts of animals. It must be lively there." },
+        { jp: "あの店のパンはとてもおいしいとか。今日、帰りに買って帰ります。", en: "I heard the bread at that shop is really delicious. I'll buy some on my way home today." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "市役所の公式発表によれば、来月から新しい制度が始まるとか。",
+      explanation:
+        "とか is meant for vague, unconfirmed hearsay, so it clashes with a clearly authoritative, official source like 市役所の公式発表. For official/confirmed information, use ということだ or そうだ instead: 市役所の公式発表によれば、来月から新しい制度が始まるということだ。",
+    },
+  ],
+},
+{
+  pattern: "〜って",
+  lesson: 7,
+  meaning:
+    "〜って is a colloquial, casual equivalent of と used to report what someone said or heard. The verb that would normally follow (言っている, 聞いた, etc.) is frequently dropped in casual speech, and って can even be tacked directly onto the end of a whole quoted statement.",
+  uses: [
+    {
+      label: "Casually reporting speech, often with the reporting verb omitted",
+      explanation:
+        "って attaches to the plain form of the reported statement, functioning just like と in 〜と言っている・〜と聞いた, but in a distinctly casual, spoken register. In casual conversation, the verb after って (言っている, 聞いた, etc.) is very often omitted, letting って alone carry the sense of 'I heard/they said that ~.' って can also be attached directly to the end of an entire quoted sentence, including one someone else just said.",
+      examples: [
+        { jp: "小川さん、今日は休むって言ってたよ。", en: "Ogawa said he's taking today off." },
+        { jp: "佐藤さんの奥さんは料理の先生だって。", en: "I heard Sato's wife is a cooking teacher." },
+        { jp: "駅前にタイ料理のレストランができたんだって。行ってみようよ。", en: "I heard a Thai restaurant opened in front of the station. Let's go check it out." },
+        { jp: "山川君、先生が教員室まで来てくださいって。", en: "Yamakawa, the teacher says please come to the staff room." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生は明日テストがありますって、みんなに伝えてください。 (used in a formal written notice)",
+      explanation:
+        "って is a very casual, spoken form and sounds out of place in formal writing or formal announcements. In a formal context, ということだ or とのことだ should be used instead: 先生は明日テストがあるということです、皆さんに伝えてください。",
+    },
+  ],
+},
+{
+  pattern: "〜という",
+  lesson: 7,
+  meaning:
+    "〜という is a slightly more formal, written-language alternative to 〜だそうだ, used to relay information — often historical facts, traditions, or things passed down — without directly citing a specific speaker.",
+  uses: [
+    {
+      label: "Relaying information in a formal, written register",
+      explanation:
+        "という attaches to the plain form of the reported statement and functions much like だそうだ, but leans toward written or narrative styles, such as describing local history, legends, or traditions passed down over time.",
+      examples: [
+        { jp: "この辺りは昔、広い野原だったという。", en: "This area is said to have once been a vast field." },
+        { jp: "この祭りは村で古くから行われてきたという。", en: "This festival is said to have been held in the village since ancient times." },
+        { jp: "豆腐は1300年ぐらい前に中国から日本に伝わったという。", en: "Tofu is said to have been brought to Japan from China roughly 1300 years ago." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "ねえ、聞いた?彼、来月結婚するというよ。 (in very casual spoken conversation among friends)",
+      explanation:
+        "〜という leans formal/written and sounds stiff in casual chit-chat between friends. In casual speech, って or そうだ would sound much more natural: 彼、来月結婚するんだって。",
+    },
+  ],
+},
+// 8課
+{
+  pattern: "〜はずがない・〜わけがない",
+  lesson: 8,
+  meaning:
+    "〜はずがない and 〜わけがない both mean 'there's no way that ~' or 'it's definitely not the case that ~', expressing the speaker's strong conviction in denying something, based on their own confident reasoning or evidence.",
+  uses: [
+    {
+      label: "Strongly denying a possibility based on the speaker's conviction",
+      explanation:
+        "はずがない・わけがない attach to the plain form (with な for な-adjectives, or の/である for nouns) and express a firm, confident denial — 'definitely not ~'. Unlike a simple ない negation, this pattern conveys that the speaker has strong grounds, based on known facts or reasoning, for ruling something out entirely.",
+      examples: [
+        { jp: "ちゃんと約束したんだから、彼が来ないはずがない。どうしたのかなあ。", en: "We made a firm promise, so there's no way he wouldn't come. I wonder what happened." },
+        { jp: "国家試験なのだから易しいはずがない。がんばらなくては……。", en: "It's a national exam, so there's no way it's easy. I have to work hard..." },
+        { jp: "こんな大きい家、わたしに買えるわけがないでしょう。", en: "There's no way I could afford to buy such a big house." },
+        { jp: "試合に勝つために練習しているのだ。練習がきびしくないわけがない。", en: "We're practicing in order to win the match. There's no way the practice wouldn't be tough." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "彼が来ないはずがないかもしれない。",
+      explanation:
+        "はずがない already expresses a very strong, confident denial, so pairing it with かもしれない (which expresses uncertainty) creates a contradiction. If there is genuine uncertainty, drop はずがない and simply say 彼は来ないかもしれない, or keep the strong denial as is: 彼が来ないはずがない。",
+    },
+  ],
+},
+{
+  pattern: "〜とは限らない",
+  lesson: 8,
+  meaning:
+    "〜とは限らない means 'it is not necessarily the case that ~' — it denies that something is always or absolutely true, while acknowledging there may be exceptions. It's often used together with words like みんな, いつも, だれでも, or 必ず.",
+  uses: [
+    {
+      label: "Denying an absolute rule while allowing for exceptions",
+      explanation:
+        "とは限らない attaches to the plain form (だ for な-adjectives/nouns is optional and often included) and expresses that a generalization does not hold in every case — there can be exceptions. It frequently appears alongside words emphasizing totality, like みんな (everyone), いつも (always), だれでも (anyone), and 必ず (surely), precisely to soften or contradict such absolute claims.",
+      examples: [
+        { jp: "この歌は古くから歌われているが、日本人がみんな知っているとは限らない。", en: "This song has been sung for a long time, but that doesn't mean all Japanese people know it." },
+        { jp: "値段が高いものが必ず質がいいとは限らない。", en: "Expensive things aren't necessarily good quality." },
+        { jp: "旅行中にけがをしないとは限りません。保険に入っておいたほうがいいですよ。", en: "It's not guaranteed that you won't get injured while traveling. You'd better get insurance." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "そのニュースは本当だとは限らない。だから、絶対にうそだ。",
+      explanation:
+        "とは限らない only says that something is not necessarily true — it leaves open the possibility that it IS true, it does not assert the opposite. It's a logical error to conclude 絶対にうそだ (it's definitely false) from とは限らない; a more consistent follow-up would be だから、本当かどうかわからない。",
+    },
+  ],
+},
+{
+  pattern: "〜わけではない・〜というわけではない・〜のではない",
+  lesson: 8,
+  meaning:
+    "These forms mean 'it's not that ~' — used when the surrounding circumstances might suggest one thing, but the actual facts are somewhat different. Crucially, only the part of the statement marked by わけではない/のではない is being denied; the rest of what might be implied is not necessarily false.",
+  uses: [
+    {
+      label: "Denying a specific implication while leaving the rest true",
+      explanation:
+        "わけではない attaches to the plain form (with な for な-adjectives, の/である for nouns); というわけではない attaches similarly but with だ included for な-adjectives/nouns; のではない attaches to the plain form with な for な-adjectives/nouns. All three correct a mistaken impression that circumstances might create, by specifically denying just the part in question — not making a blanket denial of everything related to the situation.",
+      examples: [
+        { jp: "長い間本をお借りしたままでしたが、忘れていたわけではありません。", en: "I've had your book borrowed for a long time, but it's not that I forgot about it." },
+        { jp: "この仕事が好き（だ）というわけではないが、彼といっしょに仕事ができて楽しい。", en: "It's not that I particularly like this job, but I enjoy being able to work together with him." },
+        { jp: "転勤するのではありません。会社を辞めるんです。", en: "It's not that I'm being transferred. I'm quitting the company." },
+        { jp: "A「いい帽子ね。高かったでしょう。」B「これは買ったんじゃないの。自分で作ったの。」", en: "A: \"Nice hat. It must have been expensive.\" B: \"It's not that I bought this. I made it myself.\"" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "毎日電話に出られるわけではない、だから、絶対に電話に出られない。",
+      explanation:
+        "わけではない denies only the specific part stated (always being able to answer), it does not mean the complete opposite (never being able to answer). The correct nuance is 'not always, but sometimes yes' — e.g. いつでも電話に出られるわけではありませんが、たいてい出られます。",
+    },
+  ],
+},
+{
+  pattern: "〜ないことはない",
+  lesson: 8,
+  meaning:
+    "〜ないことはない is a double-negative construction meaning 'it's not that it never happens' or 'it's not impossible' — used to mildly, indirectly affirm something rather than stating it outright as a strong positive.",
+  uses: [
+    {
+      label: "Mildly affirming something through a double negative",
+      explanation:
+        "ないことはない attaches to the ない-form of verbs, the negative stem of い-adjectives (くない), or でない for な-adjectives/nouns. By negating a negative, the speaker softens what would otherwise be a plain, confident affirmation, often to add a nuance of reluctance, reservation, or a hedge (e.g. 'it's possible, but...' or 'I can, but it's not ideal').",
+      examples: [
+        { jp: "ここから駅まで歩けないことはありませんが、かなり時間がかかりますよ。", en: "It's not that you can't walk from here to the station, but it takes quite a while." },
+        { jp: "この店のカレーもおいしくないことはないが、わたしはもっと辛いのが好きだ。", en: "It's not that this shop's curry isn't tasty, but I like something spicier." },
+        { jp: "試験の結果が心配でないことはないのですが、今は終わってほっとしています。", en: "It's not that I'm not worried about the exam results, but I'm relieved it's over for now." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "彼はやさしくないことはないです。とても親切です。",
+      explanation:
+        "ないことはない carries a hedging, mild nuance ('not entirely un-kind, but...'), so following it with an unreservedly strong positive statement like とても親切です creates a mismatch in tone. If the intent is a strong, confident compliment, just say 彼はやさしいです、とても親切です without the double negative.",
+    },
+  ],
+},
+{
+  pattern: "〜ことは〜が、…",
+  lesson: 8,
+  meaning:
+    "〜ことは〜が means 'it is true that ~, but ...' — the speaker first concedes that a certain fact holds by repeating the same verb/adjective before ことは, but then follows with a が-clause that qualifies it, implying that this fact isn't so important or that there's more to the story.",
+  uses: [
+    {
+      label: "Conceding a fact, then qualifying it with が",
+      explanation:
+        "The same verb or adjective is repeated: [plain form] + ことは + [same verb/adjective in plain or polite form] + が, .... The repetition acknowledges that the stated fact is indeed true, but the が-clause that follows adds a qualification, contrast, or reservation, implying the fact alone doesn't tell the whole picture or isn't as significant as it might seem.",
+      examples: [
+        { jp: "彼からの手紙は読んだことは読んだんですが、意味がよくわかりませんでした。", en: "It's true that I did read the letter from him, but I didn't really understand its meaning." },
+        { jp: "わたしは泳げることは泳げますが、長い距離はだめなんです。", en: "It's true that I can swim, but I can't manage long distances." },
+        { jp: "この本は高いことは高いが、写真が多くて楽しめそうだ。", en: "It's true that this book is expensive, but it has lots of photos and looks enjoyable." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "この本は高いことは安いが、写真が多い。",
+      explanation:
+        "The verb/adjective before ことは and after it must be the same word — you can't concede one thing (高い, expensive) and then repeat a different, contradictory word (安い, cheap). The correct form repeats the identical word: この本は高いことは高いが、写真が多い。",
+    },
+  ],
+},
+// 9課 〜と望む
+{
+  pattern: "〜てもらいたい・〜ていただきたい・〜てほしい",
+  lesson: 9,
+  meaning:
+    "This pattern expresses the speaker's hope or wish that someone else will do something (or refrain from doing something) that benefits the speaker or affects them. It is used both to describe a wish about a third party and, when addressed directly to the listener, functions almost the same as てください／ないでください as a request.",
+  uses: [
+    {
+      label: "Wishing that another person will do / not do something",
+      explanation:
+        "Attach て form + もらいたい／いただきたい, or て form + ほしい (ない形 + ほしい for a negative wish), to express that the speaker hopes another person will perform an action as a favor or service, or hopes they will refrain from an action that would cause the speaker displeasure. いただきたい is the more polite/humble variant of もらいたい, used toward someone of higher status. In some sentences the person being asked is not clearly stated — the wish is expressed in general terms rather than as a direct request.",
+      examples: [
+        { jp: "だれかに自分の悩みを聞いてもらいたいと思うことがあります。", en: "Sometimes I wish someone would listen to my troubles." },
+        { jp: "この書類、ちょっと見ていただきたいんですが。", en: "I'd like you to take a look at this document, if you don't mind." },
+        { jp: "ずっとぼくのそばにいてほしい。遠くへ行かないでほしい。", en: "I want you to stay by my side forever. I don't want you to go far away." },
+      ],
+    },
+    {
+      label: "Directly requesting something of the listener",
+      explanation:
+        "When used to address the listener directly, 〜てもらいたい／ていただきたい／てほしい carries almost the same meaning as 〜てください／ないでください, softening a request by framing it as a personal hope rather than a direct command. This is common when asking someone not to do something that would inconvenience the speaker.",
+      examples: [
+        { jp: "この仕事はだれにも手伝ってもらいたくない。自分一人でやりたい。", en: "I don't want anyone's help with this job. I want to do it by myself." },
+        { jp: "これ以上この村の自然環境をこわさないでほしい。", en: "I don't want the natural environment of this village to be damaged any further." },
+        { jp: "年を取った親にもう無理をしてほしくない。", en: "I don't want my aging parents to overexert themselves anymore." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生、明日休みをいただきたいと言います。",
+      explanation:
+        "いただきたい already expresses the speaker's own polite wish; adding 言います on top is redundant and unnatural. Simply end the sentence with いただきたいんですが or いただきたいのですが when making the request.",
+    },
+    {
+      wrong: "田中さんに手伝ってほしくないでください。",
+      explanation:
+        "ほしい is an い-adjective-type word expressing a wish, not a verb that takes ください. To negate the wish, use the ない form of the preceding verb: 手伝わないでほしい (I don't want you to help), not てほしくないでください.",
+    },
+  ],
+},
+{
+  pattern: "〜(さ)せてもらいたい・〜(さ)せていただきたい・〜(さ)せてほしい",
+  lesson: 9,
+  meaning:
+    "This is the causative-form counterpart of 〜てもらいたい, used to express that the speaker wants to be allowed to do something themselves, or wants another person to be allowed to do something, by having someone else grant permission or arrange the situation. It is also frequently used to make a direct, polite request for permission.",
+  uses: [
+    {
+      label: "Wishing to be granted permission or have a situation arranged",
+      explanation:
+        "Attach the causative て form (せて／させて, or the negative causative ～ないで) to もらいたい／いただきたい／ほしい. Verb group I takes ない stem + せて／せないで; Group II takes ない stem + させて／させないで; Group III has 来させて／来させないで and させて／させないで. This expresses that the speaker hopes another person will allow or arrange for the speaker (or a third party) to do something, or to not have to do something. It is often used to directly express a wish or make a request to the listener.",
+      examples: [
+        { jp: "店員A「昼休みが短いよね。昼ご飯をもっとゆっくり食べさせてもらいたいね。」店員B「そうだね。店長に言ってみよう。」", en: "Clerk A: \"Our lunch break is short, isn't it. I'd like to be allowed to eat lunch more leisurely.\" Clerk B: \"Yeah, let's talk to the manager about it.\"" },
+        { jp: "今日は入管へ行かなければならないので、早く帰らせていただきたいのですが……。", en: "I have to go to the immigration office today, so I'd like to be allowed to leave early, if that's all right..." },
+        { jp: "それはさっきも説明したことだよ。何度も同じことを言わせないでもらいたいよ。", en: "I already explained that a minute ago. I wish you wouldn't make me repeat the same thing over and over." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "文化祭のポスターをわたしが作ってほしいのだが。",
+      explanation:
+        "When the speaker wants to be the one allowed to do the action themselves (rather than wanting someone else to do it), the causative form is required: わたしに作らせてほしい (I want to be allowed to make it), not the plain て form 作ってほしい, which instead means the speaker wants someone else to make it.",
+    },
+    {
+      wrong: "早く帰らさせていただきたいのですが。",
+      explanation:
+        "帰る is a Group I verb, so its causative form is 帰らせる, not 帰らさせる (the さ is only inserted for Group II verbs like 食べさせる). The correct form is 帰らせていただきたい.",
+    },
+  ],
+},
+{
+  pattern: "〜といい・〜ばいい・〜たらいい",
+  lesson: 9,
+  meaning:
+    "This pattern is used to express a hope that something will happen, where the outcome does not depend on the speaker's own will — such as hoping for good weather or good health. A related but distinct use of the same forms is to give another person mild advice or a recommendation about what they should do.",
+  uses: [
+    {
+      label: "Hoping something will happen (outcome outside speaker's control)",
+      explanation:
+        "Formed with the plain present form (only) + と, ば form / い-adjective く + ければ, な-adjective/noun + であれば, or the negative なければ, or with the plain past form + ら. This expresses 'I hope that ~ happens.' Because it expresses a hope about an outcome, it cannot be followed by words expressing the speaker's own intentional action — the event described must be something the speaker cannot directly control.",
+      examples: [
+        { jp: "先生「このクラスも今日でお別れです。いつかまたみんなで会えるといいですね。」", en: "Teacher: \"This is the last day for this class too. I hope we can all meet again someday.\"" },
+        { jp: "最近ずっと体の調子が悪い。悪い病気でなければいいが……。", en: "I haven't been feeling well lately. I hope it's not some serious illness..." },
+        { jp: "あしたは入学試験だ。がんばろう。合格できたらいいなあ。", en: "Tomorrow is the entrance exam. I'll do my best. I hope I can pass." },
+      ],
+    },
+    {
+      label: "Recommending or urging another person to do (or not do) something",
+      explanation:
+        "Using the same forms — dictionary form + と, ば form / ない form + なければ, or た form + ら, followed by いい — this usage urges another person to do or not do an action, functioning as gentle advice, similar to 'it would be good if you ~' or 'why don't you ~.'",
+      examples: [
+        { jp: "疲れているようですね。あしたはゆっくり休むといいですよ。", en: "You look tired. It would be good to rest and take it easy tomorrow." },
+        { jp: "その仕事、気が進まないのなら引き受けなければいいんじゃないですか。", en: "If you're not enthusiastic about that job, isn't it fine to just not take it on?" },
+        { jp: "申込書の書き方がわからなければ、事務の人に聞いてみたらいいですよ。", en: "If you don't understand how to fill out the application form, you should try asking the office staff." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "わたしはあした試験に合格するといいと思う。(intending: 'I will make sure I pass')",
+      explanation:
+        "〜といい expresses a hope about something outside the speaker's control, so it cannot express the speaker's own intentional effort or determination. To express one's own resolve to do something, use a different pattern such as 〜ようにする or 〜つもりだ, reserving 〜といい for genuine hopes, e.g. あした試験に合格するといいなあ (I hope I pass).",
+    },
+    {
+      wrong: "山田さんが来るばいいですね。",
+      explanation:
+        "The ば form of 来る is 来れば, not 来る＋ば. Remember to conjugate the verb into its ば form (or use と／たら) before adding いい: 山田さんが来ればいいですね, or 来るといいですね.",
+    },
+  ],
+},
+
+// 10課 〜したほうがいい・〜なさい
+{
+  pattern: "命令(しろ)・禁止(〜な)",
+  lesson: 10,
+  meaning:
+    "This is the plain imperative form used to give a strong, direct command ('do ~!') and its negative counterpart, the plain prohibitive form ('don't ~!'). It is used particularly by men giving strong orders, in cheering or shouting support, and on signs or notices, and can also be used to convey commands indirectly without quotation marks.",
+  uses: [
+    {
+      label: "Forming and using the plain imperative and prohibitive",
+      explanation:
+        "The imperative is formed by changing Group I verbs to their ば-stem's e-row ending (走る→走れ), Group II verbs by dropping ます and adding ろ (降りる→降りろ, with くれる→くれ as an exception), and Group III irregularly (する→しろ, 来る→来い). The prohibitive is simply dictionary form + な. These forms express a strong command or prohibition and are used particularly by males when commanding forcefully, but are also common in cheering at sports events and on signs/notices such as warning placards, where they convey the command indirectly without direct quotation.",
+      examples: [
+        { jp: "【試合で】監督「走れ、走れ！」", en: "[At the game] Coach: \"Run, run!\"" },
+        { jp: "犬に「降りろ。」と命令した。犬は命令に従った。", en: "I ordered the dog, \"Get down.\" The dog obeyed the command." },
+        { jp: "立て札に「スピードを出すな！」と書いてある。", en: "The sign says, \"Do not speed!\"" },
+        { jp: "父は医者にお酒を飲むなと言われている。", en: "My father has been told by his doctor not to drink alcohol." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "食べろな。(intending a polite prohibition)",
+      explanation:
+        "The imperative (しろ) and the prohibitive (するな) are two separate, opposite forms — しろ commands someone TO do something, while するな forbids it. They cannot be combined; use 食べろ for a command to eat, or 食べるな to forbid eating, but never both together.",
+    },
+    {
+      wrong: "すみません、荷物を持てください。 (using 持て as if it were polite)",
+      explanation:
+        "持て is the blunt imperative form and is far too strong/rude for a polite request to a stranger or superior — it is reserved for shouted commands, sports cheering, or written warnings. For an ordinary polite request, use 持ってください instead.",
+    },
+  ],
+},
+{
+  pattern: "〜こと",
+  lesson: 10,
+  meaning:
+    "Dictionary form or ない form of a verb followed by こと is used to convey a command or prohibition in writing, especially in notices, instructions, or cautionary signs, functioning like 〜しなさい／〜してはいけない but in a more formal, impersonal written style.",
+  uses: [
+    {
+      label: "Giving written instructions, cautions, or prohibitions",
+      explanation:
+        "Attach 動詞辞書形／ない形 + こと to state a rule or instruction as if it were a heading or notice, rather than a spoken command. It is used mainly when conveying cautions or instructions in writing, such as on notice boards, in class instructions, or on warning signs, and carries the force of 'you must ~' or 'you must not ~' without sounding as harsh as a spoken imperative.",
+      examples: [
+        { jp: "【学校で】先生「レポートは来週月曜日に必ず出すこと。遅れないこと。」", en: "[At school] Teacher: \"Reports must be submitted by next Monday without fail. Do not be late.\"" },
+        { jp: "申込書を書く前に注意書きをよく読むこと。", en: "Read the notes carefully before filling out the application form." },
+        { jp: "【立て札】危ないからこの川で泳がないこと。", en: "[Sign] This river is dangerous — do not swim here." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "友だち「明日いっしょに映画に行くこと。」",
+      explanation:
+        "〜こと as a command is a formal, impersonal written style used for official notices, instructions, or rules — it sounds unnaturally stiff or bossy in casual spoken conversation between friends. For a casual suggestion, use plain speech like 明日いっしょに映画に行かない? instead.",
+    },
+    {
+      wrong: "危ないからこの川で泳がないだこと。",
+      explanation:
+        "〜こと attaches directly to the plain dictionary form or ない form of the verb, with no だ inserted before it. The correct form is simply 泳がないこと, not 泳がないだこと.",
+    },
+  ],
+},
+{
+  pattern: "〜べきだ・〜べき／〜べきではない",
+  lesson: 10,
+  meaning:
+    "This pattern expresses the speaker's opinion or judgment that something is the proper or correct thing to do (or not do) — 'should ~' / 'should not ~' — rather than describing a fixed rule. Used in the past tense, it can also express regret or second thoughts about something that was not done.",
+  uses: [
+    {
+      label: "Stating what one should or should not do as a matter of opinion",
+      explanation:
+        "Attach dictionary form + べきだ／べきではない (the exception is する, which becomes するべきだ or すべきだ), or dictionary form + べき + noun to modify a noun. This expresses that doing (or not doing) something is a matter of course according to the speaker's own judgment or values, not a rule that is already fixed. In the past tense (べきだった), it expresses regret or reflection that something should have been done but wasn't.",
+      examples: [
+        { jp: "これは大事なことですから、もう少し話し合ってから決めるべきだと思いますよ。", en: "This is an important matter, so I think we should discuss it a bit more before deciding." },
+        { jp: "せっかく入った会社なのだから、簡単に辞めるべきではない。", en: "Since you worked hard to get into that company, you shouldn't quit so easily." },
+        { jp: "あしたまでのレポートがまだ書き終わらない。もっと早くから始めるべきだった。", en: "I still haven't finished the report due tomorrow. I should have started on it earlier." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "二十歳になっていない人はお酒を飲むべきではありません。(describing a legal rule)",
+      explanation:
+        "べきではない expresses the speaker's subjective opinion about what is proper, not a fixed legal rule. For an actual law or regulation, use 〜てはいけない or 〜ことになっている instead: 二十歳になっていない人はお酒を飲んではいけません, reserving べきではない for personal judgment calls.",
+    },
+    {
+      wrong: "彼女はきれいべきだ。",
+      explanation:
+        "べきだ attaches only to the dictionary (plain) form of a verb, not to an adjective or noun directly. べきだ cannot follow an い-adjective like きれい in this way — べきだ is used to say someone should DO something, not to describe a state, so a sentence like this is simply not grammatical.",
+    },
+  ],
+},
+{
+  pattern: "〜たらどうか",
+  lesson: 10,
+  meaning:
+    "This pattern is used to give mild advice or a suggestion to another person, softly recommending that they take some action. It literally poses the question 'wouldn't it be better if you did ~?' and can also be used to gently criticize someone for a habitual failure to do something.",
+  uses: [
+    {
+      label: "Giving mild advice, and mild criticism for repeated inaction",
+      explanation:
+        "Attach the た form of a verb + どうか (or どうでしょうか for politeness). This is used when offering gentle advice or a recommendation, lightly urging someone toward a certain action, equivalent to 'it would be good to ~.' It can also be used to criticize another person for consistently failing to do something the speaker feels they should have done.",
+      examples: [
+        { jp: "体のことが心配なら、一度健康診断を受けたらどうでしょうか。", en: "If you're worried about your health, why don't you get a checkup sometime?" },
+        { jp: "疲れているみたいですね。少し休んだらどうですか。", en: "You seem tired. Why don't you rest a little?" },
+        { jp: "悪いのはそっちです。一言謝ったらどうですか。", en: "You're the one in the wrong. Why don't you at least apologize?" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生に一度質問するたらどうですか。",
+      explanation:
+        "〜たらどうか attaches to the plain past (た) form of the verb, so する becomes したら, not するたら. The correct sentence is 先生に一度質問したらどうですか.",
+    },
+    {
+      wrong: "Using 〜たらどうですか toward one's boss to suggest they change a business decision.",
+      explanation:
+        "〜たらどうか is a fairly casual/direct way of giving advice and can sound presumptuous or even critical toward a superior, especially regarding decisions rather than personal habits. Toward someone of higher status, a softer suggestion such as 〜（の）はいかがでしょうか is more appropriate.",
+    },
+  ],
+},
+
+// 11課 〜(よ)うと思う
+{
+  pattern: "〜ことにする・〜ことにしている",
+  lesson: 11,
+  meaning:
+    "〜ことにする expresses that the speaker has decided to do (or not do) something — a decision, often made by the speaker themselves. 〜ことにしている, using the ている form, indicates that the speaker has made that decision and continues to uphold it as an ongoing personal policy or habit.",
+  uses: [
+    {
+      label: "Deciding to do / not do something",
+      explanation:
+        "Attach dictionary form／ている form／ない form of a verb + ことにする. This is most often used in the past tense ことにした to report a decision that has already been made, and expresses 'I decided to ~.' It can also express a decision made on the spot, in the moment of speaking. ～ is a verb expressing intentional action, since こと to する describes deciding on a course of one's own behavior.",
+      examples: [
+        { jp: "冷蔵庫がこわれたので、新しいのを買うことにした。", en: "The refrigerator broke, so I decided to buy a new one." },
+        { jp: "口を出すと怒られるので、何も言わないで黙っていることにした。", en: "I get scolded if I speak up, so I decided to keep quiet and say nothing." },
+        { jp: "娘「お父さん、今度の休みにディズニーランドに連れていってよ。」父「よし、わかった。じゃ、友だちとゴルフに行く約束は断ることにするよ。」", en: "Daughter: \"Dad, take me to Disneyland on the next day off.\" Father: \"All right, got it. Then I'll cancel my plans to go golfing with my friends.\"" },
+      ],
+    },
+    {
+      label: "Maintaining a decision as an ongoing policy or habit",
+      explanation:
+        "The form 〜ことにしている shows that a decision made earlier is still in force — it describes a standing personal rule or habit that the speaker continues to follow, rather than a one-time decision. This form is common for describing personal policies someone consistently sticks to.",
+      examples: [
+        { jp: "部長の言葉はいつもとてもきびしいが、わたしは気にしないことにしている。", en: "The department chief's words are always very harsh, but I make a policy of not letting it bother me." },
+        { jp: "わたしは毎朝ジョギングをすることにしている。", en: "I make it a rule to go jogging every morning." },
+        { jp: "うちでは日曜日は家族そろって食事をすることにしている。", en: "In our family, we make it a policy to eat together as a family on Sundays." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "来年結婚することにしていた。(intending to describe an ongoing policy)",
+      explanation:
+        "ことにしている describes a decision that is still in effect as an ongoing habit or policy, so it does not normally take the past form ことにしていた unless describing a policy that used to be followed but no longer is. For a simple one-time decision already made, use ことにした instead: 来年結婚することにした.",
+    },
+    {
+      wrong: "雨が降ることにした。",
+      explanation:
+        "ことにする expresses a decision about one's own intentional behavior, so it cannot be used with an event outside the speaker's control, like the weather. It only works with verbs describing something the speaker themselves chooses to do, e.g. 傘を持っていくことにした (I decided to bring an umbrella).",
+    },
+  ],
+},
+{
+  pattern: "〜ようにする・〜ようにしている",
+  lesson: 11,
+  meaning:
+    "〜ようにする expresses that the speaker will make an effort or take care to do (or not do) something, often as a resolution going forward. 〜ようにしている, in the ている form, shows that the speaker is continuing to make that effort as an ongoing commitment.",
+  uses: [
+    {
+      label: "Making an effort or taking care to do something",
+      explanation:
+        "Attach dictionary form／ない form of a verb + ようにする／ようにしている. This means 'to take care to ~ / not to ~,' expressing that the speaker is consciously making an effort toward a goal. When used as 〜ようにしている, as opposed to a one-time resolve, it shows that the effort is being continued over time — a sustained habit of trying, used with verbs expressing intentional action.",
+      examples: [
+        { jp: "水や電気は大切に使うようにしましょう。", en: "Let's make an effort to use water and electricity carefully." },
+        { jp: "妻「あなたの帰りが毎日遅いから、子どもたちがさびしがっているわ。」夫「そうか。これからもっと早く帰るようにするよ。」", en: "Wife: \"You come home late every day, so the kids feel lonely.\" Husband: \"I see. I'll try to come home earlier from now on.\"" },
+        { jp: "わたしはなるべく自分で料理を作って食べるようにしている。", en: "I try to cook and eat my own meals as much as possible." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "毎朝6時に起きるようにした。(intending an ongoing habit still in effect today)",
+      explanation:
+        "To describe an effort that is being maintained continuously as a habit, the ている form ようにしている is needed, not the plain past ようにした, which instead suggests the effort was made at a specific point and is not necessarily continuing. For an ongoing habit, say 毎朝6時に起きるようにしている.",
+    },
+    {
+      wrong: "電車が遅れないようにしてください。",
+      explanation:
+        "ようにする expresses a conscious effort by an intentional agent, so it doesn't fit with events the listener cannot control, like a train being late. It is more natural with actions the addressee can actually make an effort toward, e.g. 遅刻しないようにしてください (please make an effort not to be late yourself).",
+    },
+  ],
+},
+{
+  pattern: "〜(よ)うとする",
+  lesson: 11,
+  meaning:
+    "This pattern describes someone attempting or trying to do something, often emphasizing the moment just before an action, or — in the negative — a complete lack of willingness to do it. The subject performing the action described by 〜（よ）うとする is typically someone other than the speaker.",
+  uses: [
+    {
+      label: "Trying to do something / being on the verge of doing something",
+      explanation:
+        "Attach the volitional (う・よう) form of a verb + とする. This means 'to try to ~' and can also express that the subject is just about to do something, capturing the instant right before an action takes place. In the negative form (〜（よ）うとしない), it expresses that the subject has no intention whatsoever of doing the action — usually said about someone other than the speaker.",
+      examples: [
+        { jp: "あの子は一生けんめい手を伸ばして、テーブルの上のおもちゃを取ろうとしている。", en: "That child is stretching out their hand with all their might, trying to grab the toy on the table." },
+        { jp: "家を出ようとしたとき、突然大雨が降り出した。", en: "Just as I was about to leave the house, it suddenly started pouring rain." },
+        { jp: "いくら勧めても夫は病院へ行こうとしない。", en: "No matter how much I urge him, my husband has absolutely no intention of going to the hospital." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "わたしは食べようとします。(intending 'I will try to eat')",
+      explanation:
+        "〜（よ）うとする most naturally describes an attempt at a specific past or ongoing moment (〜とした／〜としている), or a subject's general unwillingness in the negative — it sounds odd as a plain non-past statement about the speaker's own future intent. To state one's own intention to try something going forward, 〜てみる or 〜ようにする often fit better, e.g. 食べてみます.",
+    },
+    {
+      wrong: "重い荷物を持ち上げるとしたら、腰が痛くなった。",
+      explanation:
+        "〜（よ）うとする requires the volitional form of the verb (持ち上げよう), not the dictionary form + としたら. The correct sentence is 重い荷物を持ち上げようとしたら、腰が痛くなってしまった (When I tried to lift the heavy luggage, my back started to hurt).",
+    },
+  ],
+},
+{
+  pattern: "〜つもりだ",
+  lesson: 11,
+  meaning:
+    "〜つもりだ expresses the speaker's own intention or plan to do something. A special, distinct usage of the same form with a な-adjective, noun, or past-tense verb expresses that the speaker feels a certain way about themselves — 'this is at least how I see it about myself' — even if reality or others' perceptions may differ, which can carry a critical or self-justifying nuance.",
+  uses: [
+    {
+      label: "Stating one's own plan or intention",
+      explanation:
+        "Attach dictionary form／ない form of a verb + つもりだ to state a plan or intention: 'I intend to ~.' This is the everyday use of つもりだ for expressing one's future plans or resolve.",
+      examples: [
+        { jp: "わたしは今年77歳ですが、まだまだ若いつもりです。", en: "I'm 77 years old this year, but I still consider myself young." },
+        { jp: "じょうだんで言ったつもりの言葉だったが、彼は怒ったような顔をした。", en: "I meant it as a joke, but he looked as though he was angry." },
+      ],
+    },
+    {
+      label: "Expressing one's own self-image, possibly contrary to reality (な-adjective/noun/past form + つもりだ)",
+      explanation:
+        "When つもりだ attaches to a な-adjective (〜な), a noun (〜の), or the past tense of a verb (rather than the dictionary/ない form used for plans), it expresses 'this is how I feel about myself/consider myself to be,' even though in reality things may be otherwise, or other people may not see it the same way. This usage can carry a nuance of criticizing the listener when used about someone else's mistaken self-image, as in 'you think you did it thoroughly, but you didn't.'",
+      examples: [
+        { jp: "先に入社した由美は先輩のつもりらしいが、本当はわたしの方が年上なのだ。", en: "Yumi, who joined the company earlier, seems to think of herself as my senior, but actually I'm older than her." },
+        { jp: "こんなに汚いのに、それでも掃除したつもりでいるの？", en: "It's this dirty, and you still think you actually cleaned it?" },
+        { jp: "この靴下はていねいに洗濯したつもりだが、まだ完全にはきれいになっていない。", en: "I thought I had washed these socks carefully, but they still aren't completely clean." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "来年日本へ行くつもりでした。(when the plan is still current)",
+      explanation:
+        "つもりでした (past tense) implies the plan has since changed or fallen through. If the plan to go to Japan next year still stands, use the plain non-past form: 来年日本へ行くつもりです.",
+    },
+    {
+      wrong: "この靴下はきれいなつもりです。(confusing the noun-modifying and self-image uses)",
+      explanation:
+        "This confuses two different meanings — a straightforward description of a state (きれいだ, 'is clean') should not be forced into つもりだ just because the sentence uses a な-adjective. The self-image use of な-adjective/noun + つもりだ is reserved for describing how the speaker sees themselves or their own effort, e.g. きれいに洗ったつもりだ (I meant to/thought I had washed it clean), not for plainly describing an object's actual state.",
+    },
+  ],
+},
+
+// 12課 敬語
+{
+  pattern: "尊敬語 (Respectful language)",
+  lesson: 12,
+  meaning:
+    "尊敬語 is respectful language used to describe the actions, states, or belongings of a person of higher status than the speaker (such as a teacher, customer, or superior) — never the speaker's own actions. It elevates the other person by using special respectful verb forms, the 〜れる／られる passive-form pattern, お／ご＋stem＋になる, or entirely irregular special respectful verbs.",
+  uses: [
+    {
+      label: "General respectful verb patterns: 〜れる／られる and お／ご〜になる",
+      explanation:
+        "Ordinary verbs can be made respectful using the passive/potential-form ending (話す→話される, 出席する→出席される) or the pattern お／ご＋ます-stem＋になる (お書きになる, ご連絡になる). These forms replace plain verbs (or 〜てください for polite requests, and 〜だ for nouns/copula, e.g. 会長でいらっしゃる) when talking about a superior's actions, state, or requests made to them, such as こちらにお名前をお書きください or 会長でいらっしゃいます.",
+      examples: [
+        { jp: "今日は何時ごろお帰りになりますか。", en: "About what time will you be heading home today? (respectful, of a superior)" },
+        { jp: "何年に大学をご卒業になったのですか。", en: "What year did you graduate from university? (respectful)" },
+        { jp: "明日の会議には出席されますか。", en: "Will you be attending tomorrow's meeting? (respectful)" },
+      ],
+    },
+    {
+      label: "Irregular special respectful verbs",
+      explanation:
+        "A set of very common verbs have their own entirely irregular respectful forms rather than following the regular patterns above: 行く／来る／いる → いらっしゃる／おいでになる; する → なさる; 見る → ごらんになる; 食べる／飲む → 召し上がる; 言う → おっしゃる; 知っている → ご存じだ. These irregular forms are used constantly in everyday polite speech about a superior's actions, and 〜ている forms of ordinary verbs become 〜ていらっしゃる (住んでいらっしゃる, 研究していらっしゃる) and 〜てくれる becomes 〜てくださる (書いてくださいました).",
+      examples: [
+        { jp: "いつわたしの国へいらっしゃいましたか。／いつわたしの国へおいでになりますか。", en: "When did you come to my country? (respectful, for 来る)" },
+        { jp: "和食を召し上がります。お酒も召し上がります。", en: "You eat Japanese food. You drink alcohol too. (respectful, for 食べる・飲む)" },
+        { jp: "あの方をご存じですか。", en: "Do you know that person? (respectful, for 知っている)" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "わたしは明日ご出席になります。",
+      explanation:
+        "尊敬語 is used exclusively for the actions of someone of higher status, never for the speaker's own actions — using it about oneself is a common and quite awkward beginner mistake, since it accidentally elevates the speaker. To describe one's own action politely, use plain polite form instead: わたしは明日出席します.",
+    },
+    {
+      wrong: "先生はもうご飯を食べられましたか。 (intending maximum politeness)",
+      explanation:
+        "While 食べられる (the 〜れる／られる respectful form) is grammatically valid, it is easily confused with the passive or potential form and sounds less polished than the dedicated irregular respectful verb 召し上がる. For a teacher or customer, 召し上がりましたか is the more natural, unambiguous choice.",
+    },
+  ],
+},
+{
+  pattern: "謙譲語1 (Humble language 1)",
+  lesson: 12,
+  meaning:
+    "謙譲語1 is humble language used to describe the speaker's own actions when those actions involve or affect a person of higher status — for example, borrowing something from a teacher or visiting a superior. By lowering the speaker's own action, it indirectly shows respect toward the other person who is affected by that action.",
+  uses: [
+    {
+      label: "Humbling one's own actions that involve a superior",
+      explanation:
+        "This category covers verbs and patterns describing something the speaker does to, for, or in relation to a person of higher status: general humble verb forms like お／ご＋ます-stem＋する (お借りする, ご案内する) or the potential form used humbly (お見せできません), plus a group of entirely irregular special humble verbs: もらう（〜てもらう）→ 〜ていただく; 見る → 拝見する; 言う → 申し上げる; 聞く／訪ねる → 伺う; 会う → お目にかかる; あげる → さしあげる. These are used specifically when the speaker's action has a superior as its target or beneficiary.",
+      examples: [
+        { jp: "（先生の）ご本をお借りします。（先生を）会場へご案内いたします。", en: "I will borrow your (the teacher's) book. I will show you (the teacher) to the venue." },
+        { jp: "（先生に）ちょっと伺いますが……。", en: "May I ask you (the teacher) something..." },
+        { jp: "あした3時に（先生の）お宅に伺います。", en: "I will visit your (the teacher's) home at 3 o'clock tomorrow." },
+        { jp: "（先生に）お礼を申し上げます。", en: "I would like to express my thanks to you (the teacher)." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生、あしたわたしのうちに伺ってください。",
+      explanation:
+        "伺う is 謙譲語1 — it describes the speaker's own humble action toward a superior, and can never be used to describe the superior's own action. To ask a teacher to visit, use respectful language instead: 先生、あしたわたしのうちにいらっしゃってください／おいでください。",
+    },
+    {
+      wrong: "友だちの本を拝見します。 (about a same-status friend, not a superior)",
+      explanation:
+        "謙譲語1 forms like 拝見する are reserved for actions involving someone of higher status than the speaker; using them about an ordinary friend of equal status sounds oddly overly formal and out of place. For a friend, plain or simple polite language is enough: 友だちの本を見ます。",
+    },
+  ],
+},
+{
+  pattern: "謙譲語2 (Humble language 2)",
+  lesson: 12,
+  meaning:
+    "謙譲語2 is humble language used to describe the speaker's own actions politely and modestly in general, regardless of whether a person of higher status is directly involved — it simply lowers the speaker's own behavior to sound humble and formal, often used when speaking to a broad or unspecified audience, such as in self-introductions or formal announcements.",
+  uses: [
+    {
+      label: "Politely humbling one's own general actions",
+      explanation:
+        "This category consists of another set of irregular special humble verbs used to describe the speaker's own actions/state modestly, without necessarily implying the action is directed at a superior: 来る／行く → 参る; いる → おる; する → いたす; 食べる／飲む → いただく; 言う → 申す; 知っている → 存じておる／存じる; 思う → 存じる. These are common in formal self-introductions, business speech, and announcements about oneself.",
+      examples: [
+        { jp: "あした3時に参ります。", en: "I will come/go at 3 o'clock tomorrow." },
+        { jp: "山中と申します。", en: "My name is Yamanaka." },
+        { jp: "刺身も日本酒もいただきます。", en: "I will have both the sashimi and the sake." },
+        { jp: "行き先はよく存じております。", en: "I know the destination well." },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生も明日パーティーに参りますか。",
+      explanation:
+        "参る is 謙譲語2, used only for the speaker's own humble action — it cannot be used to ask about or describe another person's (especially a superior's) action. To ask whether the teacher is coming, use respectful language: 先生も明日パーティーにいらっしゃいますか／おいでになりますか。",
+    },
+    {
+      wrong: "リーさんは台湾からの留学生と申します。",
+      explanation:
+        "申す is humble language for describing one's own action of saying/being named, so it should not be used to describe a third person's name from the speaker's own perspective when introducing someone else formally in this way — for oneself it's 私はリーと申します, but describing another person's name neutrally would use 〜といいます or 〜です, e.g. リーさんは台湾からの留学生です。",
+    },
+  ],
+},
+{
+  pattern: "丁寧語 (Polite language)",
+  lesson: 12,
+  meaning:
+    "丁寧語 is polite language used to make speech sound refined and formal without regard to hierarchy or relationship between speaker and listener — unlike 尊敬語 and 謙譲語, it doesn't raise or lower anyone, it just makes the statement itself sound more polished, and is typically used by shop staff or in formal announcements.",
+  uses: [
+    {
+      label: "Making general statements sound polished, regardless of who is involved",
+      explanation:
+        "丁寧語 uses special polite verb forms such as ございます (the polite form of だ／である) and ございます (the polite form of ある), attaching to nouns or describing existence in a refined way. Unlike respectful or humble language, これらの形 do not depend on the relative status of the people involved in the sentence — they are used to make any statement sound more elegant and formal, commonly heard from shop or service staff speaking to customers.",
+      examples: [
+        { jp: "これは新製品でございます。", en: "This is a new product." },
+        { jp: "パソコン用品は3階にございます。", en: "Computer supplies are on the third floor." },
+        { jp: "店員「あ、牛乳ですか。牛乳はあそこのパン売り場のとなりにございます。」", en: "Clerk: \"Oh, milk? The milk is right next to the bread section over there.\"" },
+      ],
+    },
+  ],
+  commonMistakes: [
+    {
+      wrong: "先生は明日パーティーにございます。 (intending to describe the teacher's presence respectfully)",
+      explanation:
+        "ございます is 丁寧語 for ある／だ, used to politely describe things or facts in general — it is not used to describe a person's presence, especially not a superior's, which requires respectful language instead: 先生は明日パーティーにいらっしゃいます／おいでになります。",
+    },
+    {
+      wrong: "わたしはこれから帰りますでございます。",
+      explanation:
+        "でございます replaces だ／です entirely as its own polite copula; it cannot be tacked onto an already-conjugated verb ending like 帰ります. Either say 帰ります on its own, or use でございます only after a noun, e.g. わたしは山中でございます。",
+    },
+  ],
+},
   ],
   N2: [
   ],
