@@ -250,6 +250,16 @@
       flipped: false,
     },
     grammar: { items: [], selectedIndex: null },
+    kanjiWrite: {
+      level: "all",
+      lessons: [],
+      isolateMode: false,
+      queue: [],
+      current: null,
+      revealed: false,
+      masteredCount: 0,
+      totalCount: 0,
+    },
   };
 
   // ---------- view tabs ----------
@@ -279,6 +289,7 @@
       if (target === "exam" && window.JPStudyExam && typeof window.JPStudyExam.onTabShow === "function") {
         window.JPStudyExam.onTabShow();
       }
+      if (target === "kanjiwrite" && typeof kwOnTabShow === "function") kwOnTabShow();
     });
   });
   moveTabIndicator(document.querySelector(".tab.active"));
@@ -594,6 +605,283 @@ resetProgressBtn.addEventListener("click", () => {
 
   renderLessonChips(state.flashcards.level);
   startSession();
+
+  // ---------- kanji writing practice ----------
+  // Same word pool as flashcards, filtered down to entries that actually
+  // have a kanji form to draw (pure-kana entries like サンドイッチ or もらう
+  // have nothing to write), tested by recalling the kanji from its reading
+  // alone and self-graded against a reveal — there's no OCR, so "correct"
+  // is on the honor system, same as flashcards' knew-it/didn't-know-it.
+  const KANJI_PROGRESS_KEY = "jpstudy_kanji_progress_v1";
+  let kanjiProgressStore = {};
+  try {
+    kanjiProgressStore = JSON.parse(localStorage.getItem(KANJI_PROGRESS_KEY) || "{}");
+  } catch (e) {
+    kanjiProgressStore = {};
+  }
+  function saveKanjiProgress() {
+    try {
+      localStorage.setItem(KANJI_PROGRESS_KEY, JSON.stringify(kanjiProgressStore));
+    } catch (e) {
+      /* ignore — progress simply won't persist this session */
+    }
+  }
+  function getKwStats(item) {
+    return kanjiProgressStore[wordId(item)] || {};
+  }
+  function isKwWeak(item) {
+    return !!getKwStats(item).weak;
+  }
+  function isKwMastered(item) {
+    return !!getKwStats(item).mastered;
+  }
+  function recordKwResult(item, correct) {
+    const id = wordId(item);
+    const stats = kanjiProgressStore[id] || {};
+    stats.mastered = correct;
+    stats.weak = !correct;
+    stats.lastSeen = new Date().toISOString();
+    kanjiProgressStore[id] = stats;
+    saveKanjiProgress();
+    recordStudyActivity();
+  }
+
+  function hasKanji(word) {
+    return /[一-龯]/.test(word || "");
+  }
+  function kwBuildDeck(level, lessons, isolateMode) {
+    let items = buildDeck(level, lessons, false).filter((item) => hasKanji(item.word));
+    if (isolateMode) items = items.filter((item) => isKwWeak(item));
+    return items;
+  }
+
+  const kwLevelChips = document.querySelectorAll("#kw-level-chips .chip");
+  const kwLessonChipsEl = document.getElementById("kw-lesson-chips");
+  const kwIsolateToggleBtn = document.getElementById("kw-isolate-toggle");
+  const kwIsolateNoteEl = document.getElementById("kw-isolate-note");
+  const kwResetProgressBtn = document.getElementById("kw-reset-progress");
+  const kwReadingEl = document.getElementById("kw-reading");
+  const kwMeaningEl = document.getElementById("kw-meaning");
+  const kwCanvas = document.getElementById("kw-canvas");
+  const kwCtx = kwCanvas.getContext("2d");
+  const kwClearBtn = document.getElementById("kw-clear");
+  const kwRevealBtn = document.getElementById("kw-reveal");
+  const kwAnswerEl = document.getElementById("kw-answer");
+  const kwAnswerWordEl = document.getElementById("kw-answer-word");
+  const kwAnswerReadingEl = document.getElementById("kw-answer-reading");
+  const kwGradeButtonsEl = document.getElementById("kw-grade-buttons");
+  const kwGradeWrongBtn = document.getElementById("kw-grade-wrong");
+  const kwGradeRightBtn = document.getElementById("kw-grade-right");
+  const kwProgressEl = document.getElementById("kw-progress");
+
+  // Canvas backing-store size has to be set in real pixels (not CSS ones)
+  // for crisp strokes on high-DPI phone screens, which also means the
+  // context's scale/stroke style get reset every time this runs — so it's
+  // called on load, on resize, and whenever the tab becomes visible again
+  // (a canvas sized while its view was display:none reports a 0×0 rect).
+  function kwSetupCanvas() {
+    const rect = kwCanvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const dpr = window.devicePixelRatio || 1;
+    kwCanvas.width = rect.width * dpr;
+    kwCanvas.height = rect.height * dpr;
+    kwCtx.scale(dpr, dpr);
+    const inkColor = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim();
+    kwCtx.strokeStyle = inkColor || "#23241F";
+    kwCtx.lineWidth = 6;
+    kwCtx.lineCap = "round";
+    kwCtx.lineJoin = "round";
+  }
+  function kwClearCanvas() {
+    kwCtx.clearRect(0, 0, kwCanvas.width, kwCanvas.height);
+  }
+
+  let kwDrawing = false;
+  function kwPointerPos(e) {
+    const rect = kwCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+  kwCanvas.addEventListener("pointerdown", (e) => {
+    kwDrawing = true;
+    const p = kwPointerPos(e);
+    kwCtx.beginPath();
+    kwCtx.moveTo(p.x, p.y);
+    kwCanvas.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  kwCanvas.addEventListener("pointermove", (e) => {
+    if (!kwDrawing) return;
+    const p = kwPointerPos(e);
+    kwCtx.lineTo(p.x, p.y);
+    kwCtx.stroke();
+    e.preventDefault();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((evt) => {
+    kwCanvas.addEventListener(evt, () => { kwDrawing = false; });
+  });
+  kwClearBtn.addEventListener("click", kwClearCanvas);
+  window.addEventListener("resize", () => {
+    if (document.getElementById("kanjiwrite-view").classList.contains("active")) kwSetupCanvas();
+  });
+  function kwOnTabShow() {
+    kwSetupCanvas();
+  }
+
+  function kwEmptyText() {
+    const kw = state.kanjiWrite;
+    if (kw.totalCount) return t("allMastered");
+    return kw.isolateMode ? t("noWeakWords") : t("noCards");
+  }
+  function kwUpdateProgress() {
+    const kw = state.kanjiWrite;
+    kwProgressEl.textContent = kw.totalCount ? t("masteredProgress", { n: kw.masteredCount, total: kw.totalCount }) : "0 / 0";
+  }
+  function kwShowNext() {
+    const kw = state.kanjiWrite;
+    kwSetupCanvas();
+    kwClearCanvas();
+    kw.revealed = false;
+    kwAnswerEl.hidden = true;
+    kwGradeButtonsEl.hidden = true;
+    kwRevealBtn.hidden = false;
+    if (!kw.queue.length) {
+      kw.current = null;
+      kwReadingEl.textContent = kwEmptyText();
+      kwMeaningEl.textContent = "";
+      kwRevealBtn.hidden = true;
+      kwUpdateProgress();
+      return;
+    }
+    kw.current = kw.queue.shift();
+    kwReadingEl.textContent = kw.current.reading;
+    kwMeaningEl.textContent = kw.current.meaning;
+    kwUpdateProgress();
+  }
+  function kwStartSession() {
+    const kw = state.kanjiWrite;
+    const items = kwBuildDeck(kw.level, kw.lessons, kw.isolateMode);
+    kw.queue = items;
+    kw.totalCount = items.length;
+    kw.masteredCount = 0;
+    kw.current = null;
+    kwShowNext();
+  }
+
+  function kwRenderLessonChips(level) {
+    const data = window.VOCAB_DATA || {};
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    if (level === "all") {
+      kwLessonChipsEl.innerHTML = "";
+      kwLessonChipsEl.hidden = true;
+      return;
+    }
+    const items = data[level] || [];
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort(
+      (a, b) => a - b
+    );
+    if (!lessonNums.length) {
+      kwLessonChipsEl.innerHTML = "";
+      kwLessonChipsEl.hidden = true;
+      return;
+    }
+    kwLessonChipsEl.hidden = false;
+    const selected = state.kanjiWrite.lessons;
+    const allActive = selected.length === 0;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    const lessonChips = lessonNums
+      .map((n) => {
+        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        const isActive = selected.includes(n);
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}" title="${title}">${n}課</button>`;
+      })
+      .join("");
+    kwLessonChipsEl.innerHTML = allChip + lessonChips;
+    kwLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        if (chip.dataset.lesson === "all") {
+          state.kanjiWrite.lessons = [];
+        } else {
+          const n = Number(chip.dataset.lesson);
+          const idx = state.kanjiWrite.lessons.indexOf(n);
+          if (idx === -1) state.kanjiWrite.lessons.push(n);
+          else state.kanjiWrite.lessons.splice(idx, 1);
+          state.kanjiWrite.lessons.sort((a, b) => a - b);
+        }
+        kwRenderLessonChips(level);
+        kwStartSession();
+      });
+    });
+  }
+
+  kwLevelChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      kwLevelChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.kanjiWrite.level = chip.dataset.level;
+      state.kanjiWrite.lessons = [];
+      kwRenderLessonChips(chip.dataset.level);
+      kwStartSession();
+    });
+  });
+
+  kwIsolateToggleBtn.addEventListener("click", () => {
+    state.kanjiWrite.isolateMode = !state.kanjiWrite.isolateMode;
+    kwIsolateToggleBtn.classList.toggle("active", state.kanjiWrite.isolateMode);
+    kwIsolateNoteEl.hidden = !state.kanjiWrite.isolateMode;
+    kwStartSession();
+  });
+
+  kwResetProgressBtn.addEventListener("click", () => {
+    const kw = state.kanjiWrite;
+    let confirmMsg = "This clears your kanji-writing progress for the currently selected lessons. Continue?";
+    if (kw.level === "all" && (!kw.lessons || kw.lessons.length === 0)) {
+      confirmMsg = "This clears your kanji-writing progress for EVERY word. Continue?";
+    }
+    if (!window.confirm(confirmMsg)) return;
+    const now = new Date().toISOString();
+    const targetItems = kwBuildDeck(kw.level, kw.lessons, false);
+    targetItems.forEach((item) => {
+      kanjiProgressStore[wordId(item)] = { mastered: false, weak: false, lastSeen: now };
+    });
+    saveKanjiProgress();
+    kwStartSession();
+  });
+
+  kwRevealBtn.addEventListener("click", () => {
+    const kw = state.kanjiWrite;
+    if (!kw.current) return;
+    kw.revealed = true;
+    kwAnswerWordEl.textContent = kw.current.word;
+    kwAnswerReadingEl.textContent = kw.current.reading;
+    kwAnswerEl.hidden = false;
+    kwRevealBtn.hidden = true;
+    kwGradeButtonsEl.hidden = false;
+    speakJapanese(kw.current.reading || kw.current.word);
+  });
+
+  function kwGradeCurrent(isCorrect) {
+    const kw = state.kanjiWrite;
+    const item = kw.current;
+    if (!item || !kw.revealed) return;
+    recordKwResult(item, isCorrect);
+    if (isCorrect) kw.masteredCount += 1;
+    kwShowNext();
+  }
+  kwGradeWrongBtn.addEventListener("click", () => kwGradeCurrent(false));
+  kwGradeRightBtn.addEventListener("click", () => kwGradeCurrent(true));
+
+  document.getElementById("kw-shuffle").addEventListener("click", () => {
+    state.kanjiWrite.queue = shuffle(state.kanjiWrite.queue);
+  });
+  document.getElementById("kw-skip").addEventListener("click", () => {
+    const kw = state.kanjiWrite;
+    if (!kw.current) return;
+    kw.queue.push(kw.current);
+    kwShowNext();
+  });
+
+  kwRenderLessonChips(state.kanjiWrite.level);
+  kwStartSession();
 
   // ---------- grammar ----------
   const grLevelChips = document.querySelectorAll("#gr-level-chips .chip");

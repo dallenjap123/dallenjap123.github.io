@@ -19,6 +19,7 @@
       <nav class="view-tabs" role="tablist">
         <button class="tab active" data-view="home" role="tab" aria-selected="true" data-i18n="tabHome">Home</button>
         <button class="tab" data-view="flashcards" role="tab" aria-selected="false" data-i18n="tabFlashcards">Flashcards</button>
+        <button class="tab" data-view="kanjiwrite" role="tab" aria-selected="false" data-i18n="tabKanjiWrite">Write</button>
         <button class="tab" data-view="grammar" role="tab" aria-selected="false" data-i18n="tabGrammar">Grammar</button>
         <button class="tab" data-view="wordlist" role="tab" aria-selected="false" data-i18n="tabWordlist">Word List</button>
         <button class="tab" data-view="conjugation" role="tab" aria-selected="false" data-i18n="tabConjugation">Conjugation</button>
@@ -112,6 +113,57 @@
           <button id="fc-skip" class="ghost-btn" data-i18n="skip">skip</button>
         </div>
         <span id="fc-progress" class="progress">0 / 0</span>
+      </div>
+    </section>
+
+    <section id="kanjiwrite-view" class="view">
+      <div class="controls">
+        <div class="level-chips" id="kw-level-chips">
+          <button class="chip active" data-level="all" data-i18n="all">All</button>
+          <button class="chip n5" data-level="N5">N5</button>
+          <button class="chip n4" data-level="N4">N4</button>
+          <button class="chip n3" data-level="N3">N3</button>
+          <button class="chip n2" data-level="N2">N2</button>
+          <button class="chip n1" data-level="N1">N1</button>
+        </div>
+      </div>
+      <div class="lesson-chips" id="kw-lesson-chips" hidden></div>
+
+      <div class="study-options">
+        <button class="chip isolate-chip" id="kw-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
+        <button class="text-link" id="kw-reset-progress" data-i18n="resetProgress">reset progress</button>
+      </div>
+      <p class="isolate-note" id="kw-isolate-note" hidden data-i18n="kwIsolateNote">practice mode — write it correctly to clear it from this list</p>
+
+      <div class="kw-stage">
+        <p class="kw-hint" data-i18n="kwHint">write the kanji for this word from memory, then reveal to check</p>
+        <p class="kw-reading" id="kw-reading"></p>
+        <p class="kw-meaning" id="kw-meaning"></p>
+
+        <div class="kw-canvas-wrap">
+          <canvas id="kw-canvas" class="kw-canvas"></canvas>
+          <button class="kw-canvas-clear" id="kw-clear" aria-label="clear drawing" data-i18n-aria="kwClear" title="clear">↺</button>
+        </div>
+
+        <div class="kw-answer" id="kw-answer" hidden>
+          <span class="kw-answer-word" id="kw-answer-word"></span>
+          <span class="kw-answer-reading" id="kw-answer-reading"></span>
+        </div>
+
+        <button class="ghost-btn btn-primary kw-reveal-btn" id="kw-reveal" data-i18n="showAnswer">show answer</button>
+
+        <div class="grade-buttons" id="kw-grade-buttons" hidden>
+          <button class="grade-btn grade-wrong" id="kw-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
+          <button class="grade-btn grade-right" id="kw-grade-right" data-i18n="knewIt">✓ knew it</button>
+        </div>
+      </div>
+
+      <div class="deck-controls">
+        <div class="nav-group">
+          <button id="kw-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+          <button id="kw-skip" class="ghost-btn" data-i18n="skip">skip</button>
+        </div>
+        <span id="kw-progress" class="progress">0 / 0</span>
       </div>
     </section>
 
