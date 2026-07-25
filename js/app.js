@@ -294,7 +294,7 @@
   function setupSubnav(navId, onShow) {
     const nav = document.getElementById(navId);
     const container = nav.parentElement;
-    const btns = nav.querySelectorAll(".dir-btn");
+    const btns = nav.querySelectorAll(".subnav-btn");
     btns.forEach((btn) => {
       btn.addEventListener("click", () => {
         btns.forEach((b) => b.classList.remove("active"));
