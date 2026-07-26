@@ -80,6 +80,14 @@ window.VOCAB_LESSONS = {
     19: "植物、動物など",
     20: "数と量",
     21: "時間",
+    22: "和語動詞",
+    23: "漢語動詞",
+    24: "形容詞",
+    25: "副詞",
+    26: "オノマトペ",
+    27: "間違えやすい漢語",
+    28: "言い換え類義",
+    29: "語形成",
   },
 };
 
@@ -1759,6 +1767,1758 @@ window.VOCAB_DATA = {
 { word: "現代", reading: "げんだい", meaning: "contemporary, modern", lesson: 21 },
 { word: "間もなく", reading: "まもなく", meaning: "soon, shortly", lesson: 21 },
 { word: "突然", reading: "とつぜん", meaning: "suddenly, sudden", lesson: 21 },
+{
+  "word": "歯が生える",
+  "reading": "はがはえる",
+  "meaning": "Grow, emerge",
+  "lesson": 22
+},
+{
+  "word": "スープが冷める",
+  "reading": "スープがさめる",
+  "meaning": "Cool down",
+  "lesson": 22
+},
+{
+  "word": "家が燃える",
+  "reading": "いえがもえる",
+  "meaning": "Burn",
+  "lesson": 22
+},
+{
+  "word": "服が目立つ",
+  "reading": "ふくがめだつ",
+  "meaning": "Stand out",
+  "lesson": 22
+},
+{
+  "word": "星が輝く",
+  "reading": "ほしがかがやく",
+  "meaning": "Shine, gleam, beam",
+  "lesson": 22
+},
+{
+  "word": "黙って、話を聞く",
+  "reading": "だまって、はなしをきく",
+  "meaning": "Keep quiet, shut up",
+  "lesson": 22
+},
+{
+  "word": "水がたまる",
+  "reading": "みずがたまる",
+  "meaning": "Build up, accumulate",
+  "lesson": 22
+},
+{
+  "word": "薬がよく効く",
+  "reading": "くすりがよくきく",
+  "meaning": "Be effective, take effect",
+  "lesson": 22
+},
+{
+  "word": "社長が代わる",
+  "reading": "しゃちょうがかわる",
+  "meaning": "Replace, take place of",
+  "lesson": 22
+},
+{
+  "word": "親に頼る",
+  "reading": "おやにたよる",
+  "meaning": "Depend on, rely on",
+  "lesson": 22
+},
+{
+  "word": "彼の言葉にうなずく",
+  "reading": "かれのことばにうなずく",
+  "meaning": "Nod (agreement)",
+  "lesson": 22
+},
+{
+  "word": "ゲームに飽きる",
+  "reading": "ゲームにあきる",
+  "meaning": "Get bored with, tire of",
+  "lesson": 22
+},
+{
+  "word": "大きな声で叫ぶ",
+  "reading": "おおきなこえでさけぶ",
+  "meaning": "Shout, call",
+  "lesson": 22
+},
+{
+  "word": "車で空港に向かう",
+  "reading": "くるまでくうこうにむかう",
+  "meaning": "Head for, depart for",
+  "lesson": 22
+},
+{
+  "word": "油は水に浮く",
+  "reading": "あぶらはみずにうく",
+  "meaning": "Float",
+  "lesson": 22
+},
+{
+  "word": "ガムが靴にくっつく",
+  "reading": "ガムがくつにくっつく",
+  "meaning": "Stick to",
+  "lesson": 22
+},
+{
+  "word": "ボールを握る",
+  "reading": "ボールをにぎる",
+  "meaning": "Grasp, hold onto",
+  "lesson": 22
+},
+{
+  "word": "皿を重ねる",
+  "reading": "さらをかさねる",
+  "meaning": "Pile, stack",
+  "lesson": 22
+},
+{
+  "word": "新聞をひもで縛る",
+  "reading": "しんぶんをひもでしばる",
+  "meaning": "Tie, bind",
+  "lesson": 22
+},
+{
+  "word": "池を石で囲む",
+  "reading": "いけをいしでかこむ",
+  "meaning": "Surround, ring",
+  "lesson": 22
+},
+{
+  "word": "犬がボールを追う",
+  "reading": "いぬがボールをおう",
+  "meaning": "Chase, pursue",
+  "lesson": 22
+},
+{
+  "word": "物を大切に扱う",
+  "reading": "ものをたいせつにあつかう",
+  "meaning": "Handle, treat",
+  "lesson": 22
+},
+{
+  "word": "電話代を支払う",
+  "reading": "でんわだいをしはらう",
+  "meaning": "Pay",
+  "lesson": 22
+},
+{
+  "word": "若い人は肉料理を好む",
+  "reading": "わかいひとはにくりょうりをこのむ",
+  "meaning": "Like, be fond of",
+  "lesson": 22
+},
+{
+  "word": "そばを食う",
+  "reading": "そばをくう",
+  "meaning": "Eat",
+  "lesson": 22
+},
+{
+  "word": "人を指で指す",
+  "reading": "ひとをゆびでさす",
+  "meaning": "Show, point",
+  "lesson": 22
+},
+{
+  "word": "地図で場所を示す",
+  "reading": "ちずでばしょをしめす",
+  "meaning": "Show, indicate, represent",
+  "lesson": 22
+},
+{
+  "word": "夢を語る",
+  "reading": "ゆめをかたる",
+  "meaning": "Relate, talk about",
+  "lesson": 22
+},
+{
+  "word": "楽しい時間を過ごす",
+  "reading": "たのしいじかんをすごす",
+  "meaning": "Spend, pass",
+  "lesson": 22
+},
+{
+  "word": "出発を1日延ばす",
+  "reading": "しゅっぱつをいちにちのばす",
+  "meaning": "Extend, draw out",
+  "lesson": 22
+},
+{
+  "word": "優勝を目指す",
+  "reading": "ゆうしょうをめざす",
+  "meaning": "Aim for",
+  "lesson": 22
+},
+{
+  "word": "警察に助けを求める",
+  "reading": "けいさつにたすけをもとめる",
+  "meaning": "Seek, ask for",
+  "lesson": 22
+},
+{
+  "word": "子供を可愛がる",
+  "reading": "こどもをかわいがる",
+  "meaning": "Treat with affection",
+  "lesson": 22
+},
+{
+  "word": "弟をいじめる",
+  "reading": "おとうといじめる",
+  "meaning": "Bully, mistreat",
+  "lesson": 22
+},
+{
+  "word": "機械を発明する",
+  "reading": "きかいをはつめいする",
+  "meaning": "Invention; invent",
+  "lesson": 23
+},
+{
+  "word": "船を製造する",
+  "reading": "ふねをせいぞうする",
+  "meaning": "Manufacturing; manufacture",
+  "lesson": 23
+},
+{
+  "word": "映画を制作する",
+  "reading": "えいがをせいさくする",
+  "meaning": "Production; produce",
+  "lesson": 23
+},
+{
+  "word": "写真を印刷する",
+  "reading": "しゃしんをいんさつする",
+  "meaning": "Printing; print",
+  "lesson": 23
+},
+{
+  "word": "本を出版する",
+  "reading": "ほんをしゅっぱんする",
+  "meaning": "Publishing; publish",
+  "lesson": 23
+},
+{
+  "word": "ゴミを回収する",
+  "reading": "ゴミをかいしゅうする",
+  "meaning": "Collection; collect",
+  "lesson": 23
+},
+{
+  "word": "将来の自分を想像する",
+  "reading": "しょうらいのじぶんをそうぞうする",
+  "meaning": "Imagination; imagine",
+  "lesson": 23
+},
+{
+  "word": "自分がしたことを反省する",
+  "reading": "じぶんがしたことをはんせいする",
+  "meaning": "Rueful reflection on, self-examination; reflect ruefully on",
+  "lesson": 23
+},
+{
+  "word": "病院に行くかを判断する",
+  "reading": "びょういんにいくかをはんだんする",
+  "meaning": "Judgment; judge",
+  "lesson": 23
+},
+{
+  "word": "お客さんを歓迎する",
+  "reading": "おきゃくさんをかんげいする",
+  "meaning": "Welcome (n); welcome (v)",
+  "lesson": 23
+},
+{
+  "word": "犬を訓練する",
+  "reading": "いぬをくんれんする",
+  "meaning": "Training; exercise; train, exercise",
+  "lesson": 23
+},
+{
+  "word": "授業を選択する",
+  "reading": "じゅぎょうをせんたくする",
+  "meaning": "Choice; choose",
+  "lesson": 23
+},
+{
+  "word": "レポートを評価する",
+  "reading": "レポートをひょうかする",
+  "meaning": "Evaluation, assessment; evaluate, assess",
+  "lesson": 23
+},
+{
+  "word": "お金を管理する",
+  "reading": "おかねをかんりする",
+  "meaning": "Management; manage",
+  "lesson": 23
+},
+{
+  "word": "会社を経営する",
+  "reading": "かいしゃをけいえいする",
+  "meaning": "Running, management; run, manage",
+  "lesson": 23
+},
+{
+  "word": "問題を解決する",
+  "reading": "もんだいをかいけつする",
+  "meaning": "Settlement, solution; settle, resolve",
+  "lesson": 23
+},
+{
+  "word": "事故を防止する",
+  "reading": "じこをぼうしする",
+  "meaning": "Prevention; prevent",
+  "lesson": 23
+},
+{
+  "word": "アメリカを訪問する",
+  "reading": "アメリカをほうもんする",
+  "meaning": "Visit (n); visit (v)",
+  "lesson": 23
+},
+{
+  "word": "円をドルに交換する",
+  "reading": "えんをドルにこうかんする",
+  "meaning": "Exchange (n); exchange (v)",
+  "lesson": 23
+},
+{
+  "word": "英語を日本語に翻訳する",
+  "reading": "えいごをにほんごにほんやくする",
+  "meaning": "Translation; translate",
+  "lesson": 23
+},
+{
+  "word": "悪いところに薬を使用する",
+  "reading": "わるいところにくすりをしようする",
+  "meaning": "Use, application; use, apply",
+  "lesson": 23
+},
+{
+  "word": "部長に問題を報告する",
+  "reading": "ぶちょうにもんだいをほうこくする",
+  "meaning": "Report (n); report (v)",
+  "lesson": 23
+},
+{
+  "word": "相手に自分の意見を主張する",
+  "reading": "あいてにじぶんのいけんをしゅちょうする",
+  "meaning": "Assertion; assert",
+  "lesson": 23
+},
+{
+  "word": "彼の意見に賛成する",
+  "reading": "かれのいけんにさんせいする",
+  "meaning": "Approval, agreement; approve, agree",
+  "lesson": 23
+},
+{
+  "word": "彼女に協力する",
+  "reading": "かのじょにきょうりょくする",
+  "meaning": "Cooperation; cooperate",
+  "lesson": 23
+},
+{
+  "word": "中国の会社に注目する",
+  "reading": "ちゅうごくのかいしゃにちゅうもくする",
+  "meaning": "Focus (n); focus (v)",
+  "lesson": 23
+},
+{
+  "word": "ルールに違反する",
+  "reading": "ルールにいはんする",
+  "meaning": "Breach, violation; breach, violate",
+  "lesson": 23
+},
+{
+  "word": "大阪に出張する",
+  "reading": "おおさかにしゅっちょうする",
+  "meaning": "Business or official trip; go on a business or official trip",
+  "lesson": 23
+},
+{
+  "word": "色が変化する",
+  "reading": "いろがへんかする",
+  "meaning": "Change (n); change (v)",
+  "lesson": 23
+},
+{
+  "word": "電車が停止する",
+  "reading": "でんしゃがていしする",
+  "meaning": "Stop (n); stop (v)",
+  "lesson": 23
+},
+{
+  "word": "経済が発展する",
+  "reading": "けいざいがはってんする",
+  "meaning": "Development; develop",
+  "lesson": 23
+},
+{
+  "word": "技術が進歩する",
+  "reading": "ぎじゅつがしんぽする",
+  "meaning": "Progress; make progress",
+  "lesson": 23
+},
+{
+  "word": "大きな問題が存在する",
+  "reading": "おおきなもんだいがそんざいする",
+  "meaning": "Existence, presence; exist, be present",
+  "lesson": 23
+},
+{
+  "word": "社長が引退する",
+  "reading": "しゃちょうがいんたいする",
+  "meaning": "Retirement; retire",
+  "lesson": 23
+},
+{
+  "word": "よく考えて行動する",
+  "reading": "よくかんがえてこうどうする",
+  "meaning": "Behavior; behave, act",
+  "lesson": 23
+},
+{
+  "word": "夜に活動する動物",
+  "reading": "よるにかつどうするどうぶつ",
+  "meaning": "Be active, engagement in; engage in (activity)",
+  "lesson": 23
+},
+{
+  "word": "背中がかゆい",
+  "reading": "せなかがかゆい",
+  "meaning": "Itchy",
+  "lesson": 24
+},
+{
+  "word": "太陽がまぶしい",
+  "reading": "たいようがまぶしい",
+  "meaning": "(Uncomfortably) bright",
+  "lesson": 24
+},
+{
+  "word": "スカートがきつい",
+  "reading": "",
+  "meaning": "Tight, tough (job)",
+  "lesson": 24
+},
+{
+  "word": "昔が懐かしい",
+  "reading": "むかしがなつかしい",
+  "meaning": "Prompting nostalgia, prompting fond memories",
+  "lesson": 24
+},
+{
+  "word": "失敗して、悔しい",
+  "reading": "しっぱいして、くやしい",
+  "meaning": "Vexing, regrettable",
+  "lesson": 24
+},
+{
+  "word": "恐ろしい事件",
+  "reading": "おそろしいじけん",
+  "meaning": "Terrible",
+  "lesson": 24
+},
+{
+  "word": "怪しい男",
+  "reading": "あやしいおとこ",
+  "meaning": "Suspicious, fishy",
+  "lesson": 24
+},
+{
+  "word": "親しい友人",
+  "reading": "したしいゆうじん",
+  "meaning": "Close, intimate",
+  "lesson": 24
+},
+{
+  "word": "大人しい子供",
+  "reading": "おとなしいこども",
+  "meaning": "Meek, compliant",
+  "lesson": 24
+},
+{
+  "word": "パソコンに詳しい人",
+  "reading": "パソコンにくわしいひと",
+  "meaning": "Well versed in",
+  "lesson": 24
+},
+{
+  "word": "味がしつこい",
+  "reading": "あじがしつこい",
+  "meaning": "Too rich, cloying",
+  "lesson": 24
+},
+{
+  "word": "鋭いナイフ",
+  "reading": "するどいナイフ",
+  "meaning": "Sharp",
+  "lesson": 24
+},
+{
+  "word": "鈍い人",
+  "reading": "にぶいひと",
+  "meaning": "Slow-moving, dull-witted",
+  "lesson": 24
+},
+{
+  "word": "貧しい国",
+  "reading": "まずしいくに",
+  "meaning": "Poor, impoverished",
+  "lesson": 24
+},
+{
+  "word": "激しい雨",
+  "reading": "はげしいあめ",
+  "meaning": "Hard, intense",
+  "lesson": 24
+},
+{
+  "word": "お金がもったいない",
+  "reading": "おかねがもったいない",
+  "meaning": "A waste of (money, time)",
+  "lesson": 24
+},
+{
+  "word": "とんでもない事件",
+  "reading": "とんでもないじけん",
+  "meaning": "Dreadful, awful",
+  "lesson": 24
+},
+{
+  "word": "怒っても仕様がない",
+  "reading": "おこってもしょうがない",
+  "meaning": "Inevitable, cannot be helped",
+  "lesson": 24
+},
+{
+  "word": "わがままな子供",
+  "reading": "わがままなこども",
+  "meaning": "Selfish",
+  "lesson": 24
+},
+{
+  "word": "意地悪な姉",
+  "reading": "いじわるなあね",
+  "meaning": "Spiteful, ill-natured",
+  "lesson": 24
+},
+{
+  "word": "下品な男",
+  "reading": "げひんなおとこ",
+  "meaning": "Vulgar, coarse",
+  "lesson": 24
+},
+{
+  "word": "乱暴な運転",
+  "reading": "らんぼうなうんてん",
+  "meaning": "Rough, rude, violent",
+  "lesson": 24
+},
+{
+  "word": "派手な服",
+  "reading": "はでなふく",
+  "meaning": "Flashy, showy",
+  "lesson": 24
+},
+{
+  "word": "地味な色",
+  "reading": "じみないろ",
+  "meaning": "Plain, drab",
+  "lesson": 24
+},
+{
+  "word": "おしゃれなレストラン",
+  "reading": "",
+  "meaning": "Fashionable, smart",
+  "lesson": 24
+},
+{
+  "word": "素敵な結婚式",
+  "reading": "すてきなけっこんしき",
+  "meaning": "Nice, pleasant",
+  "lesson": 24
+},
+{
+  "word": "楽な仕事",
+  "reading": "らくなしごと",
+  "meaning": "Easy",
+  "lesson": 24
+},
+{
+  "word": "豊かな生活",
+  "reading": "ゆたかなせいかつ",
+  "meaning": "Rich, affluent",
+  "lesson": 24
+},
+{
+  "word": "穏やかな天気",
+  "reading": "おだやかなてんき",
+  "meaning": "Mild, gentle",
+  "lesson": 24
+},
+{
+  "word": "ゲームに夢中だ",
+  "reading": "ゲームにむちゅうだ",
+  "meaning": "Fully absorbed in, crazy about",
+  "lesson": 24
+},
+{
+  "word": "飛行機が無事に着く",
+  "reading": "ひこうきがぶじにつく",
+  "meaning": "Safely, without incident",
+  "lesson": 24
+},
+{
+  "word": "平気で嘘をつく",
+  "reading": "へいきでうそをつく",
+  "meaning": "Unconcerned, not worried",
+  "lesson": 24
+},
+{
+  "word": "人の迷惑になる",
+  "reading": "ひとのめいわくになる",
+  "meaning": "Annoyance, trouble",
+  "lesson": 24
+},
+{
+  "word": "東京までおよそ50分で着く",
+  "reading": "とうきょうまでおよそごじゅっぷんでつく",
+  "meaning": "About, approximately",
+  "lesson": 25
+},
+{
+  "word": "その時計はかなり高そうだ",
+  "reading": "そのとけいはかなりたかそうだ",
+  "meaning": "Rather, substantially, considerably",
+  "lesson": 25
+},
+{
+  "word": "熱が多少下がった",
+  "reading": "ねつがたしょうさがった",
+  "meaning": "Somewhat",
+  "lesson": 25
+},
+{
+  "word": "電気がすべて消えた",
+  "reading": "でんきがすべてきえた",
+  "meaning": "All",
+  "lesson": 25
+},
+{
+  "word": "まったく日本語が話せない",
+  "reading": "まったくにほんごがはなせない",
+  "meaning": "Absolutely, completely",
+  "lesson": 25
+},
+{
+  "word": "一度にたくさんの本を運ぶ",
+  "reading": "いちどにたくさんのほんをはこぶ",
+  "meaning": "At once, simultaneously",
+  "lesson": 25
+},
+{
+  "word": "偶然先生に会った",
+  "reading": "ぐうぜんせんせいにあった",
+  "meaning": "By chance, by accident",
+  "lesson": 25
+},
+{
+  "word": "たまにそばを食べる",
+  "reading": "たまにそばをたべる",
+  "meaning": "Occasionally, rarely",
+  "lesson": 25
+},
+{
+  "word": "新しい服を早速着てみた",
+  "reading": "あたらしいふくをさっそくきてみた",
+  "meaning": "Immediately, straightaway",
+  "lesson": 25
+},
+{
+  "word": "実はお金がない",
+  "reading": "じつはおかねがない",
+  "meaning": "In truth, in fact",
+  "lesson": 25
+},
+{
+  "word": "実際に料理を作ってみる",
+  "reading": "じっさいにりょうりをつくってみる",
+  "meaning": "Actually, really",
+  "lesson": 25
+},
+{
+  "word": "案外レストランはすいていた",
+  "reading": "あんがいレストランはすいていた",
+  "meaning": "Unexpectedly",
+  "lesson": 25
+},
+{
+  "word": "少なくとも1時間は勉強している",
+  "reading": "すくなくともいちじかんはべんきょうしている",
+  "meaning": "At least",
+  "lesson": 25
+},
+{
+  "word": "せっかく作ったのに、誰も食べない",
+  "reading": "せっかくつくったのに、だれもたべない",
+  "meaning": "Expressly, specially",
+  "lesson": 25
+},
+{
+  "word": "確か森さんは39歳だったと思う",
+  "reading": "たしかもりさんはさんじゅうきゅうさいだったとおもう",
+  "meaning": "Certainly, no doubt",
+  "lesson": 25
+},
+{
+  "word": "ともかく・とにかく遅れないで",
+  "reading": "ともかく・とにかくおくれないで",
+  "meaning": "Anyway, at any rate",
+  "lesson": 25
+},
+{
+  "word": "思い切り・思いっ切り泳ぎたい",
+  "reading": "おもいきり・おもいっきりおよぎたい",
+  "meaning": "(I) so much (want to)",
+  "lesson": 25
+},
+{
+  "word": "兄はわざと負けてくれた",
+  "reading": "あにはわざとまけてくれた",
+  "meaning": "Deliberately, on purpose",
+  "lesson": 25
+},
+{
+  "word": "まさか雨が降るとは思わなかった",
+  "reading": "まさかあめがふるとはおもわなかった",
+  "meaning": "That's exactly what I wasn't (expecting)",
+  "lesson": 25
+},
+{
+  "word": "まるで子供みたいだ",
+  "reading": "まるでこどもみたいだ",
+  "meaning": "Completely, just as if",
+  "lesson": 25
+},
+{
+  "word": "もしかしたら行けないかもしれない",
+  "reading": "もしかしたらいけないかもしれない",
+  "meaning": "Might well, very likely",
+  "lesson": 25
+},
+{
+  "word": "もしも怪我をしたら、大変だ",
+  "reading": "もしもけがをしたら、たいへんだ",
+  "meaning": "If",
+  "lesson": 25
+},
+{
+  "word": "いくら探しても、見つからない",
+  "reading": "いくらさがしても、みつからない",
+  "meaning": "However much, however many",
+  "lesson": 25
+},
+{
+  "word": "どうしても思い出せない",
+  "reading": "どうしてもおもいだせない",
+  "meaning": "I just cannot (remember)",
+  "lesson": 25
+},
+{
+  "word": "別に困っていない",
+  "reading": "べつにこまっていない",
+  "meaning": "Not particularly",
+  "lesson": 25
+},
+{
+  "word": "何で怒っているのか",
+  "reading": "なんでおこっているのか",
+  "meaning": "Why? What for?",
+  "lesson": 25
+},
+{
+  "word": "間もなくバスが来る",
+  "reading": "まもなくバスがくる",
+  "meaning": "Soon",
+  "lesson": 25
+},
+{
+  "word": "いよいよ試合が始まる",
+  "reading": "いよいよしあいがはじまる",
+  "meaning": "At last, finally",
+  "lesson": 25
+},
+{
+  "word": "そろそろ寝る時間だ",
+  "reading": "そろそろねるじかんだ",
+  "meaning": "Polite expression used to indicate that the time for leaving or going to bed, etc., is approaching",
+  "lesson": 25
+},
+{
+  "word": "さっき食べたばかりだ",
+  "reading": "さっきたべたばかりだ",
+  "meaning": "Just now, a few moments ago",
+  "lesson": 25
+},
+{
+  "word": "しばらく駅で待っていた",
+  "reading": "しばらくえきでまっていた",
+  "meaning": "For a while, for the moment",
+  "lesson": 25
+},
+{
+  "word": "今にも雨が降りそうだ",
+  "reading": "いまにもあめがふりそうだ",
+  "meaning": "At any moment, imminently",
+  "lesson": 25
+},
+{
+  "word": "頑張ったが、結局だめだった",
+  "reading": "がんばったが、けっきょくだめだった",
+  "meaning": "In the end, as it turned out",
+  "lesson": 25
+},
+{
+  "word": "二人はとうとう別れた",
+  "reading": "ふたりはとうとうわかれた",
+  "meaning": "Finally, at length",
+  "lesson": 25
+},
+{
+  "word": "ようやく病気が治った",
+  "reading": "ようやくびょうきがなおった",
+  "meaning": "Eventually, finally",
+  "lesson": 25
+},
+{
+  "word": "ついに答えが見つかった",
+  "reading": "ついにこたえがみつかった",
+  "meaning": "At long last, finally",
+  "lesson": 25
+},
+{
+  "word": "ぐっすり寝る",
+  "reading": "ぐっすりねる",
+  "meaning": "Soundly, fast (asleep)",
+  "lesson": 26
+},
+{
+  "word": "じっと見る／じっとする",
+  "reading": "じっとみる／じっとする",
+  "meaning": "Expresses fixity of look (staring), or quiet endurance",
+  "lesson": 26
+},
+{
+  "word": "じろじろ見る",
+  "reading": "じろじろみる",
+  "meaning": "Expresses fixity of look (staring)",
+  "lesson": 26
+},
+{
+  "word": "にっこり笑う",
+  "reading": "にっこりわらう",
+  "meaning": "Smile",
+  "lesson": 26
+},
+{
+  "word": "のろのろ歩く",
+  "reading": "のろのろあるく",
+  "meaning": "Sluggish; expresses slowness, heaviness",
+  "lesson": 26
+},
+{
+  "word": "うっかり忘れる",
+  "reading": "うっかりわすれる",
+  "meaning": "Expresses carelessness or forgetfulness",
+  "lesson": 26
+},
+{
+  "word": "こっそりお酒を飲む",
+  "reading": "こっそりおさけをのむ",
+  "meaning": "Secretly, stealthily",
+  "lesson": 26
+},
+{
+  "word": "そっとドアを閉める",
+  "reading": "そっとドアをしめる",
+  "meaning": "Softly, furtively",
+  "lesson": 26
+},
+{
+  "word": "一日中ごろごろしている",
+  "reading": "いちにちじゅうごろごろしている",
+  "meaning": "Expresses idling, lounging around",
+  "lesson": 26
+},
+{
+  "word": "いつもにこにこしている",
+  "reading": "",
+  "meaning": "Expresses smiling manner",
+  "lesson": 26
+},
+{
+  "word": "バスが来なくて、いらいらする",
+  "reading": "バスがこなくて、いらいらする",
+  "meaning": "Expresses state of annoyance, frustration",
+  "lesson": 26
+},
+{
+  "word": "恋人が出来て、うきうきしている",
+  "reading": "こいびとができて、うきうきしている",
+  "meaning": "Expresses state of cheerfulness, lightheartedness",
+  "lesson": 26
+},
+{
+  "word": "発表があるので、どきどきする",
+  "reading": "はっぴょうがあるので、どきどきする",
+  "meaning": "Expresses pulsation, throbbing",
+  "lesson": 26
+},
+{
+  "word": "明日から旅行で、わくわくしている",
+  "reading": "あしたからりょこうで、わくわくしている",
+  "meaning": "Expresses state of excitement, nervousness",
+  "lesson": 26
+},
+{
+  "word": "試合に負けて、がっかりしている",
+  "reading": "しあいにまけて、がっかりしている",
+  "meaning": "Expresses sense of disappointment",
+  "lesson": 26
+},
+{
+  "word": "テストが終わって、ほっとしている",
+  "reading": "テストがおわって、ほっとしている",
+  "meaning": "Expresses sense of relief",
+  "lesson": 26
+},
+{
+  "word": "熱が高くて、ふらふらする",
+  "reading": "ねつがたかくて、ふらふらする",
+  "meaning": "Feel dizzy, unstable",
+  "lesson": 26
+},
+{
+  "word": "英語がぺらぺらだ",
+  "reading": "えいごがぺらぺらだ",
+  "meaning": "Expresses fluency in a language",
+  "lesson": 26
+},
+{
+  "word": "ぐんぐん背が伸びる",
+  "reading": "ぐんぐんせがのびる",
+  "meaning": "Expresses steady growth or improvement",
+  "lesson": 26
+},
+{
+  "word": "仕事にすっかり慣れる",
+  "reading": "しごとにすっかりなれる",
+  "meaning": "Expresses completeness, wholeness",
+  "lesson": 26
+},
+{
+  "word": "サイズがぴったり合う",
+  "reading": "サイズがぴったりあう",
+  "meaning": "Expresses exactness (of fit), perfection",
+  "lesson": 26
+},
+{
+  "word": "授業にぎりぎり間に合う",
+  "reading": "じゅぎょうにぎりぎりまにあう",
+  "meaning": "Used for when a situation is touch-and-go, or time is running out, or when something is a close call",
+  "lesson": 26
+},
+{
+  "word": "朝御飯をしっかり食べる",
+  "reading": "あさごはんをしっかりたべる",
+  "meaning": "Properly, rigorously",
+  "lesson": 26
+},
+{
+  "word": "靴をぴかぴかに磨く",
+  "reading": "くつをぴかぴかにみがく",
+  "meaning": "Expresses brightness, shininess",
+  "lesson": 26
+},
+{
+  "word": "お菓子がぎっしり入っている",
+  "reading": "おかしがぎっしりはいっている",
+  "meaning": "Expresses tightness, closeness (of packing or stacking)",
+  "lesson": 26
+},
+{
+  "word": "野菜がたっぷり入っている",
+  "reading": "やさいがたっぷりはいっている",
+  "meaning": "Plenty of",
+  "lesson": 26
+},
+{
+  "word": "味がさっぱりしている",
+  "reading": "あじがさっぱりしている",
+  "meaning": "Expresses sense of refreshment or tidiness, neatness",
+  "lesson": 26
+},
+{
+  "word": "机の上がごちゃごちゃしている",
+  "reading": "つくえのうえがごちゃごちゃしている",
+  "meaning": "Expresses messiness, confusion, disorder",
+  "lesson": 26
+},
+{
+  "word": "事故で車がめちゃくちゃになる",
+  "reading": "じこでくるまがめちゃくちゃになる",
+  "meaning": "Expresses messiness, confusion, disorder",
+  "lesson": 26
+},
+{
+  "word": "教室がしんと・しいんとなる",
+  "reading": "きょうしつがしんと・しいんとなる",
+  "meaning": "Expresses silence, stillness",
+  "lesson": 26
+},
+{
+  "word": "服がぼろぼろだ",
+  "reading": "ふくがぼろぼろだ",
+  "meaning": "Expresses worn-out or tattered state",
+  "lesson": 26
+},
+{
+  "word": "星がきらきら光る",
+  "reading": "ほしがきらきらひかる",
+  "meaning": "Expresses sparkling or twinkling quality",
+  "lesson": 26
+},
+{
+  "word": "電車ががらがらだ",
+  "reading": "でんしゃががらがらだ",
+  "meaning": "Expresses emptiness, lack of (passengers, customers, etc.)",
+  "lesson": 26
+},
+{
+  "word": "歯がぐらぐらする",
+  "reading": "はがぐらぐらする",
+  "meaning": "Be wobbly, unsteady",
+  "lesson": 26
+},
+{
+  "word": "みんな意見がばらばらだ",
+  "reading": "みんないけんがばらばらだ",
+  "meaning": "Expresses diversity, disparity, variety",
+  "lesson": 26
+},
+{
+  "word": "お母さんにそっくりだ",
+  "reading": "おかあさんにそっくりだ",
+  "meaning": "Expresses close resemblance",
+  "lesson": 26
+},
+{
+  "word": "一流",
+  "reading": "いちりゅう",
+  "meaning": "first-rate",
+  "lesson": 27
+},
+{
+  "word": "一部",
+  "reading": "いちぶ",
+  "meaning": "some of",
+  "lesson": 27
+},
+{
+  "word": "最新",
+  "reading": "さいしん",
+  "meaning": "latest",
+  "lesson": 27
+},
+{
+  "word": "最終",
+  "reading": "さいしゅう",
+  "meaning": "last, final",
+  "lesson": 27
+},
+{
+  "word": "流行",
+  "reading": "りゅうこう",
+  "meaning": "fashion, fad",
+  "lesson": 27
+},
+{
+  "word": "実際",
+  "reading": "じっさい",
+  "meaning": "actual, real",
+  "lesson": 27
+},
+{
+  "word": "頭痛",
+  "reading": "ずつう",
+  "meaning": "headache",
+  "lesson": 27
+},
+{
+  "word": "余裕",
+  "reading": "よゆう",
+  "meaning": "leeway, scope, room for",
+  "lesson": 27
+},
+{
+  "word": "安定",
+  "reading": "あんてい",
+  "meaning": "stability; stabilize",
+  "lesson": 27
+},
+{
+  "word": "緊張",
+  "reading": "きんちょう",
+  "meaning": "tension; be tense, nervous",
+  "lesson": 27
+},
+{
+  "word": "混雑",
+  "reading": "こんざつ",
+  "meaning": "congestion; be congested",
+  "lesson": 27
+},
+{
+  "word": "発達",
+  "reading": "はったつ",
+  "meaning": "development; develop",
+  "lesson": 27
+},
+{
+  "word": "不足",
+  "reading": "ふそく",
+  "meaning": "shortage; run short of",
+  "lesson": 27
+},
+{
+  "word": "一致",
+  "reading": "いっち",
+  "meaning": "consistency, agreement; be consistent with",
+  "lesson": 27
+},
+{
+  "word": "混乱",
+  "reading": "こんらん",
+  "meaning": "confusion; be confused",
+  "lesson": 27
+},
+{
+  "word": "関心",
+  "reading": "かんしん",
+  "meaning": "interest",
+  "lesson": 27
+},
+{
+  "word": "自信",
+  "reading": "じしん",
+  "meaning": "confidence",
+  "lesson": 27
+},
+{
+  "word": "感覚",
+  "reading": "かんかく",
+  "meaning": "feeling, sensation",
+  "lesson": 27
+},
+{
+  "word": "参考",
+  "reading": "さんこう",
+  "meaning": "reference",
+  "lesson": 27
+},
+{
+  "word": "秘密",
+  "reading": "ひみつ",
+  "meaning": "secret",
+  "lesson": 27
+},
+{
+  "word": "評判",
+  "reading": "ひょうばん",
+  "meaning": "reputation",
+  "lesson": 27
+},
+{
+  "word": "出身",
+  "reading": "しゅっしん",
+  "meaning": "place of origin, alma mater, background",
+  "lesson": 27
+},
+{
+  "word": "夢中",
+  "reading": "むちゅう",
+  "meaning": "fully absorbed in",
+  "lesson": 27
+},
+{
+  "word": "面倒",
+  "reading": "めんどう",
+  "meaning": "bother, trouble",
+  "lesson": 27
+},
+{
+  "word": "被害",
+  "reading": "ひがい",
+  "meaning": "damage, harm",
+  "lesson": 27
+},
+{
+  "word": "感動",
+  "reading": "かんどう",
+  "meaning": "be impressed, be touched",
+  "lesson": 27
+},
+{
+  "word": "基本",
+  "reading": "きほん",
+  "meaning": "basic",
+  "lesson": 27
+},
+{
+  "word": "現実",
+  "reading": "げんじつ",
+  "meaning": "realistic",
+  "lesson": 27
+},
+{
+  "word": "積極",
+  "reading": "せっきょく",
+  "meaning": "positive",
+  "lesson": 27
+},
+{
+  "word": "伝統",
+  "reading": "でんとう",
+  "meaning": "traditional",
+  "lesson": 27
+},
+{
+  "word": "平均",
+  "reading": "へいきん",
+  "meaning": "average",
+  "lesson": 27
+},
+{
+  "word": "理想",
+  "reading": "りそう",
+  "meaning": "ideal, optimal",
+  "lesson": 27
+},
+{
+  "word": "交換する",
+  "reading": "こうかんする",
+  "meaning": "replace; replacement",
+  "lesson": 28
+},
+{
+  "word": "戻す",
+  "reading": "もどす",
+  "meaning": "returns, give back",
+  "lesson": 28
+},
+{
+  "word": "気に入る",
+  "reading": "きにいる",
+  "meaning": "like, be pleased with",
+  "lesson": 28
+},
+{
+  "word": "許可する",
+  "reading": "きょかする",
+  "meaning": "permission; permit",
+  "lesson": 28
+},
+{
+  "word": "許す",
+  "reading": "ゆるす",
+  "meaning": "permission, allow",
+  "lesson": 28
+},
+{
+  "word": "あきらめる",
+  "reading": "",
+  "meaning": "give up, abandon",
+  "lesson": 28
+},
+{
+  "word": "やり直す",
+  "reading": "やりなおす",
+  "meaning": "redo, go over again",
+  "lesson": 28
+},
+{
+  "word": "気を付ける",
+  "reading": "きをつける",
+  "meaning": "be careful of",
+  "lesson": 28
+},
+{
+  "word": "苦労する",
+  "reading": "くろうする",
+  "meaning": "(experience) hardship, difficulty; troublesome, difficult",
+  "lesson": 28
+},
+{
+  "word": "くたびれる",
+  "reading": "",
+  "meaning": "get tired, be tired",
+  "lesson": 28
+},
+{
+  "word": "決まり",
+  "reading": "きまり",
+  "meaning": "agreed arrangement",
+  "lesson": 28
+},
+{
+  "word": "守る",
+  "reading": "まもる",
+  "meaning": "keep, follow",
+  "lesson": 28
+},
+{
+  "word": "計画",
+  "reading": "けいかく",
+  "meaning": "plan",
+  "lesson": 28
+},
+{
+  "word": "理由",
+  "reading": "りゆう",
+  "meaning": "reason, ground",
+  "lesson": 28
+},
+{
+  "word": "長所",
+  "reading": "ちょうしょ",
+  "meaning": "merit, advantage",
+  "lesson": 28
+},
+{
+  "word": "短所",
+  "reading": "たんしょ",
+  "meaning": "demerit, shortcoming",
+  "lesson": 28
+},
+{
+  "word": "欠点",
+  "reading": "けってん",
+  "meaning": "defect, shortcoming",
+  "lesson": 28
+},
+{
+  "word": "共通点",
+  "reading": "きょうつうてん",
+  "meaning": "shared characteristic, point in common",
+  "lesson": 28
+},
+{
+  "word": "アイデア",
+  "reading": "",
+  "meaning": "idea",
+  "lesson": 28
+},
+{
+  "word": "考え",
+  "reading": "かんがえ",
+  "meaning": "thought, idea, opinion",
+  "lesson": 28
+},
+{
+  "word": "イメージ",
+  "reading": "",
+  "meaning": "image",
+  "lesson": 28
+},
+{
+  "word": "印象",
+  "reading": "いんしょう",
+  "meaning": "impression",
+  "lesson": 28
+},
+{
+  "word": "レベル",
+  "reading": "",
+  "meaning": "level",
+  "lesson": 28
+},
+{
+  "word": "程度",
+  "reading": "ていど",
+  "meaning": "degree, extent",
+  "lesson": 28
+},
+{
+  "word": "暮らし",
+  "reading": "くらし",
+  "meaning": "livelihood, daily life",
+  "lesson": 28
+},
+{
+  "word": "生活",
+  "reading": "せいかつ",
+  "meaning": "life",
+  "lesson": 28
+},
+{
+  "word": "誤り",
+  "reading": "あやまり",
+  "meaning": "error, mistake",
+  "lesson": 28
+},
+{
+  "word": "間違い",
+  "reading": "まちがい",
+  "meaning": "error, mistake",
+  "lesson": 28
+},
+{
+  "word": "きつい",
+  "reading": "",
+  "meaning": "tough, demanding",
+  "lesson": 28
+},
+{
+  "word": "苦しい",
+  "reading": "くるしい",
+  "meaning": "painful, in discomfort",
+  "lesson": 28
+},
+{
+  "word": "我慢する",
+  "reading": "がまんする",
+  "meaning": "endurance; put up with, tolerate",
+  "lesson": 28
+},
+{
+  "word": "短気",
+  "reading": "たんき",
+  "meaning": "short-tempered",
+  "lesson": 28
+},
+{
+  "word": "賢い",
+  "reading": "かしこい",
+  "meaning": "intelligent",
+  "lesson": 28
+},
+{
+  "word": "幼い",
+  "reading": "おさない",
+  "meaning": "little, very young",
+  "lesson": 28
+},
+{
+  "word": "単純",
+  "reading": "たんじゅん",
+  "meaning": "simple, basic",
+  "lesson": 28
+},
+{
+  "word": "当然",
+  "reading": "とうぜん",
+  "meaning": "as a matter of course, goes without saying",
+  "lesson": 28
+},
+{
+  "word": "さっき",
+  "reading": "",
+  "meaning": "just now, a few moments ago",
+  "lesson": 28
+},
+{
+  "word": "最近",
+  "reading": "さいきん",
+  "meaning": "these days, nowadays",
+  "lesson": 28
+},
+{
+  "word": "年中",
+  "reading": "ねんじゅう",
+  "meaning": "all year round, always",
+  "lesson": 28
+},
+{
+  "word": "突然",
+  "reading": "とつぜん",
+  "meaning": "suddenly",
+  "lesson": 28
+},
+{
+  "word": "再び",
+  "reading": "ふたたび",
+  "meaning": "once more, again",
+  "lesson": 28
+},
+{
+  "word": "なるべく",
+  "reading": "",
+  "meaning": "as ... as possible, if possible",
+  "lesson": 28
+},
+{
+  "word": "絶対に",
+  "reading": "ぜったいに",
+  "meaning": "for sure, absolutely, definitely",
+  "lesson": 28
+},
+{
+  "word": "相当",
+  "reading": "そうとう",
+  "meaning": "somewhat, considerably",
+  "lesson": 28
+},
+{
+  "word": "かなり",
+  "reading": "",
+  "meaning": "rather, substantially, considerably",
+  "lesson": 28
+},
+{
+  "word": "そっくり",
+  "reading": "",
+  "meaning": "expresses close resemblance",
+  "lesson": 28
+},
+{
+  "word": "ぼんやり",
+  "reading": "",
+  "meaning": "vaguely, vacantly, dimly",
+  "lesson": 28
+},
+{
+  "word": "にこにこ",
+  "reading": "",
+  "meaning": "expresses smiling manner",
+  "lesson": 28
+},
+{
+  "word": "見送る",
+  "reading": "みおくる",
+  "meaning": "see off, give a send-off",
+  "lesson": 29
+},
+{
+  "word": "見直す",
+  "reading": "みなおす",
+  "meaning": "review, revise",
+  "lesson": 29
+},
+{
+  "word": "受け入れる",
+  "reading": "うけいれる",
+  "meaning": "accept",
+  "lesson": 29
+},
+{
+  "word": "受け取る",
+  "reading": "うけとる",
+  "meaning": "receive",
+  "lesson": 29
+},
+{
+  "word": "引き受ける",
+  "reading": "ひきうける",
+  "meaning": "take on, accept",
+  "lesson": 29
+},
+{
+  "word": "申し込む",
+  "reading": "もうしこむ",
+  "meaning": "apply for, propose",
+  "lesson": 29
+},
+{
+  "word": "取り消す",
+  "reading": "とりけす",
+  "meaning": "cancel, annul",
+  "lesson": 29
+},
+{
+  "word": "繰り返す",
+  "reading": "くりかえす",
+  "meaning": "repeat",
+  "lesson": 29
+},
+{
+  "word": "やり直す",
+  "reading": "やりなおす",
+  "meaning": "redo, go over again",
+  "lesson": 29
+},
+{
+  "word": "落ち着く",
+  "reading": "おちつく",
+  "meaning": "calm, composed",
+  "lesson": 29
+},
+{
+  "word": "区切る",
+  "reading": "くぎる",
+  "meaning": "demarcate, separate, punctuate",
+  "lesson": 29
+},
+{
+  "word": "出会う",
+  "reading": "であう",
+  "meaning": "come across, meet",
+  "lesson": 29
+},
+{
+  "word": "出来上がる",
+  "reading": "できあがる",
+  "meaning": "complete, finish off",
+  "lesson": 29
+},
+{
+  "word": "通り過ぎる",
+  "reading": "とおりすぎる",
+  "meaning": "pass by, pass through",
+  "lesson": 29
+},
+{
+  "word": "話し合う",
+  "reading": "はなしあう",
+  "meaning": "discuss, thrash out",
+  "lesson": 29
+},
+{
+  "word": "打ち合わせ",
+  "reading": "うちあわせ",
+  "meaning": "preparatory meeting",
+  "lesson": 29
+},
+{
+  "word": "待ち合わせ",
+  "reading": "まちあわせ",
+  "meaning": "rendezvous, appointment",
+  "lesson": 29
+},
+{
+  "word": "行き先",
+  "reading": "いきさき",
+  "meaning": "destination",
+  "lesson": 29
+},
+{
+  "word": "大〜",
+  "reading": "おお",
+  "meaning": "heavy ~, main ~, big ~",
+  "lesson": 29
+},
+{
+  "word": "大〜",
+  "reading": "だい",
+  "meaning": "large ~, major ~, great ~",
+  "lesson": 29
+},
+{
+  "word": "各〜",
+  "reading": "かく",
+  "meaning": "each ~",
+  "lesson": 29
+},
+{
+  "word": "片〜",
+  "reading": "かた",
+  "meaning": "single ~",
+  "lesson": 29
+},
+{
+  "word": "全〜",
+  "reading": "ぜん",
+  "meaning": "the whole ~, all the ~",
+  "lesson": 29
+},
+{
+  "word": "元〜",
+  "reading": "もと",
+  "meaning": "former ~",
+  "lesson": 29
+},
+{
+  "word": "翌〜",
+  "reading": "よく",
+  "meaning": "next/following ~",
+  "lesson": 29
+},
+{
+  "word": "〜毎",
+  "reading": "ごと",
+  "meaning": "once every ~, by ~",
+  "lesson": 29
+},
+{
+  "word": "〜差",
+  "reading": "さ",
+  "meaning": "a difference of ~",
+  "lesson": 29
+},
+{
+  "word": "〜産",
+  "reading": "さん",
+  "meaning": "product of ~",
+  "lesson": 29
+},
+{
+  "word": "〜着",
+  "reading": "ちゃく",
+  "meaning": "arrival in/at ~",
+  "lesson": 29
+},
+{
+  "word": "〜発",
+  "reading": "はつ",
+  "meaning": "departing at/from ~",
+  "lesson": 29
+},
+{
+  "word": "〜風",
+  "reading": "ふう",
+  "meaning": "-style, -like",
+  "lesson": 29
+},
+{
+  "word": "〜沿い",
+  "reading": "ぞい",
+  "meaning": "along the ~",
+  "lesson": 29
+},
+{
+  "word": "〜付き",
+  "reading": "つき",
+  "meaning": "equipped, furnished with ~",
+  "lesson": 29
+},
+{
+  "word": "〜引き",
+  "reading": "びき",
+  "meaning": "~ off (discount)",
+  "lesson": 29
+},
+{
+  "word": "〜振り",
+  "reading": "ぶり",
+  "meaning": "for the first time in ~",
+  "lesson": 29
+},
+{
+  "word": "〜向き",
+  "reading": "むき",
+  "meaning": "facing the ~",
+  "lesson": 29
+},
+{
+  "word": "〜行き",
+  "reading": "いき",
+  "meaning": "bound for ~, heading for/toward ~",
+  "lesson": 29
+},
   ],
   N2: [],
   N1: [],
