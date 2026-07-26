@@ -1,0 +1,37 @@
+diff --git a/css/style.css b/css/style.css
+index 75c7a4d..444b850 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -476,7 +476,15 @@ main {
+   border-top: 1px dashed var(--line);
+ }
+ .lesson-chips .chip { font-size: var(--fs-xs); padding: var(--space-1) var(--space-3); }
+-.lesson-chips .chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
++/* A red ring rather than a solid fill — a lesson chip can also be green
++   (chip-passed) or gold (chip-golden) at the same time, and a fill here
++   would stomp on that color and make it impossible to tell "selected" from
++   "passed" at a glance. The ring layers on top of whatever the chip's own
++   status color is, so both are always visible together. */
++.lesson-chips .chip.active {
++  border-color: var(--seal);
++  box-shadow: 0 0 0 2px var(--seal);
++}
+ 
+ .study-options {
+   display: flex;
+@@ -495,7 +503,6 @@ main {
+    words cycled twice, zero mistakes, this session) turns solid green —
+    same --mastered color used everywhere else in the app for "done." */
+ .lesson-chip.chip-passed { background: var(--mastered); border-color: var(--mastered); color: #fff; }
+-.lesson-chip.chip-passed.active { background: var(--mastered); border-color: var(--mastered); }
+ 
+ /* Word List's lesson chips get a golden shine once a lesson has cleared
+    ALL THREE practice modes (flashcards + writing + furigana) — the full
+@@ -509,7 +516,6 @@ main {
+   font-weight: 700;
+   animation: chipGoldenShine 2.6s linear infinite;
+ }
+-.lesson-chip.chip-golden.active { border-color: var(--indigo-deep); color: #fff; }
+ @keyframes chipGoldenShine {
+   0% { background-position: 200% 0; }
+   100% { background-position: -200% 0; }
