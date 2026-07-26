@@ -28,13 +28,6 @@
     document.documentElement.dataset.theme = currentTheme;
   }
   applyTheme();
-  // Exposed so exam.js (loaded after this file) can check silent mode too,
-  // without duplicating the localStorage/state logic in a second file.
-  window.JPStudySettings = {
-    isSilent() {
-      return silentMode;
-    },
-  };
 
   function t(key, vars) {
     const dict = (window.I18N && window.I18N[currentLang]) || {};
@@ -97,9 +90,6 @@
     updateProgress();
     refreshWordList();
     if (state.flashcards.current) renderFace(state.flashcards.current);
-    
-    // 👇 ADD THIS LINE: It forces the Home tab to instantly redraw without refreshing!
-    if (typeof renderDashboard === "function") renderDashboard();
   }
 
   function saveProgress(skipSyncHook) {
@@ -242,7 +232,9 @@
       lessons: [], // empty array = no lesson filter (all lessons); otherwise a list of selected lesson numbers
       isolateMode: false, // when true: deck is limited to low-ratio words, and grading doesn't touch persisted stats
       direction: "word-meaning",
+      shuffleOn: true,
       queue: [], // words still to show this session
+      sessionItems: [], // full deck this session started with — stays intact while queue empties, so lesson-completion can be checked against it
       current: null, // word currently on screen
       masteredCount: 0, // retired this session (2 correct answers in a row)
       totalCount: 0,
@@ -253,24 +245,35 @@
       level: "all",
       lessons: [],
       isolateMode: false,
+      shuffleOn: true,
       queue: [],
+      sessionItems: [],
       current: null,
       revealed: false,
+      masteredCount: 0,
+      totalCount: 0,
+    },
+    furigana: {
+      level: "all",
+      lessons: [],
+      isolateMode: false,
+      shuffleOn: true,
+      queue: [],
+      sessionItems: [],
+      current: null,
+      submitted: false,
       masteredCount: 0,
       totalCount: 0,
     },
   };
 
   // ---------- view tabs ----------
-  // Nav is down to 3 top-level tabs (Vocab / Grammar / Exam); Word
-  // List/Flashcards/Writing and Grammar/Conjugation each live as
-  // .subview sections switched by their own in-view .direction-toggle
-  // instead of eating a slot in the main tab bar. Home has no tab at
-  // all — it's the default view, reachable again via the logo.
+  // Just 2 top-level tabs (Vocab / Grammar); Word List/Flashcards/Writing/
+  // Furigana and Grammar/Conjugation each live as .subview sections switched
+  // by their own in-view .subnav instead of eating a slot in the main tab bar.
   const tabs = document.querySelectorAll(".tab");
   const views = document.querySelectorAll(".view");
   const tabIndicatorEl = document.getElementById("tab-indicator");
-  const brandHomeBtn = document.getElementById("brand-home-btn");
 
   function moveTabIndicator(tab) {
     if (!tabIndicatorEl) return;
@@ -288,6 +291,65 @@
   function vocabSubShow(sub) {
     if (sub === "wordlist" && typeof refreshWordList === "function") refreshWordList();
     if (sub === "kanjiwrite" && typeof kwOnTabShow === "function") kwOnTabShow();
+    if (sub === "furigana" && state.furigana.current) {
+      const fgFieldEl = document.getElementById("fg-field");
+      if (fgFieldEl) setTimeout(() => fgFieldEl.focus(), 0);
+    }
+  }
+
+  // ---------- lesson mastery tracking (Flashcards / Writing / Furigana) ----------
+  // Each of the three vocab practice modes tracks its own "passed" set,
+  // per level+lesson: a lesson counts as passed for a mode once every word
+  // in it has gone through exactly two exposures in a single session with
+  // both correct — same "twice, no do-overs" rule each mode already uses
+  // for its own mastered/weak per-word tracking, just rolled up to the
+  // lesson level. The Word List's golden-shine state (all three modes
+  // passed) reads all three stores together.
+  function makeLessonMastery(storageKey) {
+    let store = {};
+    try {
+      store = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    } catch (e) {
+      store = {};
+    }
+    function key(level, lesson) {
+      return `${level}::${lesson}`;
+    }
+    return {
+      isPassed(level, lesson) {
+        return !!store[key(level, lesson)];
+      },
+      markPassed(level, lesson) {
+        const k = key(level, lesson);
+        if (store[k]) return false; // already marked — no need to re-save or re-celebrate
+        store[k] = true;
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(store));
+        } catch (e) {
+          /* ignore */
+        }
+        return true;
+      },
+    };
+  }
+  const fcMastery = makeLessonMastery("jpstudy_fc_lesson_passed_v1");
+  const kwMastery = makeLessonMastery("jpstudy_kw_lesson_passed_v1");
+  const fgMastery = makeLessonMastery("jpstudy_fg_lesson_passed_v1");
+
+  function isFullyMastered(level, lesson) {
+    return fcMastery.isPassed(level, lesson) && kwMastery.isPassed(level, lesson) && fgMastery.isPassed(level, lesson);
+  }
+
+  // Call after an item finishes its two exposures this session (attempts>=2).
+  // sessionItems is the full deck the session started with (not the live
+  // queue, which empties as you go) so we can tell whether every word from
+  // this item's lesson has now also finished, all correct.
+  function checkLessonComplete(mastery, sessionItems, level, lesson) {
+    if (lesson === undefined) return;
+    const lessonItems = sessionItems.filter((i) => i.level === level && i.lesson === lesson);
+    if (!lessonItems.length) return;
+    const allPassed = lessonItems.every((i) => i.attempts >= 2 && i.correctAttempts === 2);
+    if (allPassed) mastery.markPassed(level, lesson);
   }
 
   function setupSubnav(navId, onShow) {
@@ -324,20 +386,7 @@
         const activeSub = document.querySelector("#vocab-view .subview.active");
         if (activeSub) vocabSubShow(activeSub.id.replace("-subview", ""));
       }
-      if (target === "exam" && window.JPStudyExam && typeof window.JPStudyExam.onTabShow === "function") {
-        window.JPStudyExam.onTabShow();
-      }
     });
-  });
-
-  brandHomeBtn.addEventListener("click", () => {
-    tabs.forEach((t) => {
-      t.classList.remove("active");
-      t.setAttribute("aria-selected", "false");
-    });
-    moveTabIndicator(null);
-    views.forEach((v) => v.classList.toggle("active", v.id === "home-view"));
-    if (typeof renderDashboard === "function") renderDashboard();
   });
 
   moveTabIndicator(document.querySelector(".tab.active"));
@@ -473,7 +522,8 @@
   function startSession() {
     const fc = state.flashcards;
     const items = buildDeck(fc.level, fc.lessons, fc.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
-    fc.queue = items;
+    fc.sessionItems = items;
+    fc.queue = fc.shuffleOn ? shuffle(items) : items.slice();
     fc.totalCount = items.length;
     fc.masteredCount = 0;
     fc.current = null;
@@ -499,6 +549,13 @@
       const masteredThisSitting = item.correctAttempts === 2;
       recordSessionResult(item, masteredThisSitting);
       if (masteredThisSitting) fc.masteredCount += 1;
+      // Isolate mode's session deck is only the weak subset of a lesson, not
+      // the whole thing, so "everyone in this session passed" wouldn't mean
+      // the lesson itself is mastered — skip the lesson-complete check there.
+      if (!fc.isolateMode) {
+        checkLessonComplete(fcMastery, fc.sessionItems, item.level, item.lesson);
+        renderLessonChips(fc.level);
+      }
     }
     showNextCard();
   }
@@ -533,7 +590,8 @@
       .map((n) => {
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
         const isActive = selected.includes(n);
-        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}" title="${title}">${n}課</button>`;
+        const passedClass = fcMastery.isPassed(level, n) ? " chip-passed" : "";
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}${passedClass}" data-lesson="${n}" title="${title}">${n}課</button>`;
       })
       .join("");
     fcLessonChipsEl.innerHTML = allChip + lessonChips;
@@ -609,9 +667,6 @@ resetProgressBtn.addEventListener("click", () => {
 
     saveProgress();
     startSession();
-    
-    // Force the dashboard to redraw immediately in the background
-    if (typeof renderDashboard === "function") renderDashboard();
   });
 
   cardEl.addEventListener("click", () => {
@@ -627,8 +682,12 @@ resetProgressBtn.addEventListener("click", () => {
   gradeWrongBtn.addEventListener("click", () => gradeCurrent(false));
   gradeRightBtn.addEventListener("click", () => gradeCurrent(true));
 
-  document.getElementById("fc-shuffle").addEventListener("click", () => {
-    state.flashcards.queue = shuffle(state.flashcards.queue);
+  const fcShuffleToggleBtn = document.getElementById("fc-shuffle-toggle");
+  fcShuffleToggleBtn.addEventListener("click", () => {
+    state.flashcards.shuffleOn = !state.flashcards.shuffleOn;
+    fcShuffleToggleBtn.classList.toggle("active", state.flashcards.shuffleOn);
+    fcShuffleToggleBtn.textContent = t(state.flashcards.shuffleOn ? "shuffleOn" : "shuffleOff");
+    if (state.flashcards.shuffleOn) state.flashcards.queue = shuffle(state.flashcards.queue);
   });
 
   document.getElementById("fc-skip").addEventListener("click", () => {
@@ -813,8 +872,9 @@ resetProgressBtn.addEventListener("click", () => {
   }
   function kwStartSession() {
     const kw = state.kanjiWrite;
-    const items = kwBuildDeck(kw.level, kw.lessons, kw.isolateMode);
-    kw.queue = items;
+    const items = kwBuildDeck(kw.level, kw.lessons, kw.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
+    kw.sessionItems = items;
+    kw.queue = kw.shuffleOn ? shuffle(items) : items.slice();
     kw.totalCount = items.length;
     kw.masteredCount = 0;
     kw.current = null;
@@ -846,7 +906,8 @@ resetProgressBtn.addEventListener("click", () => {
       .map((n) => {
         const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
         const isActive = selected.includes(n);
-        return `<button class="chip lesson-chip${isActive ? " active" : ""}" data-lesson="${n}" title="${title}">${n}課</button>`;
+        const passedClass = kwMastery.isPassed(level, n) ? " chip-passed" : "";
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}${passedClass}" data-lesson="${n}" title="${title}">${n}課</button>`;
       })
       .join("");
     kwLessonChipsEl.innerHTML = allChip + lessonChips;
@@ -917,15 +978,30 @@ resetProgressBtn.addEventListener("click", () => {
     const kw = state.kanjiWrite;
     const item = kw.current;
     if (!item || !kw.revealed) return;
-    recordKwResult(item, isCorrect);
-    if (isCorrect) kw.masteredCount += 1;
+    item.attempts += 1;
+    if (isCorrect) item.correctAttempts += 1;
+    if (item.attempts < 2) {
+      kw.queue.push(item);
+    } else {
+      const masteredThisSitting = item.correctAttempts === 2;
+      recordKwResult(item, masteredThisSitting);
+      if (masteredThisSitting) kw.masteredCount += 1;
+      if (!kw.isolateMode) {
+        checkLessonComplete(kwMastery, kw.sessionItems, item.level, item.lesson);
+        kwRenderLessonChips(kw.level);
+      }
+    }
     kwShowNext();
   }
   kwGradeWrongBtn.addEventListener("click", () => kwGradeCurrent(false));
   kwGradeRightBtn.addEventListener("click", () => kwGradeCurrent(true));
 
-  document.getElementById("kw-shuffle").addEventListener("click", () => {
-    state.kanjiWrite.queue = shuffle(state.kanjiWrite.queue);
+  const kwShuffleToggleBtn = document.getElementById("kw-shuffle-toggle");
+  kwShuffleToggleBtn.addEventListener("click", () => {
+    state.kanjiWrite.shuffleOn = !state.kanjiWrite.shuffleOn;
+    kwShuffleToggleBtn.classList.toggle("active", state.kanjiWrite.shuffleOn);
+    kwShuffleToggleBtn.textContent = t(state.kanjiWrite.shuffleOn ? "shuffleOn" : "shuffleOff");
+    if (state.kanjiWrite.shuffleOn) state.kanjiWrite.queue = shuffle(state.kanjiWrite.queue);
   });
   document.getElementById("kw-skip").addEventListener("click", () => {
     const kw = state.kanjiWrite;
@@ -936,6 +1012,236 @@ resetProgressBtn.addEventListener("click", () => {
 
   kwRenderLessonChips(state.kanjiWrite.level);
   kwStartSession();
+
+  // ---------- furigana practice ----------
+  // Type the reading for a kanji word from memory, auto-graded against the
+  // word's own `reading` field — no self-honesty needed, unlike flashcards
+  // and writing practice. Pure-kana words (empty `reading`) are skipped,
+  // same as the kanji-writing deck skips words with no kanji to draw.
+  const FURIGANA_PROGRESS_KEY = "jpstudy_furigana_progress_v1";
+  let furiganaProgressStore = {};
+  try {
+    furiganaProgressStore = JSON.parse(localStorage.getItem(FURIGANA_PROGRESS_KEY) || "{}");
+  } catch (e) {
+    furiganaProgressStore = {};
+  }
+  function saveFuriganaProgress() {
+    try {
+      localStorage.setItem(FURIGANA_PROGRESS_KEY, JSON.stringify(furiganaProgressStore));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  function getFgStats(item) {
+    return furiganaProgressStore[wordId(item)] || {};
+  }
+  function isFgWeak(item) {
+    return !!getFgStats(item).weak;
+  }
+  function recordFgResult(item, correct) {
+    const id = wordId(item);
+    const stats = furiganaProgressStore[id] || {};
+    stats.mastered = correct;
+    stats.weak = !correct;
+    stats.lastSeen = new Date().toISOString();
+    furiganaProgressStore[id] = stats;
+    saveFuriganaProgress();
+    recordStudyActivity();
+  }
+
+  function fgBuildDeck(level, lessons, isolateMode) {
+    let items = buildDeck(level, lessons, false).filter((item) => item.reading && item.reading.trim());
+    if (isolateMode) items = items.filter((item) => isFgWeak(item));
+    return items;
+  }
+
+  function normalizeReading(str) {
+    return (str || "").replace(/[()（）\s　]/g, "").trim();
+  }
+
+  const fgLevelChips = document.querySelectorAll("#fg-level-chips .chip");
+  const fgLessonChipsEl = document.getElementById("fg-lesson-chips");
+  const fgIsolateToggleBtn = document.getElementById("fg-isolate-toggle");
+  const fgIsolateNoteEl = document.getElementById("fg-isolate-note");
+  const fgResetProgressBtn = document.getElementById("fg-reset-progress");
+  const fgWordEl = document.getElementById("fg-word");
+  const fgMeaningEl = document.getElementById("fg-meaning");
+  const fgFieldEl = document.getElementById("fg-field");
+  const fgSubmitBtn = document.getElementById("fg-submit");
+  const fgAnswerEl = document.getElementById("fg-answer");
+  const fgAnswerWordEl = document.getElementById("fg-answer-word");
+  const fgProgressEl = document.getElementById("fg-progress");
+
+  function fgEmptyText() {
+    const fg = state.furigana;
+    if (fg.totalCount) return t("allMastered");
+    return fg.isolateMode ? t("noWeakWords") : t("noCards");
+  }
+  function fgUpdateProgress() {
+    const fg = state.furigana;
+    fgProgressEl.textContent = fg.totalCount ? t("masteredProgress", { n: fg.masteredCount, total: fg.totalCount }) : "0 / 0";
+  }
+  function fgShowNext() {
+    const fg = state.furigana;
+    fg.submitted = false;
+    fgFieldEl.value = "";
+    fgFieldEl.disabled = false;
+    fgFieldEl.classList.remove("fg-input-correct", "fg-input-wrong");
+    fgAnswerEl.hidden = true;
+    if (!fg.queue.length) {
+      fg.current = null;
+      fgWordEl.textContent = fgEmptyText();
+      fgMeaningEl.textContent = "";
+      fgUpdateProgress();
+      return;
+    }
+    fg.current = fg.queue.shift();
+    fgWordEl.textContent = fg.current.word;
+    fgMeaningEl.textContent = fg.current.meaning;
+    fgUpdateProgress();
+    setTimeout(() => fgFieldEl.focus(), 0);
+  }
+  function fgStartSession() {
+    const fg = state.furigana;
+    const items = fgBuildDeck(fg.level, fg.lessons, fg.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
+    fg.sessionItems = items;
+    fg.queue = fg.shuffleOn ? shuffle(items) : items.slice();
+    fg.totalCount = items.length;
+    fg.masteredCount = 0;
+    fg.current = null;
+    fgShowNext();
+  }
+
+  function fgRenderLessonChips(level) {
+    const data = window.VOCAB_DATA || {};
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    if (level === "all") {
+      fgLessonChipsEl.innerHTML = "";
+      fgLessonChipsEl.hidden = true;
+      return;
+    }
+    const items = data[level] || [];
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+    if (!lessonNums.length) {
+      fgLessonChipsEl.innerHTML = "";
+      fgLessonChipsEl.hidden = true;
+      return;
+    }
+    fgLessonChipsEl.hidden = false;
+    const selected = state.furigana.lessons;
+    const allActive = selected.length === 0;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    const lessonChips = lessonNums
+      .map((n) => {
+        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        const isActive = selected.includes(n);
+        const passedClass = fgMastery.isPassed(level, n) ? " chip-passed" : "";
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}${passedClass}" data-lesson="${n}" title="${title}">${n}課</button>`;
+      })
+      .join("");
+    fgLessonChipsEl.innerHTML = allChip + lessonChips;
+    fgLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        if (chip.dataset.lesson === "all") {
+          state.furigana.lessons = [];
+        } else {
+          const n = Number(chip.dataset.lesson);
+          const idx = state.furigana.lessons.indexOf(n);
+          if (idx === -1) state.furigana.lessons.push(n);
+          else state.furigana.lessons.splice(idx, 1);
+          state.furigana.lessons.sort((a, b) => a - b);
+        }
+        fgRenderLessonChips(level);
+        fgStartSession();
+      });
+    });
+  }
+
+  fgLevelChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      fgLevelChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.furigana.level = chip.dataset.level;
+      state.furigana.lessons = [];
+      fgRenderLessonChips(chip.dataset.level);
+      fgStartSession();
+    });
+  });
+
+  fgIsolateToggleBtn.addEventListener("click", () => {
+    state.furigana.isolateMode = !state.furigana.isolateMode;
+    fgIsolateToggleBtn.classList.toggle("active", state.furigana.isolateMode);
+    fgIsolateNoteEl.hidden = !state.furigana.isolateMode;
+    fgStartSession();
+  });
+
+  fgResetProgressBtn.addEventListener("click", () => {
+    const fg = state.furigana;
+    let confirmMsg = "This clears your furigana-practice progress for the currently selected lessons. Continue?";
+    if (fg.level === "all" && (!fg.lessons || fg.lessons.length === 0)) {
+      confirmMsg = "This clears your furigana-practice progress for EVERY word. Continue?";
+    }
+    if (!window.confirm(confirmMsg)) return;
+    const now = new Date().toISOString();
+    const targetItems = fgBuildDeck(fg.level, fg.lessons, false);
+    targetItems.forEach((item) => {
+      furiganaProgressStore[wordId(item)] = { mastered: false, weak: false, lastSeen: now };
+    });
+    saveFuriganaProgress();
+    fgStartSession();
+  });
+
+  function fgSubmit() {
+    const fg = state.furigana;
+    const item = fg.current;
+    if (!item || fg.submitted) return;
+    fg.submitted = true;
+    const isCorrect = normalizeReading(fgFieldEl.value) === normalizeReading(item.reading);
+    fgFieldEl.classList.add(isCorrect ? "fg-input-correct" : "fg-input-wrong");
+    fgFieldEl.disabled = true;
+    if (!isCorrect) {
+      fgAnswerEl.hidden = false;
+      fgAnswerWordEl.textContent = item.reading;
+    }
+    item.attempts += 1;
+    if (isCorrect) item.correctAttempts += 1;
+    if (item.attempts < 2) {
+      fg.queue.push(item);
+    } else {
+      const masteredThisSitting = item.correctAttempts === 2;
+      recordFgResult(item, masteredThisSitting);
+      if (masteredThisSitting) fg.masteredCount += 1;
+      if (!fg.isolateMode) {
+        checkLessonComplete(fgMastery, fg.sessionItems, item.level, item.lesson);
+        fgRenderLessonChips(fg.level);
+      }
+    }
+    setTimeout(fgShowNext, isCorrect ? 350 : 1500);
+  }
+  fgSubmitBtn.addEventListener("click", fgSubmit);
+  fgFieldEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      fgSubmit();
+    }
+  });
+
+  const fgShuffleToggleBtn = document.getElementById("fg-shuffle-toggle");
+  fgShuffleToggleBtn.addEventListener("click", () => {
+    state.furigana.shuffleOn = !state.furigana.shuffleOn;
+    fgShuffleToggleBtn.classList.toggle("active", state.furigana.shuffleOn);
+    fgShuffleToggleBtn.textContent = t(state.furigana.shuffleOn ? "shuffleOn" : "shuffleOff");
+    if (state.furigana.shuffleOn) state.furigana.queue = shuffle(state.furigana.queue);
+  });
+  document.getElementById("fg-skip").addEventListener("click", () => {
+    const fg = state.furigana;
+    if (!fg.current) return;
+    fg.queue.push(fg.current);
+    fgShowNext();
+  });
+
+  fgRenderLessonChips(state.furigana.level);
+  fgStartSession();
 
   // ---------- grammar ----------
   const grLevelChips = document.querySelectorAll("#gr-level-chips .chip");
@@ -1052,10 +1358,10 @@ resetProgressBtn.addEventListener("click", () => {
     const gradeWrongBtn = document.getElementById(ids.gradeWrong);
     const gradeRightBtn = document.getElementById(ids.gradeRight);
     const progressEl = document.getElementById(ids.progress);
-    const shuffleBtn = document.getElementById(ids.shuffle);
+    const shuffleToggleBtn = document.getElementById(ids.shuffleToggle);
     const skipBtn = document.getElementById(ids.skip);
 
-    const qs = { queue: [], current: null, revealed: false, masteredCount: 0, totalCount: 0 };
+    const qs = { queue: [], current: null, revealed: false, masteredCount: 0, totalCount: 0, shuffleOn: true };
 
     function updateProgress() {
       progressEl.textContent = qs.totalCount ? t("masteredProgress", { n: qs.masteredCount, total: qs.totalCount }) : "0 / 0";
@@ -1146,7 +1452,14 @@ resetProgressBtn.addEventListener("click", () => {
     gradeWrongBtn.addEventListener("click", () => grade(false));
     gradeRightBtn.addEventListener("click", () => grade(true));
 
-    if (shuffleBtn) shuffleBtn.addEventListener("click", () => { qs.queue = shuffle(qs.queue); });
+    if (shuffleToggleBtn) {
+      shuffleToggleBtn.addEventListener("click", () => {
+        qs.shuffleOn = !qs.shuffleOn;
+        shuffleToggleBtn.classList.toggle("active", qs.shuffleOn);
+        shuffleToggleBtn.textContent = t(qs.shuffleOn ? "shuffleOn" : "shuffleOff");
+        if (qs.shuffleOn) qs.queue = shuffle(qs.queue);
+      });
+    }
     if (skipBtn)
       skipBtn.addEventListener("click", () => {
         if (!qs.current) return;
@@ -1156,7 +1469,7 @@ resetProgressBtn.addEventListener("click", () => {
 
     function start(buildFn) {
       const items = buildFn().map((q) => ({ ...q, streak: 0 }));
-      qs.queue = items;
+      qs.queue = qs.shuffleOn ? shuffle(items) : items.slice();
       qs.totalCount = items.length;
       qs.masteredCount = 0;
       qs.current = null;
@@ -1168,64 +1481,175 @@ resetProgressBtn.addEventListener("click", () => {
 
   // ---------- word list ----------
   const wlLevelChips = document.querySelectorAll("#wl-level-chips .chip");
+  const wlLessonChipsEl = document.getElementById("wl-lesson-chips");
+  const wlSearchInputEl = document.getElementById("wl-search-input");
   const wordlistContainer = document.getElementById("wordlist-container");
   let currentWordListLevel = "all";
+  let currentWordListLesson = null; // null = "all lessons" for the selected level
+  let wlSearchQuery = "";
+
+  // Single search box that auto-detects what kind of query it is: any kanji
+  // character means "search word text" (substring anywhere, but results
+  // ranked by how early the match falls — a match at the front of the word
+  // outranks one buried in the middle); any kana means "search reading"
+  // (plain substring — a reading match is inherently in-order since kana
+  // readings are just the pronunciation spelled out left to right); anything
+  // else is treated as an English meaning search.
+  function wlQueryKind(query) {
+    if (/[一-龯]/.test(query)) return "kanji";
+    if (/[ぁ-んァ-ヶーゝゞ]/.test(query)) return "reading";
+    return "meaning";
+  }
+  function wlMatchesQuery(item, query, kind) {
+    if (kind === "kanji") return item.word.includes(query);
+    if (kind === "reading") return (item.reading || item.word).includes(query);
+    return (item.meaning || "").toLowerCase().includes(query.toLowerCase());
+  }
+  function wlSearchResults(levels, data, query) {
+    const kind = wlQueryKind(query);
+    const matches = [];
+    levels.forEach((l) => {
+      (data[l] || []).forEach((item) => {
+        if (wlMatchesQuery(item, query, kind)) matches.push({ ...item, level: l });
+      });
+    });
+    if (kind === "kanji") {
+      matches.sort((a, b) => a.word.indexOf(query) - b.word.indexOf(query));
+    }
+    return matches;
+  }
+
+  function wlRowHtml(item) {
+    const rowClass = isWeak(item) ? ' class="wl-row-weak"' : "";
+    return `
+      <tr${rowClass}>
+        <td class="wl-word">${item.word}</td>
+        <td class="wl-reading">${item.reading}</td>
+        <td class="wl-meaning">${item.meaning}</td>
+      </tr>`;
+  }
+  function wlTableHtml(rowsHtml) {
+    return `
+      <table class="wordlist-table">
+        <thead><tr><th>${t("wlWord")}</th><th>${t("wlReading")}</th><th>${t("wlMeaning")}</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>`;
+  }
+
+  function renderWlLessonChips(level) {
+    if (level === "all") {
+      wlLessonChipsEl.innerHTML = "";
+      wlLessonChipsEl.hidden = true;
+      return;
+    }
+    const data = window.VOCAB_DATA || {};
+    const items = data[level] || [];
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+    if (!lessonNums.length) {
+      wlLessonChipsEl.innerHTML = "";
+      wlLessonChipsEl.hidden = true;
+      return;
+    }
+    wlLessonChipsEl.hidden = false;
+    const allActive = currentWordListLesson === null;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    const chips = lessonNums
+      .map((n) => {
+        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
+        const isActive = currentWordListLesson === n;
+        const goldClass = isFullyMastered(level, n) ? " chip-golden" : "";
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}${goldClass}" data-lesson="${n}" title="${title}">${n}課</button>`;
+      })
+      .join("");
+    wlLessonChipsEl.innerHTML = allChip + chips;
+    wlLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        currentWordListLesson = chip.dataset.lesson === "all" ? null : Number(chip.dataset.lesson);
+        renderWlLessonChips(level);
+        renderWordList(level);
+      });
+    });
+  }
 
   function renderWordList(level) {
     const data = window.VOCAB_DATA || {};
     const levels = level === "all" ? Object.keys(data) : [level];
-    wordlistContainer.innerHTML = levels
-      .map((l) => {
-        const items = data[l] || [];
-        if (!items.length) return "";
-        const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[l]) || {};
-        const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort(
-          (a, b) => a - b
-        );
-        // words without a lesson number (if any) get grouped at the end
-        const hasUnlabeled = items.some((item) => item.lesson === undefined);
-        const groups = hasUnlabeled ? [...lessonNums, undefined] : lessonNums;
+    const query = wlSearchQuery.trim();
 
-        const lessonBlocks = groups
-          .map((lessonNum) => {
-            const lessonItems = items.filter((item) => item.lesson === lessonNum);
-            if (!lessonItems.length) return "";
-            const heading =
-              lessonNum === undefined
-                ? "Other"
-                : lessonTitles[lessonNum]
-                ? `${lessonNum}課 ${lessonTitles[lessonNum]}`
-                : `${lessonNum}課`;
-            const rows = lessonItems
-              .map((item) => {
-                const idItem = { ...item, level: l };
-                const rowClass = isWeak(idItem) ? ' class="wl-row-weak"' : "";
-                return `
-              <tr${rowClass}>
-                <td class="wl-word">${item.word}</td>
-                <td class="wl-reading">${item.reading}</td>
-                <td class="wl-meaning">${item.meaning}</td>
-              </tr>`;
-              })
-              .join("");
-            return `
-              <div class="wordlist-lesson-block">
-                <h4 class="wordlist-lesson-heading">${heading}</h4>
-                <table class="wordlist-table">
-                  <thead><tr><th>${t("wlWord")}</th><th>${t("wlReading")}</th><th>${t("wlMeaning")}</th></tr></thead>
-                  <tbody>${rows}</tbody>
-                </table>
-              </div>`;
-          })
-          .join("");
+    // A search query is a global filter across the selected level(s) —
+    // it ignores the lesson-chip selection and shows one flat, relevance-
+    // ranked result list instead of the lesson-by-lesson breakdown.
+    if (query) {
+      const matches = wlSearchResults(levels, data, query);
+      wordlistContainer.innerHTML = matches.length
+        ? wlTableHtml(matches.map(wlRowHtml).join(""))
+        : `<p class="wl-empty-note">${t("wlNoResults")}</p>`;
+      return;
+    }
 
+    if (level === "all") {
+      // No single level selected — no lesson chips to drive this (lesson
+      // numbers aren't unique across levels), so show everything stacked.
+      wordlistContainer.innerHTML = levels
+        .map((l) => {
+          const items = data[l] || [];
+          if (!items.length) return "";
+          const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[l]) || {};
+          const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort(
+            (a, b) => a - b
+          );
+          const hasUnlabeled = items.some((item) => item.lesson === undefined);
+          const groups = hasUnlabeled ? [...lessonNums, undefined] : lessonNums;
+          const lessonBlocks = groups
+            .map((lessonNum) => {
+              const lessonItems = items.filter((item) => item.lesson === lessonNum).map((item) => ({ ...item, level: l }));
+              if (!lessonItems.length) return "";
+              const heading =
+                lessonNum === undefined ? "Other" : lessonTitles[lessonNum] ? `${lessonNum}課 ${lessonTitles[lessonNum]}` : `${lessonNum}課`;
+              return `
+                <div class="wordlist-lesson-block">
+                  <h4 class="wordlist-lesson-heading">${heading}</h4>
+                  ${wlTableHtml(lessonItems.map(wlRowHtml).join(""))}
+                </div>`;
+            })
+            .join("");
+          return `
+            <div class="wordlist-group">
+              <h3 class="wordlist-level-heading ${l.toLowerCase()}">${l}</h3>
+              ${lessonBlocks}
+            </div>`;
+        })
+        .join("");
+      return;
+    }
+
+    // A specific level: lesson chips drive which lesson(s) are shown, so
+    // you jump straight to one instead of scrolling through the whole level.
+    const items = (data[level] || []).map((item) => ({ ...item, level }));
+    if (!items.length) {
+      wordlistContainer.innerHTML = "";
+      return;
+    }
+    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+    const hasUnlabeled = items.some((item) => item.lesson === undefined);
+    const groups =
+      currentWordListLesson === null ? (hasUnlabeled ? [...lessonNums, undefined] : lessonNums) : [currentWordListLesson];
+    const lessonBlocks = groups
+      .map((lessonNum) => {
+        const lessonItems = items.filter((item) => item.lesson === lessonNum);
+        if (!lessonItems.length) return "";
+        const heading =
+          lessonNum === undefined ? "Other" : lessonTitles[lessonNum] ? `${lessonNum}課 ${lessonTitles[lessonNum]}` : `${lessonNum}課`;
         return `
-          <div class="wordlist-group">
-            <h3 class="wordlist-level-heading ${l.toLowerCase()}">${l}</h3>
-            ${lessonBlocks}
+          <div class="wordlist-lesson-block">
+            <h4 class="wordlist-lesson-heading">${heading}</h4>
+            ${wlTableHtml(lessonItems.map(wlRowHtml).join(""))}
           </div>`;
       })
       .join("");
+    wordlistContainer.innerHTML = lessonBlocks;
   }
 
   wlLevelChips.forEach((chip) => {
@@ -1233,14 +1657,22 @@ resetProgressBtn.addEventListener("click", () => {
       wlLevelChips.forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
       currentWordListLevel = chip.dataset.level;
+      currentWordListLesson = null;
+      renderWlLessonChips(currentWordListLevel);
       renderWordList(currentWordListLevel);
     });
+  });
+
+  wlSearchInputEl.addEventListener("input", () => {
+    wlSearchQuery = wlSearchInputEl.value;
+    renderWordList(currentWordListLevel);
   });
 
   function refreshWordList() {
     renderWordList(currentWordListLevel);
   }
 
+  renderWlLessonChips(currentWordListLevel);
   renderWordList("all");
 
   // ---------- conjugation: reference ----------
@@ -1364,7 +1796,7 @@ resetProgressBtn.addEventListener("click", () => {
   const conjProgressEl = document.getElementById("conj-progress");
   let conjPracticeStarted = false;
 
-  const conjState = { form: "all", queue: [], current: null, flipped: false, masteredCount: 0, totalCount: 0 };
+  const conjState = { form: "all", shuffleOn: true, queue: [], current: null, flipped: false, masteredCount: 0, totalCount: 0 };
 
   function buildConjDeck(form) {
     const verbs = window.CONJUGATION_PRACTICE_VERBS || [];
@@ -1433,7 +1865,7 @@ resetProgressBtn.addEventListener("click", () => {
 
   function startConjPractice() {
     const items = buildConjDeck(conjState.form).map((item) => ({ ...item, streak: 0 }));
-    conjState.queue = shuffle(items);
+    conjState.queue = conjState.shuffleOn ? shuffle(items) : items.slice();
     conjState.totalCount = items.length;
     conjState.masteredCount = 0;
     conjState.current = null;
@@ -1478,8 +1910,12 @@ resetProgressBtn.addEventListener("click", () => {
   conjGradeWrongBtn.addEventListener("click", () => gradeConjCurrent(false));
   conjGradeRightBtn.addEventListener("click", () => gradeConjCurrent(true));
 
-  document.getElementById("conj-shuffle").addEventListener("click", () => {
-    conjState.queue = shuffle(conjState.queue);
+  const conjShuffleToggleBtn = document.getElementById("conj-shuffle-toggle");
+  conjShuffleToggleBtn.addEventListener("click", () => {
+    conjState.shuffleOn = !conjState.shuffleOn;
+    conjShuffleToggleBtn.classList.toggle("active", conjState.shuffleOn);
+    conjShuffleToggleBtn.textContent = t(conjState.shuffleOn ? "shuffleOn" : "shuffleOff");
+    if (conjState.shuffleOn) conjState.queue = shuffle(conjState.queue);
   });
 
   document.getElementById("conj-skip").addEventListener("click", () => {
@@ -1660,7 +2096,7 @@ resetProgressBtn.addEventListener("click", () => {
     gradeWrong: "cs-grade-wrong",
     gradeRight: "cs-grade-right",
     progress: "cs-progress",
-    shuffle: "cs-shuffle",
+    shuffleToggle: "cs-shuffle-toggle",
     skip: "cs-skip",
   });
 
@@ -1734,10 +2170,8 @@ resetProgressBtn.addEventListener("click", () => {
       if (conjVerbState.verb) showVerbCard();
       refreshWordList();
       if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
-      renderDashboard();
-      if (window.JPStudyExam && typeof window.JPStudyExam.onLangChange === "function") {
-        window.JPStudyExam.onLangChange();
-      }
+      if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);
+      if (state.furigana.level !== "all") fgRenderLessonChips(state.furigana.level);
     });
   });
 
@@ -1800,121 +2234,6 @@ resetProgressBtn.addEventListener("click", () => {
       syncSettingsToggleUI();
     });
   }
-
-  // ---------- dashboard (home) ----------
-  // Vocab only, by design — grammar and conjugation both stay out of this
-  // view. Organized by level (tabs) then by lesson within that level,
-  // matching how the vocab data itself is structured. Reads from the same
-  // progress store used everywhere else — nothing new to keep in sync.
-  const ALL_LEVELS = ["N5", "N4", "N3", "N2", "N1"];
-  let dashSelectedLevel = "N4"; // the only populated level today; will still work once others are added
-
-  // Set by the Exam tab (js/exam.js) when a vocab exam phase is passed —
-  // every lesson included in that phase attempt gets marked here, keyed
-  // "{level}::{lesson}". Phase 1 and Phase 2 are tracked separately since
-  // they can now be practiced independently; local-only (not synced to the
-  // cloud yet). Read fresh on every render rather than cached, since these
-  // are plain localStorage keys exam.js writes to independently of this file.
-  const VOCAB_PHASE1_PASSED_KEY = "jpstudy_vocab_phase1_passed_v1";
-  const VOCAB_PHASE2_PASSED_KEY = "jpstudy_vocab_phase2_passed_v1";
-  function readVocabPassedStore(key) {
-    try {
-      return JSON.parse(localStorage.getItem(key) || "{}");
-    } catch (e) {
-      return {};
-    }
-  }
-
-  function renderDashLessonBreakdown(level) {
-    const items = (window.VOCAB_DATA && window.VOCAB_DATA[level]) || [];
-    const container = document.getElementById("dash-lesson-breakdown");
-    if (!items.length) {
-      container.innerHTML = `<p class="dash-empty-note">${t("dashNoVocabYet")}</p>`;
-      return;
-    }
-    const lessonTitles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
-    const lessonNums = [...new Set(items.map((item) => item.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
-    const phase1Passed = readVocabPassedStore(VOCAB_PHASE1_PASSED_KEY);
-    const phase2Passed = readVocabPassedStore(VOCAB_PHASE2_PASSED_KEY);
-    const rows = lessonNums
-      .map((n) => {
-        const lessonItems = items.filter((item) => item.lesson === n);
-        let mastered = 0,
-          weak = 0;
-        lessonItems.forEach((item) => {
-          const idItem = { ...item, level };
-          if (isMastered(idItem)) mastered += 1;
-          else if (isWeak(idItem)) weak += 1;
-        });
-        const total = lessonItems.length;
-        const pct = total ? Math.round((mastered / total) * 100) : 0;
-        const meta = weak ? t("dashWeakCountLine", { n: weak }) : mastered ? "" : t("dashNotStartedYet");
-        const title = lessonTitles[n] ? `${n}課 ${lessonTitles[n]}` : `${n}課`;
-        const key = `${level}::${n}`;
-        const p1 = !!phase1Passed[key];
-        const p2 = !!phase2Passed[key];
-        const fullyMastered = p1 && p2 && total > 0 && mastered === total;
-        const badges = [];
-        if (p1) badges.push(`<span class="dash-exam-passed-badge">${t("dashPhase1PassedBadge")}</span>`);
-        if (p2) badges.push(`<span class="dash-exam-passed-badge">${t("dashPhase2PassedBadge")}</span>`);
-        const badgeHtml = badges.length ? `<div class="dash-badges">${badges.join("")}</div>` : "";
-        const fillClass = fullyMastered ? "dash-progress-fill dash-progress-fill-complete" : "dash-progress-fill";
-        return `
-        <div class="dash-lesson-row">
-          <div class="dash-lesson-row-header">
-            <span class="dash-lesson-title">${title}</span>
-            <span class="dash-lesson-count">${t("masteredProgress", { n: mastered, total })}</span>
-          </div>
-          <div class="dash-progress-track"><div class="${fillClass}" style="width:${pct}%"></div></div>
-          <p class="dash-subsection-meta">${meta}</p>
-          ${badgeHtml}
-        </div>`;
-      })
-      .join("");
-    container.innerHTML = `<div class="dash-lesson-list">${rows}</div>`;
-  }
-
-  function renderDashWeakList() {
-    const weakVocab = [];
-    ALL_LEVELS.forEach((level) => {
-      ((window.VOCAB_DATA && window.VOCAB_DATA[level]) || []).forEach((item) => {
-        const idItem = { ...item, level };
-        const stats = getStats(idItem);
-        if (stats.weak) {
-          weakVocab.push({ word: item.word, meaning: item.meaning, lastSeen: stats.lastSeen || "" });
-        }
-      });
-    });
-    weakVocab.sort((a, b) => (b.lastSeen > a.lastSeen ? 1 : -1)); // most recently missed first
-
-    const listEl = document.getElementById("dash-weak-list");
-    if (!weakVocab.length) {
-      listEl.innerHTML = `<p class="dash-empty-note">${t("dashNoWeak")}</p>`;
-      return;
-    }
-    listEl.innerHTML = `<ul class="dash-weak-simple-list">${weakVocab
-      .slice(0, 10)
-      .map((w) => `<li><span class="dash-weak-word">${w.word}</span><span class="dash-weak-meaning">${w.meaning}</span></li>`)
-      .join("")}</ul>`;
-  }
-
-  const dashLevelTabs = document.querySelectorAll("#dash-level-tabs .chip");
-  dashLevelTabs.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      dashLevelTabs.forEach((c) => c.classList.remove("active"));
-      chip.classList.add("active");
-      dashSelectedLevel = chip.dataset.level;
-      renderDashLessonBreakdown(dashSelectedLevel);
-    });
-  });
-
-  function renderDashboard() {
-    document.getElementById("dash-streak-number").textContent = streakStore.current;
-    renderDashLessonBreakdown(dashSelectedLevel);
-    renderDashWeakList();
-  }
-
-  renderDashboard();
 
   applyTranslations();
 })();

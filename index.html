@@ -11,15 +11,14 @@
 </head>
 <body>
   <header class="site-header">
-    <button class="brand" id="brand-home-btn" type="button" data-i18n-aria="tabHome" aria-label="Home">
+    <div class="brand">
       <span class="brand-jp">日本語ノート</span>
       <span class="brand-en" data-i18n="subtitle">kanji, vocab &amp; grammar</span>
-    </button>
+    </div>
     <div class="header-right">
       <nav class="view-tabs" role="tablist">
         <button class="tab" data-view="vocab" role="tab" aria-selected="false" data-i18n="tabVocab">Vocab</button>
         <button class="tab" data-view="grammar" role="tab" aria-selected="false" data-i18n="tabGrammar">Grammar</button>
-        <button class="tab" data-view="exam" role="tab" aria-selected="false" data-i18n="tabExam">Exam</button>
         <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
       </nav>
       <div class="sync-status" id="sync-status">
@@ -40,33 +39,12 @@
   </header>
 
   <main>
-    <section id="home-view" class="view active">
-      <div class="dash-streak-hero">
-        <span class="dash-streak-number" id="dash-streak-number">0</span>
-        <span class="dash-streak-label" data-i18n="dashStreak">day streak</span>
-      </div>
-
-      <h3 class="dash-section-title" data-i18n="dashLevelsTitle">Progress by level</h3>
-      <div class="level-chips" id="dash-level-tabs">
-        <button class="chip n5" data-level="N5">N5</button>
-        <button class="chip n4 active" data-level="N4">N4</button>
-        <button class="chip n3" data-level="N3">N3</button>
-        <button class="chip n2" data-level="N2">N2</button>
-        <button class="chip n1" data-level="N1">N1</button>
-      </div>
-      <div id="dash-lesson-breakdown"></div>
-
-      <div class="dash-weak-section">
-        <h3 class="dash-section-title" data-i18n="dashWeakTitle">Words to review</h3>
-        <div id="dash-weak-list"></div>
-      </div>
-    </section>
-
-    <section id="vocab-view" class="view">
+    <section id="vocab-view" class="view active">
       <div class="subnav" id="vocab-subnav">
         <button class="subnav-btn active" data-subview="wordlist" data-i18n="tabWordlist">Word List</button>
         <button class="subnav-btn" data-subview="flashcards" data-i18n="tabFlashcards">Flashcards</button>
         <button class="subnav-btn" data-subview="kanjiwrite" data-i18n="tabKanjiWrite">Writing</button>
+        <button class="subnav-btn" data-subview="furigana" data-i18n="tabFurigana">Furigana</button>
       </div>
 
       <div id="wordlist-subview" class="subview active">
@@ -79,7 +57,9 @@
             <button class="chip n2" data-level="N2">N2</button>
             <button class="chip n1" data-level="N1">N1</button>
           </div>
+          <input type="search" class="wl-search-input" id="wl-search-input" autocomplete="off" spellcheck="false" data-i18n-placeholder="wlSearchPlaceholder" placeholder="search word, reading, or meaning">
         </div>
+        <div class="lesson-chips" id="wl-lesson-chips" hidden></div>
         <div id="wordlist-container"></div>
       </div>
 
@@ -126,7 +106,7 @@
 
         <div class="deck-controls">
           <div class="nav-group">
-            <button id="fc-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+            <button id="fc-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
             <button id="fc-skip" class="ghost-btn" data-i18n="skip">skip</button>
           </div>
           <span id="fc-progress" class="progress">0 / 0</span>
@@ -177,10 +157,53 @@
 
         <div class="deck-controls">
           <div class="nav-group">
-            <button id="kw-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+            <button id="kw-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
             <button id="kw-skip" class="ghost-btn" data-i18n="skip">skip</button>
           </div>
           <span id="kw-progress" class="progress">0 / 0</span>
+        </div>
+      </div>
+
+      <div id="furigana-subview" class="subview">
+        <div class="controls">
+          <div class="level-chips" id="fg-level-chips">
+            <button class="chip active" data-level="all" data-i18n="all">All</button>
+            <button class="chip n5" data-level="N5">N5</button>
+            <button class="chip n4" data-level="N4">N4</button>
+            <button class="chip n3" data-level="N3">N3</button>
+            <button class="chip n2" data-level="N2">N2</button>
+            <button class="chip n1" data-level="N1">N1</button>
+          </div>
+        </div>
+        <div class="lesson-chips" id="fg-lesson-chips" hidden></div>
+
+        <div class="study-options">
+          <button class="chip isolate-chip" id="fg-isolate-toggle" data-i18n="isolateWeak">🎯 practice weak words</button>
+          <button class="text-link" id="fg-reset-progress" data-i18n="resetProgress">reset progress</button>
+        </div>
+        <p class="isolate-note" id="fg-isolate-note" hidden data-i18n="isolateNote">practice mode — right/wrong here won't affect your stats</p>
+
+        <div class="fg-stage">
+          <p class="fg-hint" data-i18n="fgHint">type the reading for this word in hiragana, then submit</p>
+          <p class="fg-word" id="fg-word"></p>
+          <p class="fg-meaning" id="fg-meaning"></p>
+
+          <div class="fg-input-row">
+            <input type="text" id="fg-field" autocomplete="off" spellcheck="false" data-i18n-placeholder="fgPlaceholder" placeholder="type the reading in hiragana">
+            <button class="ghost-btn btn-primary" id="fg-submit" data-i18n="submit">Submit</button>
+          </div>
+
+          <div class="fg-answer" id="fg-answer" hidden>
+            <span class="fg-answer-word" id="fg-answer-word"></span>
+          </div>
+        </div>
+
+        <div class="deck-controls">
+          <div class="nav-group">
+            <button id="fg-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
+            <button id="fg-skip" class="ghost-btn" data-i18n="skip">skip</button>
+          </div>
+          <span id="fg-progress" class="progress">0 / 0</span>
         </div>
       </div>
     </section>
@@ -269,7 +292,7 @@
 
             <div class="deck-controls">
               <div class="nav-group">
-                <button id="conj-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+                <button id="conj-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
                 <button id="conj-skip" class="ghost-btn" data-i18n="skip">skip</button>
               </div>
               <span id="conj-progress" class="progress">0 / 0</span>
@@ -329,70 +352,13 @@
 
             <div class="deck-controls">
               <div class="nav-group">
-                <button id="cs-shuffle" class="ghost-btn" data-i18n="shuffle">shuffle</button>
+                <button id="cs-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
                 <button id="cs-skip" class="ghost-btn" data-i18n="skip">skip</button>
               </div>
               <span id="cs-progress" class="progress">0 / 0</span>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="exam-view" class="view">
-      <div class="direction-toggle" id="exam-type-toggle">
-        <button class="dir-btn active" data-exam-type="vocab" data-i18n="examTypeVocab">Vocab</button>
-        <button class="dir-btn" data-exam-type="conjugation" data-i18n="examTypeConjugation">Conjugation</button>
-      </div>
-
-      <div id="exam-setup" class="exam-panel">
-        <p class="exam-panel-note" id="exam-setup-intro"></p>
-        <div class="direction-toggle" id="exam-vocab-phase-toggle" hidden>
-          <button class="dir-btn active" data-vocab-phase="both" data-i18n="examPhaseBoth">Both phases</button>
-          <button class="dir-btn" data-vocab-phase="1" data-i18n="examPhaseOnly1">Phase 1 only</button>
-          <button class="dir-btn" data-vocab-phase="2" data-i18n="examPhaseOnly2">Phase 2 only</button>
-        </div>
-        <div class="level-chips" id="exam-level-chips"></div>
-        <div class="lesson-chips" id="exam-lesson-chips"></div>
-        <p class="exam-panel-note" id="exam-setup-note"></p>
-        <button class="ghost-btn btn-primary exam-generate-btn" id="exam-generate-btn" data-i18n="examGenerate">Generate exam</button>
-        <p class="exam-error" id="exam-error" hidden></p>
-      </div>
-
-      <div id="exam-loading" class="exam-panel" hidden>
-        <div class="exam-spinner" aria-hidden="true"></div>
-        <p class="exam-loading-text" id="exam-loading-text" data-i18n="examLoading">Generating your exam…</p>
-      </div>
-
-      <div id="exam-runner" class="exam-panel" hidden>
-        <p class="exam-phase-tag" id="exam-phase-tag"></p>
-        <div class="card-stage">
-          <div class="gp-card" id="exam-card">
-            <p class="gp-pattern-tag" id="exam-card-tag"></p>
-            <p class="gp-sentence" id="exam-card-sentence"></p>
-            <button class="ghost-btn exam-audio-btn" id="exam-audio-btn" hidden data-i18n="examPlaySentence">🔊 play sentence</button>
-            <p class="gp-hint" id="exam-card-hint"></p>
-            <div class="gp-options" id="exam-card-options" hidden></div>
-            <div class="exam-furigana-input" id="exam-furigana-input" hidden>
-              <input type="text" id="exam-furigana-field" autocomplete="off" spellcheck="false" data-i18n-placeholder="examFuriganaPlaceholder" />
-              <button class="ghost-btn btn-primary" id="exam-furigana-submit" data-i18n="examSubmit">Submit</button>
-            </div>
-            <button class="ghost-btn" id="exam-reveal" hidden data-i18n="showAnswer">show answer</button>
-            <p class="gp-answer" id="exam-answer" hidden></p>
-            <div class="grade-buttons" id="exam-grade-buttons" hidden>
-              <button class="grade-btn grade-wrong" id="exam-grade-wrong" data-i18n="didntKnow">✗ didn't know</button>
-              <button class="grade-btn grade-right" id="exam-grade-right" data-i18n="knewIt">✓ knew it</button>
-            </div>
-          </div>
-        </div>
-        <div class="deck-controls">
-          <span id="exam-progress" class="progress">0 / 0</span>
-        </div>
-      </div>
-
-      <div id="exam-result" class="exam-panel" hidden>
-        <div class="exam-result-banner" id="exam-result-banner"></div>
-        <div class="exam-result-actions" id="exam-result-actions"></div>
       </div>
     </section>
   </main>
@@ -433,13 +399,11 @@
   </div>
 
   <script src="js/data/vocab-data.js"></script>
-  <script src="js/data/vocab-exam-questions.js"></script>
   <script src="js/data/grammar-data.js"></script>
   <script src="js/data/conjugation-data.js"></script>
   <script src="js/data/conjugation-sentences-data.js"></script>
   <script src="js/data/i18n.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/exam.js"></script>
 
   <!-- Optional cloud sync (progress across devices) — see README.md "Optional:
        sync progress across devices" for setup. Nothing below here does

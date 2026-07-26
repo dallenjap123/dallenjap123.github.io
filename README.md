@@ -1,30 +1,38 @@
 # 日本語ノート — Japanese Study Site
 
-A static site with five tools:
+A static site with two tabs, Vocab and Grammar:
 
-- **Flashcards** — vocab, filterable by JLPT level and lesson (multi-select),
-  quizzable word→meaning or meaning→word, with a mastery queue (wrong
-  answers come back soon, right answers retire after two in a row) and a
-  "practice weak words" mode that drills your worst-ratio words without
-  affecting your tracked stats. Flipping a card speaks its reading aloud
-  (your browser's built-in text-to-speech — no key, no setup).
-- **Grammar** — a Reference view (browse patterns by level, with lesson
-  numbers and usage notes) and a Practice view (fill-in-the-blank +
-  multiple-choice questions, filterable by lesson).
-- **Word List** — every word grouped by lesson, with words you're
-  struggling with (more wrong than right) highlighted in red.
-- **Conjugation** — a Reference view (all 9 conjugation-rule topics) and
-  three Practice modes: **By form** (drill one form across 50 verbs),
-  **By verb** (cycle one verb through all 8 forms in order), and
-  **Sentences** (each form tested inside a real sentence).
-- **Exam** — mock tests, scoped to whichever level/lessons (or, for
-  Conjugation, forms) you select. Entirely local — no API key, no network
-  call. See "Exam tab" below for how it works.
+**Vocab** has four modes, all filterable by JLPT level and lesson:
+- **Word List** — browse by lesson (click a lesson chip instead of
+  scrolling), or search across every word by kanji, reading, or English
+  meaning (see "Word List search" below). Words you're struggling with
+  (more wrong than right) are highlighted in red.
+- **Flashcards** — quizzable word→meaning or meaning→word, with a mastery
+  queue (wrong answers come back soon, right answers retire after two in a
+  row) and a "practice weak words" mode that drills your worst-ratio words
+  without affecting your tracked stats. Flipping a card speaks its reading
+  aloud (your browser's built-in text-to-speech — no key, no setup).
+- **Writing** — recall and draw a word's kanji from its reading/meaning on
+  a touch-friendly canvas, then reveal to self-grade.
+- **Furigana** — recall and type a word's reading from its kanji, auto-graded
+  against the word's own reading (no self-honesty needed here).
 
-The **Home** dashboard tracks *mastered* words per lesson (words you've
-gotten right twice in a row, most recently) — not just words you've
-attempted — so the progress bars reflect what you actually know, not what
-you've merely touched.
+Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
+word in a lesson exactly twice per run; clear a lesson with zero mistakes
+across both passes and its lesson chip turns green for that mode. Once a
+lesson is green in all three modes, its chip gets a golden shine in the
+Word List — the "you actually know this lesson" signal.
+
+**Grammar** has a Reference view (browse patterns by level, with lesson
+numbers, usage notes, and common mistakes) and a Conjugation view: a
+reference (all 9 conjugation-rule topics) plus three practice modes —
+**By form** (drill one form across 50 verbs), **By verb** (cycle one verb
+through all 8 forms in order), and **Sentences** (each form tested inside a
+real sentence).
+
+Every shuffle control across the app is a persistent on/off toggle
+(defaults on), not a one-shot button — flip it off if you'd rather study a
+lesson in its original order.
 
 Everything supports an **EN / 日本語 UI toggle** (top right) — translates
 navigation and progress messages only, not your study content.
@@ -40,12 +48,10 @@ css/
   style.css
 js/
   app.js
-  exam.js                         (mock-test tab — see below)
   sync.js                        (optional cloud sync — see below)
   firebase-config.js              (optional cloud sync — see below)
   data/
     vocab-data.js
-    vocab-exam-questions.js        (Vocab exam's question bank — see below)
     grammar-data.js
     conjugation-data.js
     conjugation-sentences-data.js
@@ -116,52 +122,22 @@ free, the more reliable route is Cloudflare Pages + Cloudflare Zero Trust
 Access (free for up to 50 users), which puts a login in front of the whole
 site. Otherwise, an unlisted GitHub Pages URL is "private by obscurity" only.
 
-## Exam tab
+## Word List search
 
-The Exam tab generates a mock test from hand-authored content — entirely
-local, no API key, no network call, no external service. It reuses your own
-data files as the source of truth, so every correct answer traces back to
-something already verified elsewhere in this repo.
+A single search box in the Word List filters by kanji, reading, or English
+meaning — it auto-detects which one you typed:
 
-**How each exam type works:**
+- **Kanji** (any kanji character in your query) — matches if the word
+  contains it anywhere, but ranks matches by how early the match falls in
+  the word, so a kanji at the front of a word outranks the same kanji
+  buried in the middle.
+- **Kana** (hiragana/katakana) — plain substring match against the word's
+  reading.
+- **Anything else** — treated as an English meaning search, substring
+  match, case-insensitive.
 
-- **Vocab** — pick a level and lesson(s), then a two-phase exam:
-  - *Phase 1* — open-ended: type the furigana (hiragana reading) for every
-    word in your selection, one at a time, kanji only (no meaning shown).
-    Needs **100%** — a single mistake ends the exam immediately; generate a
-    fresh one from setup to try again.
-  - *Phase 2* — multiple-choice: read a Japanese sentence with the target
-    word blanked out and pick which of 5 real words (the target + 4
-    distractors) actually belongs there — a JLPT 文脈規定-style test, no
-    translation shown. Content comes from `js/data/vocab-exam-questions.js`,
-    hand-written per word (up to several questions each; one is picked at
-    random per attempt). A word with no authored questions yet is skipped
-    rather than crashing. Needs **95%** to pass; failing picks a fresh
-    random question per word rather than repeating the identical attempt.
-  - Passing both phases marks every included lesson "exam passed" on the
-    Home dashboard.
-- **Conjugation** — pick which forms to include (defaults to all); samples
-  real, hand-checked sentences from the existing Conjugation "Sentences"
-  bank (`js/data/conjugation-sentences-data.js`). Single phase, needs **80%**
-  to pass.
-
-Both reuse the same self/auto-grading conventions as the rest of the
-app: multiple-choice is graded automatically, fill-in-the-blank is graded on
-your own honesty (reveal → "✓ knew it" / "✗ didn't know"). Sentence questions show furigana above the kanji and have a
-"🔊 play sentence" button (reads the sentence aloud via your browser's
-built-in text-to-speech, skipping the blank so it never gives away the
-answer) — except Phase 1, since that phase IS the reading test.
-
-### Adding more Vocab exam questions
-
-`js/data/vocab-exam-questions.js` is keyed by level, then by the exact word
-string used in `vocab-data.js`. Each question is
-`{ sentence, distractors }` — `sentence` is a natural Japanese sentence with
-the word replaced by `＿＿`, with every kanji run annotated
-`漢字[かんじ]` for furigana; `distractors` is an array of other real words
-(each must also exist in `vocab-data.js`) that plausibly fit the blank. A
-word can have as many or as few questions as you like — more variety just
-means repeat attempts feel fresher.
+A non-empty search overrides the lesson-chip selection and shows one flat,
+ranked result list across the selected level(s).
 
 ## Optional: sync progress across devices
 

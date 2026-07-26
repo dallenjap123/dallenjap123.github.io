@@ -165,15 +165,8 @@ body {
 }
 .brand {
   display: block;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
   text-align: left;
-  cursor: pointer;
-  transition: opacity .15s;
 }
-.brand:hover { opacity: 0.75; }
 .brand-jp {
   display: block;
   font-family: var(--font-jp);
@@ -396,6 +389,19 @@ main {
   gap: var(--space-4);
 }
 
+.wl-search-input {
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink);
+  min-width: 220px;
+}
+.wl-search-input:focus { border-color: var(--indigo); outline: none; }
+.wl-search-input::placeholder { color: var(--ink-soft); }
+
 .level-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .chip {
   padding: var(--space-2) var(--space-4);
@@ -479,6 +485,35 @@ main {
   margin-top: var(--space-3);
 }
 .isolate-chip.active { background: var(--seal); border-color: var(--seal); color: #fff; }
+
+/* Shuffle toggles read the same as the isolate-weak-words chip (a ghost
+   button that fills in solid when "on"), since they're both persistent
+   on/off study settings rather than one-shot actions. */
+.shuffle-toggle.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+
+/* A lesson chip that's been cleared for the current practice mode (all its
+   words cycled twice, zero mistakes, this session) turns solid green —
+   same --mastered color used everywhere else in the app for "done." */
+.lesson-chip.chip-passed { background: var(--mastered); border-color: var(--mastered); color: #fff; }
+.lesson-chip.chip-passed.active { background: var(--mastered); border-color: var(--mastered); }
+
+/* Word List's lesson chips get a golden shine once a lesson has cleared
+   ALL THREE practice modes (flashcards + writing + furigana) — the full
+   "you actually know this lesson" signal, one tier up from the single-mode
+   green above. */
+.lesson-chip.chip-golden {
+  background: linear-gradient(120deg, var(--learning-bg), var(--learning), var(--learning-bg));
+  background-size: 200% 100%;
+  border-color: var(--learning);
+  color: var(--ink);
+  font-weight: 700;
+  animation: chipGoldenShine 2.6s linear infinite;
+}
+.lesson-chip.chip-golden.active { border-color: var(--indigo-deep); color: #fff; }
+@keyframes chipGoldenShine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 .isolate-note {
   font-family: var(--font-ui);
   font-size: var(--fs-2xs);
@@ -689,6 +724,36 @@ main {
 
 .kw-reveal-btn { margin-bottom: var(--space-2); }
 
+/* ---------- furigana practice ---------- */
+.fg-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 var(--space-4);
+  text-align: center;
+}
+.fg-hint { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; margin: 0 0 var(--space-2); max-width: 480px; }
+.fg-word { font-family: var(--font-jp); font-size: clamp(2rem, 7vw, 3rem); color: var(--ink); margin: 0; }
+.fg-meaning { font-family: var(--font-ui); font-size: 1rem; color: var(--ink-soft); margin: 0 0 var(--space-3); }
+.fg-input-row { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; justify-content: center; }
+.fg-input-row input {
+  font-family: var(--font-jp);
+  font-size: 1.2rem;
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink);
+  min-width: 200px;
+  text-align: center;
+}
+.fg-input-row input:focus { border-color: var(--indigo); outline: none; }
+.fg-input-row input.fg-input-correct { border-color: var(--mastered); background: var(--mastered-bg); animation: flashCorrect .6s ease; }
+.fg-input-row input.fg-input-wrong { border-color: var(--seal); background: var(--seal-bg); animation: flashWrong .6s ease; }
+.fg-answer { margin-top: var(--space-2); animation: popIn .3s ease; }
+.fg-answer-word { font-family: var(--font-jp); font-size: 1.4rem; color: var(--indigo-deep); font-weight: 700; }
+
 /* ---------- grammar ---------- */
 .grammar-layout {
   display: grid;
@@ -828,7 +893,6 @@ main {
   user-select: none;
 }
 .gp-hint { font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink-soft); font-style: italic; margin: 0; }
-.exam-audio-btn { margin: var(--space-1) 0; font-size: var(--fs-xs); padding: var(--space-2) var(--space-4); }
 .gp-options { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; margin-top: var(--space-3); }
 .gp-option-btn {
   font-family: var(--font-jp);
@@ -849,87 +913,9 @@ main {
 .gp-option-btn.wrong { border-color: var(--seal); background: var(--seal-bg); color: var(--seal); font-weight: 600; animation: flashWrong .6s ease; }
 .gp-answer { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); font-weight: 700; margin-top: 4px; }
 
-/* ---------- dashboard / home ---------- */
-.dash-streak-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--space-3) 0 var(--space-6);
-  border-bottom: 1px solid var(--line);
-  margin-bottom: var(--space-5);
-}
-.dash-streak-number { font-family: var(--font-ui); font-size: 2.6rem; font-weight: 700; color: var(--indigo-deep); line-height: 1; animation: popIn .4s ease, softGlow 3.5s ease-in-out 0.4s infinite; }
-.dash-streak-label {
-  font-family: var(--font-ui);
-  font-size: var(--fs-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-  margin-top: 4px;
-}
-
-.dash-section-title {
-  font-family: var(--font-jp);
-  font-size: 1.1rem;
-  color: var(--indigo-deep);
-  margin: 0 0 var(--space-4);
-}
-
-#dash-lesson-breakdown { margin: var(--space-4) 0 var(--space-6); }
-.dash-lesson-list { display: flex; flex-direction: column; gap: var(--space-3); }
-.dash-lesson-row {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--paper-alt);
-  padding: var(--space-3) var(--space-4);
-}
-.dash-lesson-row-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--font-ui);
-  font-size: 0.85rem;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-.dash-lesson-title { font-family: var(--font-jp); font-size: 0.95rem; }
-.dash-lesson-count { color: var(--ink-soft); font-size: var(--fs-2xs); font-family: var(--font-ui); }
-.dash-progress-track { height: 6px; border-radius: var(--radius-pill); background: var(--paper-deep); overflow: hidden; }
-.dash-progress-fill {
-  height: 100%;
-  background: var(--indigo);
-  border-radius: var(--radius-pill);
-  transition: background 0.15s;
-}
-.dash-progress-fill-complete {
-  background: var(--mastered);
-}
-.dash-subsection-meta { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); margin: 6px 0 0; }
-.dash-badges { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-2) 0 0; }
-.dash-exam-passed-badge {
-  display: inline-block;
-  font-family: var(--font-ui);
-  font-size: var(--fs-2xs);
-  font-weight: 700;
-  color: var(--mastered);
-  background: var(--mastered-bg);
-  border: 1px solid var(--mastered);
-  border-radius: var(--radius-pill);
-  padding: var(--space-1) var(--space-3);
-  animation: popIn .3s ease backwards;
-}
-.dash-badges .dash-exam-passed-badge:nth-child(2) { animation-delay: .08s; }
-.dash-empty-note { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; margin: 0; }
-
-.dash-weak-section { margin-top: var(--space-2); }
-.dash-weak-simple-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--paper-alt); }
-.dash-weak-simple-list li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--line); font-size: 0.88rem; }
-.dash-weak-simple-list li:last-child { border-bottom: none; }
-.dash-weak-word { font-family: var(--font-jp); color: var(--seal); font-weight: 600; }
-.dash-weak-meaning { font-family: var(--font-ui); color: var(--ink-soft); font-size: var(--fs-xs); text-align: right; }
 
 /* ---------- word list ---------- */
+.wl-empty-note { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; margin: var(--space-4) 0; }
 .wordlist-group { margin-bottom: var(--space-6); }
 .wordlist-level-heading {
   display: inline-block;
@@ -1083,91 +1069,6 @@ main {
 .breadcrumb-item.done-correct { border-color: var(--mastered); background: var(--mastered-bg); color: var(--mastered); }
 .breadcrumb-item.done-wrong { border-color: var(--seal); background: var(--paper); color: var(--seal); }
 
-/* ---------- exam ---------- */
-.exam-panel { margin-top: var(--space-5); }
-.exam-panel-note {
-  font-family: var(--font-ui);
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  margin: 0 0 var(--space-4);
-  line-height: 1.5;
-}
-.exam-generate-btn { margin-top: var(--space-4); }
-.exam-error {
-  font-family: var(--font-ui);
-  font-size: var(--fs-xs);
-  color: var(--seal);
-  margin: var(--space-3) 0 0;
-  line-height: 1.5;
-}
-.exam-spinner {
-  width: 36px;
-  height: 36px;
-  margin: var(--space-7) auto 0;
-  border-radius: 50%;
-  border: 3px solid var(--line);
-  border-top-color: var(--seal);
-  animation: spin 0.8s linear infinite;
-}
-.exam-loading-text {
-  font-family: var(--font-ui);
-  font-size: 0.95rem;
-  color: var(--ink-soft);
-  text-align: center;
-  padding: var(--space-3) 0 var(--space-7);
-  font-style: italic;
-}
-.exam-phase-tag {
-  font-family: var(--font-ui);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--indigo);
-  text-align: center;
-  margin: 0;
-}
-.exam-furigana-input {
-  display: flex;
-  gap: var(--space-2);
-  width: 100%;
-  margin-top: var(--space-3);
-}
-.exam-furigana-input input {
-  flex: 1;
-  min-width: 0;
-  padding: var(--space-3) var(--space-4);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-jp);
-  font-size: 1.05rem;
-  transition: border-color .15s, background .15s;
-}
-.exam-furigana-input input:focus { border-color: var(--indigo); outline: none; }
-.exam-furigana-input input.exam-input-correct { border-color: var(--mastered); background: var(--mastered-bg); animation: flashCorrect .6s ease; }
-.exam-furigana-input input.exam-input-wrong { border-color: var(--seal); background: var(--seal-bg); animation: flashWrong .6s ease; }
-
-.exam-result-banner {
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  text-align: center;
-  font-family: var(--font-ui);
-  box-shadow: var(--shadow-sm);
-  animation: popIn .4s ease;
-}
-.exam-result-banner.pass { background: var(--mastered-bg); border: 1.5px solid var(--mastered); }
-.exam-result-banner.fail { background: var(--seal-bg); border: 1.5px solid var(--seal); }
-.exam-result-score {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 var(--space-2);
-}
-.exam-result-banner.pass .exam-result-score { color: var(--mastered); }
-.exam-result-banner.fail .exam-result-score { color: var(--seal); }
-.exam-result-detail { font-size: 0.9rem; color: var(--ink-soft); margin: 0; line-height: 1.5; }
-.exam-result-actions { display: flex; justify-content: center; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; }
 
 /* ---------- footer ---------- */
 .site-footer {
