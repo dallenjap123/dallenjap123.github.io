@@ -1,0 +1,60 @@
+diff --git a/css/style.css b/css/style.css
+index cb535aa..38b2064 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -721,15 +721,17 @@ main {
+   border-top: 1px dashed var(--line);
+ }
+ .lesson-chips .chip { font-size: var(--fs-xs); padding: var(--space-1) var(--space-3); }
+-/* A soft halo rather than a solid fill or a hard ring — a lesson chip can
+-   also be green (chip-passed) or gold (chip-golden) at the same time, and a
+-   saturated fill/outline here would stomp on that color and make "selected"
+-   indistinguishable from "passed" at a glance. The pale --seal-bg glow reads
+-   as a highlight sitting on top, not a competing color, so both stay legible
+-   together; the lift and bolder weight add just enough emphasis on their own. */
++/* A halo rather than a solid fill or a hard ring — a lesson chip can also be
++   green (chip-passed) or gold (chip-golden) at the same time, and a
++   saturated fill here would stomp on that color and make "selected"
++   indistinguishable from "passed" at a glance. Layering a vivid inner ring
++   with a pale outer glow keeps the "selected" cue strong and unmistakable
++   while still reading as a highlight sitting on top, not a competing fill —
++   so it stays legible over green/gold; the lift and bolder weight add a
++   touch more emphasis on their own. */
+ .lesson-chips .chip.active {
+   border-color: var(--seal);
+-  box-shadow: 0 0 0 5px var(--seal-bg);
++  box-shadow: 0 0 0 3px var(--seal), 0 0 0 8px var(--seal-bg);
+   transform: translateY(-1px);
+   font-weight: 700;
+ }
+@@ -758,9 +760,15 @@ main {
+ .shuffle-toggle.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+ 
+ /* A lesson chip that's been cleared for the current practice mode (all its
+-   words cycled twice, zero mistakes, this session) turns solid green —
+-   same --mastered color used everywhere else in the app for "done." */
+-.lesson-chip.chip-passed { background: var(--mastered); border-color: var(--mastered); color: #fff; }
++   words cycled twice, zero mistakes, this session) shines green — same
++   --mastered color used everywhere else in the app for "done." */
++.lesson-chip.chip-passed {
++  background: linear-gradient(120deg, var(--mastered-bg), var(--mastered), var(--mastered-bg));
++  background-size: 200% 100%;
++  border-color: var(--mastered);
++  color: #fff;
++  animation: chipShineSweep 2.6s linear infinite;
++}
+ 
+ /* Word List's lesson chips get a golden shine once a lesson has cleared
+    ALL THREE practice modes (flashcards + writing + furigana) — the full
+@@ -772,9 +780,9 @@ main {
+   border-color: var(--learning);
+   color: var(--ink);
+   font-weight: 700;
+-  animation: chipGoldenShine 2.6s linear infinite;
++  animation: chipShineSweep 2.6s linear infinite;
+ }
+-@keyframes chipGoldenShine {
++@keyframes chipShineSweep {
+   0% { background-position: 200% 0; }
+   100% { background-position: -200% 0; }
+ }
