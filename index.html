@@ -384,7 +384,7 @@
       <div class="settings-row">
         <div class="settings-row-text">
           <span class="settings-row-label" data-i18n="settingsSilentMode">Silent mode</span>
-          <span class="settings-row-desc" data-i18n="settingsSilentModeDesc">Mute pronunciation audio on flashcards and exam sentences.</span>
+          <span class="settings-row-desc" data-i18n="settingsSilentModeDesc">Mute pronunciation audio on flashcards and practice sentences.</span>
         </div>
         <button class="settings-toggle" id="settings-silent-toggle" role="switch" aria-checked="false"></button>
       </div>
@@ -394,6 +394,54 @@
           <span class="settings-row-desc" data-i18n="settingsDarkModeDesc">Switch to a dark color theme.</span>
         </div>
         <button class="settings-toggle" id="settings-dark-toggle" role="switch" aria-checked="false"></button>
+      </div>
+      <div class="settings-row settings-row-column">
+        <div class="settings-row-text">
+          <span class="settings-row-label" data-i18n="settingsThemeLabel">Theme</span>
+          <span class="settings-row-desc" data-i18n="settingsThemeDesc">Pick a color palette for the whole site.</span>
+        </div>
+      </div>
+      <div class="theme-swatch-grid" id="theme-swatch-grid">
+        <button class="theme-swatch" data-color-theme="slate" data-i18n-aria="themeNameSlate" aria-label="Slate & Indigo">
+          <span class="theme-swatch-colors">
+            <span class="theme-swatch-color" style="background:#F1F5F9"></span>
+            <span class="theme-swatch-color" style="background:#3B6DF4"></span>
+            <span class="theme-swatch-color" style="background:#DC2626"></span>
+          </span>
+          <span class="theme-swatch-label" data-i18n="themeNameSlate">Slate &amp; Indigo</span>
+        </button>
+        <button class="theme-swatch" data-color-theme="pastel" data-i18n-aria="themeNamePastel" aria-label="Pastel Sunshine">
+          <span class="theme-swatch-colors">
+            <span class="theme-swatch-color" style="background:#F2EAE0"></span>
+            <span class="theme-swatch-color" style="background:#82B2C0"></span>
+            <span class="theme-swatch-color" style="background:#F6C7B3"></span>
+          </span>
+          <span class="theme-swatch-label" data-i18n="themeNamePastel">Pastel Sunshine</span>
+        </button>
+        <button class="theme-swatch" data-color-theme="warm" data-i18n-aria="themeNameWarm" aria-label="Warm Neutrals">
+          <span class="theme-swatch-colors">
+            <span class="theme-swatch-color" style="background:#E8E4D9"></span>
+            <span class="theme-swatch-color" style="background:#22314F"></span>
+            <span class="theme-swatch-color" style="background:#9C4A3C"></span>
+          </span>
+          <span class="theme-swatch-label" data-i18n="themeNameWarm">Warm Neutrals</span>
+        </button>
+        <button class="theme-swatch" data-color-theme="sumi" data-i18n-aria="themeNameSumi" aria-label="Sumi Ink">
+          <span class="theme-swatch-colors">
+            <span class="theme-swatch-color" style="background:#F2F0EC"></span>
+            <span class="theme-swatch-color" style="background:#1F6F6B"></span>
+            <span class="theme-swatch-color" style="background:#B0413A"></span>
+          </span>
+          <span class="theme-swatch-label" data-i18n="themeNameSumi">Sumi Ink</span>
+        </button>
+        <button class="theme-swatch" data-color-theme="matcha" data-i18n-aria="themeNameMatcha" aria-label="Matcha &amp; Cream">
+          <span class="theme-swatch-colors">
+            <span class="theme-swatch-color" style="background:#F3EFE1"></span>
+            <span class="theme-swatch-color" style="background:#5C7A5A"></span>
+            <span class="theme-swatch-color" style="background:#C9A24B"></span>
+          </span>
+          <span class="theme-swatch-label" data-i18n="themeNameMatcha">Matcha &amp; Cream</span>
+        </button>
       </div>
     </div>
   </div>

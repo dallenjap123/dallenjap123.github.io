@@ -1,0 +1,584 @@
+diff --git a/README.md b/README.md
+index 5f8bbb8..7665e26 100644
+--- a/README.md
++++ b/README.md
+@@ -37,6 +37,10 @@ lesson in its original order.
+ Everything supports an **EN / 日本語 UI toggle** (top right) — translates
+ navigation and progress messages only, not your study content.
+ 
++The **⚙ Settings** menu also has a theme picker: 5 color palettes (Slate &
++Indigo, Pastel Sunshine, Warm Neutrals, Sumi Ink, Matcha & Cream), each with
++its own light and dark variant, independent of the separate dark-mode toggle.
++
+ No build step. Plain HTML/CSS/JS.
+ 
+ ## File structure — this matters
+diff --git a/css/style.css b/css/style.css
+index 444b850..cb535aa 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -1,33 +1,42 @@
+ /* ==========================================================================
+    Design tokens
+-   Palette: warm paper + aizome indigo (graded lighter→deeper across N5→N1,
+-   which actually encodes JLPT difficulty) + a single vermillion "hanko"
+-   seal accent used only on the flashcard flip and grammar examples.
++   Five selectable color themes, each with light + dark variants — the
++   accent/status/level colors change per theme, but every OTHER rule in this
++   file only ever reads the --paper/--ink/--indigo/etc. custom properties
++   below, never a literal color, so a theme is fully defined right here and
++   nowhere else needs to change.
++   Selected via [data-color-theme] on <html> (Settings → Theme); light/dark
++   stays a second, orthogonal toggle via [data-theme] as before. The base
++   :root block (no attribute needed) is the "slate" theme's light variant,
++   so anything that predates the theme picker still renders correctly.
+    Type: Shippori Mincho for Japanese text, Inter for UI/English.
+    ========================================================================== */
+ :root {
+-  --paper: #EDE9DF;
+-  --paper-alt: #E3DECD;
+-  --paper-deep: #D8D2BE;
+-  --ink: #23241F;
+-  --ink-soft: #6b6656;
+-  --line: #CFC7AE;
+-
+-  --indigo: #2B3A67;
+-  --indigo-deep: #17203B;
+-  --seal: #B23A2E;
+-  --seal-bg: #F7E4E1;
+-
+-  --n5: #A9B4CE;
+-  --n4: #8695BB;
+-  --n3: #63739F;
+-  --n2: #435284;
+-  --n1: #2B3A67;
+-
+-  --learning: #B98B3E;
+-  --learning-bg: #F1E4C7;
+-  --mastered: #4F7A5B;
+-  --mastered-bg: #DCEAE0;
++  /* ---- slate (default): cool neutrals + a single vivid blue accent ---- */
++  --paper: #F1F5F9;
++  --paper-alt: #E2E8F0;
++  --paper-deep: #CBD5E1;
++  --ink: #0F172A;
++  --ink-soft: #64748B;
++  --line: #CBD5E1;
++
++  --indigo: #3B6DF4;
++  --indigo-deep: #1E3A8A;
++  --seal: #DC2626;
++  --seal-bg: #FEE2E2;
++
++  --n5: #C7D9FB;
++  --n4: #9FBBF5;
++  --n3: #7398EE;
++  --n2: #5480E0;
++  --n1: #3B6DF4;
++
++  --learning: #D97706;
++  --learning-bg: #FEF3C7;
++  --mastered: #16A34A;
++  --mastered-bg: #DCFCE7;
++
++  --glow-color: rgba(59, 109, 244, 0.35);
+ 
+   /* spacing scale — every gap/margin/padding in the site should trace back
+      to one of these instead of a one-off px value */
+@@ -49,9 +58,9 @@
+   --radius-pill: 999px;
+   --radius: var(--radius-md); /* kept as an alias — still referenced below */
+ 
+-  /* elevation — all shadows share the indigo-deep hue so depth reads as
++  /* elevation — all shadows share the ink hue so depth reads as
+      part of the palette rather than generic drop-shadow grey */
+-  --shadow-color: 23, 32, 59;
++  --shadow-color: 15, 23, 42;
+   --shadow-sm: 0 3px 8px rgba(var(--shadow-color), .12);
+   --shadow-md: 0 10px 24px rgba(var(--shadow-color), .14);
+   --shadow-lg: 0 20px 40px rgba(var(--shadow-color), .25);
+@@ -64,29 +73,230 @@
+ 
+   --font-jp: 'Shippori Mincho', serif;
+   --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+-  --glow-color: rgba(43, 58, 103, 0.35);
+ }
+ 
+-/* Dark theme — same aizome-indigo identity, inverted for a dark backdrop.
+-   Toggled via [data-theme] on <html>, set from the settings gear menu. */
+-:root[data-theme="dark"] {
++:root[data-color-theme="slate"] {
++  --paper: #F1F5F9;
++  --paper-alt: #E2E8F0;
++  --paper-deep: #CBD5E1;
++  --ink: #0F172A;
++  --ink-soft: #64748B;
++  --line: #CBD5E1;
++  --indigo: #3B6DF4;
++  --indigo-deep: #1E3A8A;
++  --seal: #DC2626;
++  --seal-bg: #FEE2E2;
++  --n5: #C7D9FB;
++  --n4: #9FBBF5;
++  --n3: #7398EE;
++  --n2: #5480E0;
++  --n1: #3B6DF4;
++  --learning: #D97706;
++  --learning-bg: #FEF3C7;
++  --mastered: #16A34A;
++  --mastered-bg: #DCFCE7;
++  --glow-color: rgba(59, 109, 244, 0.35);
++}
++:root[data-color-theme="slate"][data-theme="dark"] {
++  --paper: #0F172A;
++  --paper-alt: #1E293B;
++  --paper-deep: #334155;
++  --ink: #E2E8F0;
++  --ink-soft: #94A3B8;
++  --line: #334155;
++  --indigo: #60A5FA;
++  --indigo-deep: #93C5FD;
++  --seal: #F87171;
++  --seal-bg: #431417;
++  --learning: #FBBF24;
++  --learning-bg: #422006;
++  --mastered: #4ADE80;
++  --mastered-bg: #0F2E1B;
++  --glow-color: rgba(147, 197, 253, 0.45);
++}
++
++/* ---- pastel ("In the Sunshine"): cream, mint, peach, steel blue ---- */
++:root[data-color-theme="pastel"] {
++  --paper: #F2EAE0;
++  --paper-alt: #F0E2C3;
++  --paper-deep: #DCECE9;
++  --ink: #4E3F33;
++  --ink-soft: #8C7A6B;
++  --line: #C3DEDD;
++  --indigo: #82B2C0;
++  --indigo-deep: #5C8A98;
++  --seal: #D97757;
++  --seal-bg: #F6C7B3;
++  --n5: #DCECE9;
++  --n4: #C3DEDD;
++  --n3: #9FC5C7;
++  --n2: #82B2C0;
++  --n1: #5C8A98;
++  --learning: #CC9A4D;
++  --learning-bg: #F0E2C3;
++  --mastered: #6B9C93;
++  --mastered-bg: #DCECE9;
++  --glow-color: rgba(130, 178, 192, 0.4);
++}
++:root[data-color-theme="pastel"][data-theme="dark"] {
++  --paper: #2A211B;
++  --paper-alt: #362B23;
++  --paper-deep: #443627;
++  --ink: #F2EAE0;
++  --ink-soft: #C9B8A8;
++  --line: #4A3B2C;
++  --indigo: #9FCAD6;
++  --indigo-deep: #C3DEDD;
++  --seal: #F0A583;
++  --seal-bg: #4A2E22;
++  --learning: #F0C97A;
++  --learning-bg: #4A3B1A;
++  --mastered: #8FC4BA;
++  --mastered-bg: #1F3530;
++  --glow-color: rgba(159, 202, 214, 0.45);
++}
++
++/* ---- warm (refined warm neutrals): beige-gray + navy + muted brick ---- */
++:root[data-color-theme="warm"] {
++  --paper: #E8E4D9;
++  --paper-alt: #DED8C8;
++  --paper-deep: #D1C9B5;
++  --ink: #2A2A28;
++  --ink-soft: #6E6A5C;
++  --line: #C7BFA8;
++  --indigo: #22314F;
++  --indigo-deep: #131D33;
++  --seal: #9C4A3C;
++  --seal-bg: #F2DAD3;
++  --n5: #8C9BBD;
++  --n4: #6E80A6;
++  --n3: #52658F;
++  --n2: #384E78;
++  --n1: #22314F;
++  --learning: #B98B3E;
++  --learning-bg: #F1E4C7;
++  --mastered: #4F7A5B;
++  --mastered-bg: #DCEAE0;
++  --glow-color: rgba(34, 49, 79, 0.35);
++}
++:root[data-color-theme="warm"][data-theme="dark"] {
+   --paper: #1B1A16;
+   --paper-alt: #232019;
+   --paper-deep: #2B271E;
+   --ink: #EAE5D8;
+   --ink-soft: #A79E88;
+   --line: #3D3728;
+-
+-  --indigo: #6C82C4;
+-  --indigo-deep: #C3CEEF;
+-  --seal: #E2685A;
++  --indigo: #7E93C4;
++  --indigo-deep: #B7C4E8;
++  --seal: #D97B67;
+   --seal-bg: #3A211D;
+-
+   --learning: #E0AD5C;
+   --learning-bg: #3A2E15;
+   --mastered: #7FBF92;
+   --mastered-bg: #1E3327;
+-  --glow-color: rgba(195, 206, 239, 0.45);
++  --glow-color: rgba(126, 147, 196, 0.45);
++}
++
++/* ---- sumi (ink wash + single teal accent): near-monochrome, minimal ---- */
++:root[data-color-theme="sumi"] {
++  --paper: #F2F0EC;
++  --paper-alt: #E7E4DD;
++  --paper-deep: #D8D4CA;
++  --ink: #2B2B2B;
++  --ink-soft: #6B6B68;
++  --line: #CFCBC0;
++  --indigo: #1F6F6B;
++  --indigo-deep: #12433F;
++  --seal: #B0413A;
++  --seal-bg: #F3DEDC;
++  --n5: #A9CFCC;
++  --n4: #7FB6B1;
++  --n3: #55A19A;
++  --n2: #34897F;
++  --n1: #1F6F6B;
++  --learning: #A9822F;
++  --learning-bg: #EFE3C4;
++  --mastered: #3F7A52;
++  --mastered-bg: #D9EBDD;
++  --glow-color: rgba(31, 111, 107, 0.35);
++}
++:root[data-color-theme="sumi"][data-theme="dark"] {
++  --paper: #1A1A1A;
++  --paper-alt: #232323;
++  --paper-deep: #2E2E2E;
++  --ink: #EDEBE6;
++  --ink-soft: #9C9A93;
++  --line: #3A3A3A;
++  --indigo: #4FADA7;
++  --indigo-deep: #8FD4CE;
++  --seal: #E2685A;
++  --seal-bg: #3A211D;
++  --learning: #D9AE5C;
++  --learning-bg: #3A2E15;
++  --mastered: #6FBF8A;
++  --mastered-bg: #1E3327;
++  --glow-color: rgba(79, 173, 167, 0.45);
++}
++
++/* ---- matcha (sage green + cream + brown text, gold status) ---- */
++:root[data-color-theme="matcha"] {
++  --paper: #F3EFE1;
++  --paper-alt: #E9E2CC;
++  --paper-deep: #DCD3B5;
++  --ink: #3A3527;
++  --ink-soft: #7C7458;
++  --line: #D0C6A5;
++  --indigo: #5C7A5A;
++  --indigo-deep: #3D5A3B;
++  --seal: #B0553E;
++  --seal-bg: #F0DCD0;
++  --n5: #B9CBA8;
++  --n4: #9CB98A;
++  --n3: #7FA56C;
++  --n2: #6B8F5C;
++  --n1: #5C7A5A;
++  --learning: #C9A24B;
++  --learning-bg: #F1E4B8;
++  --mastered: #4E8A5E;
++  --mastered-bg: #DCEFDD;
++  --glow-color: rgba(92, 122, 90, 0.35);
++}
++:root[data-color-theme="matcha"][data-theme="dark"] {
++  --paper: #1D2018;
++  --paper-alt: #262A1F;
++  --paper-deep: #313627;
++  --ink: #EDE7D6;
++  --ink-soft: #A6A188;
++  --line: #3B4130;
++  --indigo: #8FBB80;
++  --indigo-deep: #C3DDB5;
++  --seal: #E08A6D;
++  --seal-bg: #3A2419;
++  --learning: #E0BE6C;
++  --learning-bg: #3A2E12;
++  --mastered: #7FCB8F;
++  --mastered-bg: #1B3320;
++  --glow-color: rgba(143, 187, 128, 0.45);
++}
++
++/* Legacy dark-mode-only toggle (no theme picked yet / pre-theme-picker
++   saved state) — same as the slate dark variant above. */
++:root[data-theme="dark"]:not([data-color-theme]) {
++  --paper: #0F172A;
++  --paper-alt: #1E293B;
++  --paper-deep: #334155;
++  --ink: #E2E8F0;
++  --ink-soft: #94A3B8;
++  --line: #334155;
++  --indigo: #60A5FA;
++  --indigo-deep: #93C5FD;
++  --seal: #F87171;
++  --seal-bg: #431417;
++  --learning: #FBBF24;
++  --learning-bg: #422006;
++  --mastered: #4ADE80;
++  --mastered-bg: #0F2E1B;
++  --glow-color: rgba(147, 197, 253, 0.45);
+ }
+ 
+ /* ---------- motion ----------
+@@ -309,10 +519,45 @@ body {
+ .settings-toggle.active { background: var(--indigo); border-color: var(--indigo); }
+ .settings-toggle.active::after { transform: translateX(18px); background: #fff; }
+ 
++.settings-row-column { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
++
++.theme-swatch-grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
++  gap: var(--space-3);
++  padding-bottom: var(--space-3);
++  border-bottom: 1px solid var(--line);
++  margin-bottom: var(--space-1);
++}
++.theme-swatch {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: var(--space-2);
++  padding: var(--space-3);
++  border: 1.5px solid var(--line);
++  border-radius: var(--radius-md);
++  background: var(--paper);
++  cursor: pointer;
++  transition: border-color .15s, box-shadow .15s, transform .15s;
++}
++.theme-swatch:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
++.theme-swatch:active { transform: translateY(0) scale(0.97); }
++.theme-swatch.active { border-color: var(--indigo); box-shadow: 0 0 0 2px var(--glow-color); }
++.theme-swatch-colors { display: flex; gap: 3px; }
++.theme-swatch-color {
++  width: 16px;
++  height: 16px;
++  border-radius: 50%;
++  border: 1px solid rgba(0, 0, 0, 0.1);
++}
++.theme-swatch-label { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); text-align: center; line-height: 1.3; }
++.theme-swatch.active .theme-swatch-label { color: var(--indigo-deep); font-weight: 600; }
++
+ .modal-overlay {
+   position: fixed;
+   inset: 0;
+-  background: rgba(23, 32, 59, 0.45);
++  background: rgba(var(--shadow-color), 0.45);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+@@ -476,14 +721,27 @@ main {
+   border-top: 1px dashed var(--line);
+ }
+ .lesson-chips .chip { font-size: var(--fs-xs); padding: var(--space-1) var(--space-3); }
+-/* A red ring rather than a solid fill — a lesson chip can also be green
+-   (chip-passed) or gold (chip-golden) at the same time, and a fill here
+-   would stomp on that color and make it impossible to tell "selected" from
+-   "passed" at a glance. The ring layers on top of whatever the chip's own
+-   status color is, so both are always visible together. */
++/* A soft halo rather than a solid fill or a hard ring — a lesson chip can
++   also be green (chip-passed) or gold (chip-golden) at the same time, and a
++   saturated fill/outline here would stomp on that color and make "selected"
++   indistinguishable from "passed" at a glance. The pale --seal-bg glow reads
++   as a highlight sitting on top, not a competing color, so both stay legible
++   together; the lift and bolder weight add just enough emphasis on their own. */
+ .lesson-chips .chip.active {
+   border-color: var(--seal);
+-  box-shadow: 0 0 0 2px var(--seal);
++  box-shadow: 0 0 0 5px var(--seal-bg);
++  transform: translateY(-1px);
++  font-weight: 700;
++}
++/* Without a status of its own, a selected lesson chip would otherwise fall
++   back to the generic .chip.active's solid indigo fill (meant for the
++   single-select level chips) — reset it back to neutral here so "selected
++   with no status yet" reads as a highlight, not a color clash. Chips that
++   DO have a status (chip-passed/chip-golden) are deliberately left alone,
++   so their own background keeps showing through underneath the halo above. */
++.lesson-chips .chip.active:not(.chip-passed):not(.chip-golden) {
++  background: var(--paper);
++  color: var(--ink);
+ }
+ 
+ .study-options {
+diff --git a/index.html b/index.html
+index 1a467b9..0abd94d 100644
+--- a/index.html
++++ b/index.html
+@@ -384,7 +384,7 @@
+       <div class="settings-row">
+         <div class="settings-row-text">
+           <span class="settings-row-label" data-i18n="settingsSilentMode">Silent mode</span>
+-          <span class="settings-row-desc" data-i18n="settingsSilentModeDesc">Mute pronunciation audio on flashcards and exam sentences.</span>
++          <span class="settings-row-desc" data-i18n="settingsSilentModeDesc">Mute pronunciation audio on flashcards and practice sentences.</span>
+         </div>
+         <button class="settings-toggle" id="settings-silent-toggle" role="switch" aria-checked="false"></button>
+       </div>
+@@ -395,6 +395,54 @@
+         </div>
+         <button class="settings-toggle" id="settings-dark-toggle" role="switch" aria-checked="false"></button>
+       </div>
++      <div class="settings-row settings-row-column">
++        <div class="settings-row-text">
++          <span class="settings-row-label" data-i18n="settingsThemeLabel">Theme</span>
++          <span class="settings-row-desc" data-i18n="settingsThemeDesc">Pick a color palette for the whole site.</span>
++        </div>
++      </div>
++      <div class="theme-swatch-grid" id="theme-swatch-grid">
++        <button class="theme-swatch" data-color-theme="slate" data-i18n-aria="themeNameSlate" aria-label="Slate & Indigo">
++          <span class="theme-swatch-colors">
++            <span class="theme-swatch-color" style="background:#F1F5F9"></span>
++            <span class="theme-swatch-color" style="background:#3B6DF4"></span>
++            <span class="theme-swatch-color" style="background:#DC2626"></span>
++          </span>
++          <span class="theme-swatch-label" data-i18n="themeNameSlate">Slate &amp; Indigo</span>
++        </button>
++        <button class="theme-swatch" data-color-theme="pastel" data-i18n-aria="themeNamePastel" aria-label="Pastel Sunshine">
++          <span class="theme-swatch-colors">
++            <span class="theme-swatch-color" style="background:#F2EAE0"></span>
++            <span class="theme-swatch-color" style="background:#82B2C0"></span>
++            <span class="theme-swatch-color" style="background:#F6C7B3"></span>
++          </span>
++          <span class="theme-swatch-label" data-i18n="themeNamePastel">Pastel Sunshine</span>
++        </button>
++        <button class="theme-swatch" data-color-theme="warm" data-i18n-aria="themeNameWarm" aria-label="Warm Neutrals">
++          <span class="theme-swatch-colors">
++            <span class="theme-swatch-color" style="background:#E8E4D9"></span>
++            <span class="theme-swatch-color" style="background:#22314F"></span>
++            <span class="theme-swatch-color" style="background:#9C4A3C"></span>
++          </span>
++          <span class="theme-swatch-label" data-i18n="themeNameWarm">Warm Neutrals</span>
++        </button>
++        <button class="theme-swatch" data-color-theme="sumi" data-i18n-aria="themeNameSumi" aria-label="Sumi Ink">
++          <span class="theme-swatch-colors">
++            <span class="theme-swatch-color" style="background:#F2F0EC"></span>
++            <span class="theme-swatch-color" style="background:#1F6F6B"></span>
++            <span class="theme-swatch-color" style="background:#B0413A"></span>
++          </span>
++          <span class="theme-swatch-label" data-i18n="themeNameSumi">Sumi Ink</span>
++        </button>
++        <button class="theme-swatch" data-color-theme="matcha" data-i18n-aria="themeNameMatcha" aria-label="Matcha &amp; Cream">
++          <span class="theme-swatch-colors">
++            <span class="theme-swatch-color" style="background:#F3EFE1"></span>
++            <span class="theme-swatch-color" style="background:#5C7A5A"></span>
++            <span class="theme-swatch-color" style="background:#C9A24B"></span>
++          </span>
++          <span class="theme-swatch-label" data-i18n="themeNameMatcha">Matcha &amp; Cream</span>
++        </button>
++      </div>
+     </div>
+   </div>
+ 
+diff --git a/js/app.js b/js/app.js
+index fcf3dc4..05bda62 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -12,6 +12,8 @@
+   // ---------- settings: silent mode + theme ----------
+   const SILENT_MODE_KEY = "jpstudy_silent_mode_v1";
+   const THEME_KEY = "jpstudy_theme_v1";
++  const COLOR_THEME_KEY = "jpstudy_color_theme_v1";
++  const COLOR_THEMES = ["slate", "pastel", "warm", "sumi", "matcha"];
+   let silentMode = false;
+   try {
+     silentMode = localStorage.getItem(SILENT_MODE_KEY) === "1";
+@@ -24,8 +26,16 @@
+   } catch (e) {
+     currentTheme = "light";
+   }
++  let currentColorTheme = "slate";
++  try {
++    const saved = localStorage.getItem(COLOR_THEME_KEY);
++    currentColorTheme = COLOR_THEMES.includes(saved) ? saved : "slate";
++  } catch (e) {
++    currentColorTheme = "slate";
++  }
+   function applyTheme() {
+     document.documentElement.dataset.theme = currentTheme;
++    document.documentElement.dataset.colorTheme = currentColorTheme;
+   }
+   applyTheme();
+ 
+@@ -2181,6 +2191,7 @@ resetProgressBtn.addEventListener("click", () => {
+   const settingsCloseX = document.getElementById("settings-close-x");
+   const settingsSilentToggle = document.getElementById("settings-silent-toggle");
+   const settingsDarkToggle = document.getElementById("settings-dark-toggle");
++  const themeSwatches = document.querySelectorAll(".theme-swatch");
+ 
+   function syncSettingsToggleUI() {
+     if (settingsSilentToggle) {
+@@ -2192,9 +2203,25 @@ resetProgressBtn.addEventListener("click", () => {
+       settingsDarkToggle.classList.toggle("active", isDark);
+       settingsDarkToggle.setAttribute("aria-checked", String(isDark));
+     }
++    themeSwatches.forEach((btn) => {
++      btn.classList.toggle("active", btn.dataset.colorTheme === currentColorTheme);
++    });
+   }
+   syncSettingsToggleUI();
+ 
++  themeSwatches.forEach((btn) => {
++    btn.addEventListener("click", () => {
++      currentColorTheme = btn.dataset.colorTheme;
++      try {
++        localStorage.setItem(COLOR_THEME_KEY, currentColorTheme);
++      } catch (e) {
++        /* ignore — theme choice just won't persist */
++      }
++      applyTheme();
++      syncSettingsToggleUI();
++    });
++  });
++
+   if (settingsOpenBtn && settingsModal) {
+     settingsOpenBtn.addEventListener("click", () => {
+       settingsModal.hidden = false;
+diff --git a/js/data/i18n.js b/js/data/i18n.js
+index d4348bb..a072f16 100644
+--- a/js/data/i18n.js
++++ b/js/data/i18n.js
+@@ -79,6 +79,13 @@ window.I18N = {
+     settingsSilentModeDesc: "Mute pronunciation audio on flashcards and practice sentences.",
+     settingsDarkMode: "Dark mode",
+     settingsDarkModeDesc: "Switch to a dark color theme.",
++    settingsThemeLabel: "Theme",
++    settingsThemeDesc: "Pick a color palette for the whole site.",
++    themeNameSlate: "Slate & Indigo",
++    themeNamePastel: "Pastel Sunshine",
++    themeNameWarm: "Warm Neutrals",
++    themeNameSumi: "Sumi Ink",
++    themeNameMatcha: "Matcha & Cream",
+   },
+   ja: {
+     subtitle: "漢字・単語・文法",
+@@ -151,5 +158,12 @@ window.I18N = {
+     settingsSilentModeDesc: "フラッシュカードと練習文の音声読み上げをミュートします。",
+     settingsDarkMode: "ダークモード",
+     settingsDarkModeDesc: "配色をダークテーマに切り替えます。",
++    settingsThemeLabel: "テーマ",
++    settingsThemeDesc: "サイト全体の配色テーマを選んでください。",
++    themeNameSlate: "スレート＆インディゴ",
++    themeNamePastel: "パステル・サンシャイン",
++    themeNameWarm: "ウォームニュートラル",
++    themeNameSumi: "墨（すみ）インク",
++    themeNameMatcha: "抹茶＆クリーム",
+   },
+ };

@@ -37,6 +37,10 @@ lesson in its original order.
 Everything supports an **EN / 日本語 UI toggle** (top right) — translates
 navigation and progress messages only, not your study content.
 
+The **⚙ Settings** menu also has a theme picker: 5 color palettes (Slate &
+Indigo, Pastel Sunshine, Warm Neutrals, Sumi Ink, Matcha & Cream), each with
+its own light and dark variant, independent of the separate dark-mode toggle.
+
 No build step. Plain HTML/CSS/JS.
 
 ## File structure — this matters

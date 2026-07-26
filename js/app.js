@@ -12,6 +12,8 @@
   // ---------- settings: silent mode + theme ----------
   const SILENT_MODE_KEY = "jpstudy_silent_mode_v1";
   const THEME_KEY = "jpstudy_theme_v1";
+  const COLOR_THEME_KEY = "jpstudy_color_theme_v1";
+  const COLOR_THEMES = ["slate", "pastel", "warm", "sumi", "matcha"];
   let silentMode = false;
   try {
     silentMode = localStorage.getItem(SILENT_MODE_KEY) === "1";
@@ -24,8 +26,16 @@
   } catch (e) {
     currentTheme = "light";
   }
+  let currentColorTheme = "slate";
+  try {
+    const saved = localStorage.getItem(COLOR_THEME_KEY);
+    currentColorTheme = COLOR_THEMES.includes(saved) ? saved : "slate";
+  } catch (e) {
+    currentColorTheme = "slate";
+  }
   function applyTheme() {
     document.documentElement.dataset.theme = currentTheme;
+    document.documentElement.dataset.colorTheme = currentColorTheme;
   }
   applyTheme();
 
@@ -2181,6 +2191,7 @@ resetProgressBtn.addEventListener("click", () => {
   const settingsCloseX = document.getElementById("settings-close-x");
   const settingsSilentToggle = document.getElementById("settings-silent-toggle");
   const settingsDarkToggle = document.getElementById("settings-dark-toggle");
+  const themeSwatches = document.querySelectorAll(".theme-swatch");
 
   function syncSettingsToggleUI() {
     if (settingsSilentToggle) {
@@ -2192,8 +2203,24 @@ resetProgressBtn.addEventListener("click", () => {
       settingsDarkToggle.classList.toggle("active", isDark);
       settingsDarkToggle.setAttribute("aria-checked", String(isDark));
     }
+    themeSwatches.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.colorTheme === currentColorTheme);
+    });
   }
   syncSettingsToggleUI();
+
+  themeSwatches.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentColorTheme = btn.dataset.colorTheme;
+      try {
+        localStorage.setItem(COLOR_THEME_KEY, currentColorTheme);
+      } catch (e) {
+        /* ignore — theme choice just won't persist */
+      }
+      applyTheme();
+      syncSettingsToggleUI();
+    });
+  });
 
   if (settingsOpenBtn && settingsModal) {
     settingsOpenBtn.addEventListener("click", () => {
