@@ -15,7 +15,7 @@ A static site with two tabs, Vocab and Grammar:
 - **Writing** — recall and draw a word's kanji from its reading/meaning on
   a touch-friendly canvas, then reveal to self-grade.
 - **Furigana** — recall and type a word's reading from its kanji, auto-graded
-  against the word's own reading (no self-honesty needed here).
+  against the word's own reading (no self-honesty needed here)!
 
 Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
 word in a lesson exactly twice per run; clear a lesson with zero mistakes
