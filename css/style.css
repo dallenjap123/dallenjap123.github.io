@@ -1185,6 +1185,64 @@ main {
 .gp-option-btn.wrong { border-color: var(--seal); background: var(--seal-bg); color: var(--seal); font-weight: 600; animation: flashWrong .6s ease; }
 .gp-answer { font-family: var(--font-jp); font-size: 1.3rem; color: var(--indigo-deep); font-weight: 700; margin-top: 4px; }
 
+/* ---------- grammar practice ---------- */
+/* The question prompt is UI text (English instructions), while .gp-sentence
+   below it is the Japanese being tested — so they deliberately use different
+   families and weights rather than reading as one block. */
+.gp-prompt {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  text-align: center;
+}
+.gp-input-row { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; justify-content: center; width: 100%; margin-top: var(--space-3); }
+.gp-input-row input {
+  font-family: var(--font-jp);
+  font-size: 1.2rem;
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink);
+  min-width: 200px;
+  text-align: center;
+}
+.gp-input-row input:focus { border-color: var(--indigo); outline: none; }
+
+/* The explanation is the whole point of this mode, so it gets a panel of its
+   own rather than being tucked under the answer as a footnote. */
+.gp-feedback {
+  width: 100%;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  animation: popIn .3s ease;
+}
+.gp-due-note {
+  font-family: var(--font-ui);
+  font-size: var(--fs-2xs);
+  color: var(--ink-soft);
+  margin: var(--space-2) 0 0;
+  text-align: center;
+}
+.gp-verdict { font-family: var(--font-ui); font-size: 0.95rem; font-weight: 700; margin: 0; }
+.gp-verdict-correct { color: var(--mastered); }
+.gp-verdict-wrong { color: var(--seal); }
+.gp-explain {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 46ch;
+  text-align: left;
+}
 
 /* ---------- word list ---------- */
 .wl-empty-note { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; margin: var(--space-4) 0; }

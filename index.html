@@ -211,6 +211,7 @@
     <section id="grammar-view" class="view">
       <div class="subnav" id="grammar-subnav">
         <button class="subnav-btn active" data-subview="grammar" data-i18n="tabGrammar">Grammar</button>
+        <button class="subnav-btn" data-subview="grammarpractice" data-i18n="tabGrammarPractice">Practice</button>
         <button class="subnav-btn" data-subview="conjugation" data-i18n="tabConjugation">Conjugation</button>
       </div>
 
@@ -230,6 +231,51 @@
           <div class="grammar-detail" id="grammar-detail">
             <p class="grammar-empty" data-i18n="selectPattern">select a pattern from the list</p>
           </div>
+        </div>
+      </div>
+
+      <div id="grammarpractice-subview" class="subview">
+        <div class="controls">
+          <div class="level-chips" id="gp-level-chips">
+            <button class="chip n4 active" data-level="N4">N4</button>
+            <button class="chip n3" data-level="N3">N3</button>
+          </div>
+        </div>
+
+        <div class="lesson-chips" id="gp-lesson-chips"></div>
+
+        <div class="study-options">
+          <button id="gp-srs-toggle" class="ghost-btn isolate-chip active" data-i18n="gpSrsOn">🗓 review mode: on</button>
+        </div>
+        <p class="gp-due-note" id="gp-due-note" hidden></p>
+
+        <div class="card-stage">
+          <div class="gp-card" id="gp-card">
+            <p class="gp-pattern-tag" id="gp-tag" hidden></p>
+            <p class="gp-prompt" id="gp-prompt"></p>
+            <p class="gp-sentence" id="gp-sentence"></p>
+            <p class="gp-hint" id="gp-hint"></p>
+            <div class="gp-options" id="gp-options" hidden></div>
+            <div class="gp-input-row" id="gp-input-row" hidden>
+              <input type="text" id="gp-field" autocomplete="off" autocapitalize="off" spellcheck="false" />
+              <button class="ghost-btn btn-primary" id="gp-submit" data-i18n="submit">Submit</button>
+            </div>
+            <div class="gp-feedback" id="gp-feedback" hidden>
+              <p class="gp-verdict" id="gp-verdict"></p>
+              <p class="gp-answer" id="gp-answer" hidden></p>
+              <p class="gp-explain" id="gp-explain"></p>
+              <button class="ghost-btn btn-primary" id="gp-next" data-i18n="next">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="deck-controls">
+          <div class="nav-group">
+            <button id="gp-shuffle-toggle" class="ghost-btn shuffle-toggle active" data-i18n="shuffleOn">🔀 shuffle: on</button>
+            <button id="gp-skip" class="ghost-btn" data-i18n="skip">skip</button>
+            <button id="gp-reset-progress" class="ghost-btn" data-i18n="resetProgress">reset progress</button>
+          </div>
+          <span id="gp-progress" class="progress">0 / 0</span>
         </div>
       </div>
 
@@ -448,6 +494,7 @@
 
   <script src="js/data/vocab-data.js"></script>
   <script src="js/data/grammar-data.js"></script>
+  <script src="js/data/grammar-practice-data.js"></script>
   <script src="js/data/conjugation-data.js"></script>
   <script src="js/data/conjugation-sentences-data.js"></script>
   <script src="js/data/i18n.js"></script>

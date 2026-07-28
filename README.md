@@ -23,12 +23,15 @@ across both passes and its lesson chip turns green for that mode. Once a
 lesson is green in all three modes, its chip gets a golden shine in the
 Word List — the "you actually know this lesson" signal.
 
-**Grammar** has a Reference view (browse patterns by level, with lesson
-numbers, usage notes, and common mistakes) and a Conjugation view: a
-reference (all 9 conjugation-rule topics) plus three practice modes —
-**By form** (drill one form across 50 verbs), **By verb** (cycle one verb
-through all 8 forms in order), and **Sentences** (each form tested inside a
-real sentence).
+**Grammar** has three views:
+- **Reference** — browse patterns by level, with lesson numbers, usage
+  notes, and common mistakes.
+- **Practice** — quiz yourself on a lesson's grammar (see "Grammar practice"
+  below).
+- **Conjugation** — a reference (all 9 conjugation-rule topics) plus three
+  practice modes: **By form** (drill one form across 50 verbs), **By verb**
+  (cycle one verb through all 8 forms in order), and **Sentences** (each
+  form tested inside a real sentence).
 
 Every shuffle control across the app is a persistent on/off toggle
 (defaults on), not a one-shot button — flip it off if you'd rather study a
@@ -57,6 +60,7 @@ js/
   data/
     vocab-data.js
     grammar-data.js
+    grammar-practice-data.js
     conjugation-data.js
     conjugation-sentences-data.js
     i18n.js
@@ -81,6 +85,8 @@ the GitHub web uploader so it preserves their nesting.
 - **Grammar reference** — `js/data/grammar-data.js`. Each entry needs
   `pattern`, `meaning`, `usage`, `lesson`, and an `examples` array of
   `{ jp, en }` pairs.
+- **Grammar practice questions** — `js/data/grammar-practice-data.js`, keyed
+  by level then lesson number (see "Grammar practice" below).
 - **Conjugation reference** — `js/data/conjugation-data.js`
   (`CONJUGATION_TOPICS`) and the practice verb bank
   (`CONJUGATION_PRACTICE_VERBS`, hand-checked forms only — see the comment
@@ -142,6 +148,91 @@ meaning — it auto-detects which one you typed:
 
 A non-empty search overrides the lesson-chip selection and shows one flat,
 ranked result list across the selected level(s).
+
+## Grammar practice
+
+**Grammar → Practice** quizzes you on one lesson's grammar at a time. Pick
+a level and one or more lesson chips, and you get that lesson's questions
+as multiple choice or type-the-answer.
+
+The questions deliberately target what a reference page can't teach you:
+
+- **Which form attaches** — e.g. that 〜ところです takes the dictionary form
+  for "about to," 〜ている for "in the middle of," and た for "just did."
+- **What it actually means** in a given sentence.
+- **Choosing between confusable patterns** — まで vs までに, ため vs ように,
+  appearance そう vs hearsay そう, 〜たことがある vs 〜ことがある. Because
+  `grammar-data.js` already groups related patterns into the same lesson,
+  a lesson's questions can pit its own patterns against each other.
+- **Spotting errors** — why a plausible-looking sentence is wrong.
+
+Every question shows a written explanation after you answer, right or
+wrong, and waits for you to press **Next** — this mode is for understanding
+the rule, not for drilling speed.
+
+Answer options are reshuffled every time a question appears, so the
+position of the right answer is never a hint.
+
+Same mastery rule as the vocab modes: each question cycles exactly twice
+per run, and clearing a whole lesson with no mistakes turns its lesson chip
+green. (Grammar lessons are numbered separately from vocab lessons, so this
+green is tracked on its own and doesn't feed the Word List's golden shine.)
+
+### Spaced repetition
+
+**Review mode** (the 🗓 toggle, on by default) schedules each question
+individually instead of showing you the whole lesson every time. A session
+contains only what's due plus anything you've never seen, and the counter
+under the toggle tells you how many of each are waiting.
+
+The scheduler is SM-2-lite. Answer a question right and the gap before you
+see it again grows — 1 day, then 3, then multiplied by that question's own
+ease factor each time. Answer it wrong and it resets to "due immediately"
+and its ease drops, so questions you keep missing come back faster than
+ones you know cold. Only your **first** answer in a run counts toward
+scheduling; the second pass through the deck is reinforcement and can't
+inflate the interval.
+
+Turn review mode off to drill a whole lesson regardless of schedule —
+useful when you're cramming one specific lesson rather than doing a daily
+review. **reset progress** clears both the schedule and the green marks.
+
+### Adding more grammar practice questions
+
+Edit `js/data/grammar-practice-data.js`, keyed by level then lesson number.
+Each question is either
+
+```js
+{ type: "choice", tag: "〜までに", prompt: "Which fits the blank?",
+  jp: "レポートは金曜日＿＿＿出してください。", en: "Please submit the report by Friday.",
+  options: ["までに", "まで", "から", "ながら"], correct: 0, explain: "..." }
+```
+
+or
+
+```js
+{ type: "fill", tag: "〜ながら", prompt: "Type the missing word in hiragana.",
+  jp: "母は音楽を聞き＿＿＿＿料理を作ります。", en: "My mother cooks while listening to music.",
+  answers: ["ながら"], explain: "..." }
+```
+
+`jp` and `en` are optional — omit them for a pure concept question ("which
+form attaches to X?"). `answers` lists every accepted spelling. `explain`
+is required: it's the part you actually learn from.
+
+Currently covered:
+
+- **N4 lessons 1–15** — 120 questions written for this site, built around
+  the patterns in `grammar-data.js`.
+- **N3 lessons 1–8** — 78 questions taken from the 練習 exercises in
+  *新完全マスター文法 日本語能力試験N3* (友松悦子・福島佐知・中村かおり,
+  スリーエーネットワーク 2012), using the book's own answer key. The
+  sentences and options are the book's; the explanations are written here,
+  since the book supplies answers only. Questions from a 練習's combined
+  (1課・2課) section are filed under whichever lesson's grammar the correct
+  answer actually tests.
+
+Lessons with no questions yet simply don't show a chip.
 
 ## Optional: sync progress across devices
 

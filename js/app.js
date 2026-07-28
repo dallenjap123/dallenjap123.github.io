@@ -275,6 +275,18 @@
       masteredCount: 0,
       totalCount: 0,
     },
+    grammarPractice: {
+      level: "N4",
+      lessons: [],
+      srsOn: true,
+      shuffleOn: true,
+      queue: [],
+      sessionItems: [],
+      current: null,
+      answered: false,
+      masteredCount: 0,
+      totalCount: 0,
+    },
   };
 
   // ---------- view tabs ----------
@@ -345,6 +357,11 @@
   const fcMastery = makeLessonMastery("jpstudy_fc_lesson_passed_v1");
   const kwMastery = makeLessonMastery("jpstudy_kw_lesson_passed_v1");
   const fgMastery = makeLessonMastery("jpstudy_fg_lesson_passed_v1");
+  // Grammar practice keeps its own store and deliberately stays OUT of
+  // isFullyMastered below — that golden shine is the Word List's "you know
+  // this vocab lesson" signal, and grammar lessons are numbered separately
+  // from vocab lessons, so mixing them would make the gold meaningless.
+  const gpMastery = makeLessonMastery("jpstudy_gp_lesson_passed_v1");
 
   function isFullyMastered(level, lesson) {
     return fcMastery.isPassed(level, lesson) && kwMastery.isPassed(level, lesson) && fgMastery.isPassed(level, lesson);
@@ -1340,6 +1357,387 @@ resetProgressBtn.addEventListener("click", () => {
   });
 
   renderGrammarList("N5");
+
+  // ---------- grammar practice ----------
+  // Quizzes the hand-written questions in grammar-practice-data.js, keyed by
+  // level+lesson. Unlike the other practice modes this one always shows the
+  // explanation after answering and waits for an explicit "Next" — the point
+  // is to teach why まで beats までに here, not to drill for speed, so
+  // auto-advancing past the explanation would defeat the whole mode.
+  const gpLevelChips = document.querySelectorAll("#gp-level-chips .chip");
+  const gpLessonChipsEl = document.getElementById("gp-lesson-chips");
+  const gpTagEl = document.getElementById("gp-tag");
+  const gpPromptEl = document.getElementById("gp-prompt");
+  const gpSentenceEl = document.getElementById("gp-sentence");
+  const gpHintEl = document.getElementById("gp-hint");
+  const gpOptionsEl = document.getElementById("gp-options");
+  const gpInputRowEl = document.getElementById("gp-input-row");
+  const gpFieldEl = document.getElementById("gp-field");
+  const gpSubmitBtn = document.getElementById("gp-submit");
+  const gpFeedbackEl = document.getElementById("gp-feedback");
+  const gpVerdictEl = document.getElementById("gp-verdict");
+  const gpAnswerEl = document.getElementById("gp-answer");
+  const gpExplainEl = document.getElementById("gp-explain");
+  const gpNextBtn = document.getElementById("gp-next");
+  const gpProgressEl = document.getElementById("gp-progress");
+  const gpShuffleToggleBtn = document.getElementById("gp-shuffle-toggle");
+  const gpSrsToggleBtn = document.getElementById("gp-srs-toggle");
+  const gpDueNoteEl = document.getElementById("gp-due-note");
+
+  // ---- spaced repetition ----
+  // An SM-2-lite scheduler, one record per question id:
+  //   { ease, interval (days), due (ms epoch), reps, lapses }
+  // Answer it right and the gap to the next showing stretches by the card's
+  // own ease factor; get it wrong and the card resets to "due now" and its
+  // ease drops, so questions you keep missing keep coming back sooner than
+  // ones you know cold.
+  const GP_SRS_KEY = "jpstudy_gp_srs_v1";
+  const GP_DAY_MS = 24 * 60 * 60 * 1000;
+  let gpSrsStore = {};
+  try {
+    gpSrsStore = JSON.parse(localStorage.getItem(GP_SRS_KEY) || "{}");
+  } catch (e) {
+    gpSrsStore = {};
+  }
+  function gpSaveSrs() {
+    try {
+      localStorage.setItem(GP_SRS_KEY, JSON.stringify(gpSrsStore));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  function gpIsDue(qid, now) {
+    const rec = gpSrsStore[qid];
+    if (!rec) return true; // never seen — new cards are always fair game
+    return rec.due <= now;
+  }
+  function gpIsNew(qid) {
+    return !gpSrsStore[qid];
+  }
+  // Called once per question per run, on the FIRST answer only — that's the
+  // honest recall test. The second exposure in the same run is reinforcement
+  // and must not inflate the schedule.
+  function gpScheduleCard(qid, isCorrect) {
+    const now = Date.now();
+    const rec = gpSrsStore[qid] || { ease: 2.5, interval: 0, due: now, reps: 0, lapses: 0 };
+    if (isCorrect) {
+      rec.reps += 1;
+      if (rec.reps === 1) rec.interval = 1;
+      else if (rec.reps === 2) rec.interval = 3;
+      else rec.interval = Math.round(rec.interval * rec.ease);
+      rec.ease = Math.min(2.8, rec.ease + 0.1);
+    } else {
+      rec.reps = 0;
+      rec.lapses += 1;
+      rec.interval = 0; // back in the pile for the next session
+      rec.ease = Math.max(1.3, rec.ease - 0.2);
+    }
+    rec.due = now + rec.interval * GP_DAY_MS;
+    gpSrsStore[qid] = rec;
+    gpSaveSrs();
+  }
+
+  function gpLessonsFor(level) {
+    const byLesson = (window.GRAMMAR_PRACTICE && window.GRAMMAR_PRACTICE[level]) || {};
+    return Object.keys(byLesson)
+      .map(Number)
+      .filter((n) => (byLesson[n] || []).length)
+      .sort((a, b) => a - b);
+  }
+
+  function gpAllQuestions(level, lessons) {
+    const byLesson = (window.GRAMMAR_PRACTICE && window.GRAMMAR_PRACTICE[level]) || {};
+    const wanted = lessons && lessons.length ? lessons : gpLessonsFor(level);
+    const out = [];
+    wanted.forEach((n) => {
+      (byLesson[n] || []).forEach((q, idx) => {
+        out.push({ ...q, level, lesson: n, qid: `${level}::${n}::${idx}` });
+      });
+    });
+    return out;
+  }
+
+  // In review mode the deck is only what the scheduler says is due (plus
+  // anything never seen). With review mode off you get every question in the
+  // selected lessons, which is what you want when cramming a specific lesson
+  // rather than doing your daily review.
+  function gpBuildDeck(level, lessons) {
+    const all = gpAllQuestions(level, lessons);
+    if (!state.grammarPractice.srsOn) return all;
+    const now = Date.now();
+    return all.filter((q) => gpIsDue(q.qid, now));
+  }
+
+  function gpDueCounts(level, lessons) {
+    const all = gpAllQuestions(level, lessons);
+    const now = Date.now();
+    let due = 0;
+    let fresh = 0;
+    all.forEach((q) => {
+      if (gpIsNew(q.qid)) fresh += 1;
+      else if (gpSrsStore[q.qid].due <= now) due += 1;
+    });
+    return { due, fresh, total: all.length };
+  }
+
+  // Typed answers are compared loosely: trim, drop spaces, and treat the
+  // full-width blank characters as absent so pasting the sentence back in
+  // doesn't count as wrong.
+  function gpNormalize(str) {
+    return (str || "").trim().replace(/[\s　＿_]/g, "");
+  }
+
+  function gpUpdateProgress() {
+    const gp = state.grammarPractice;
+    gpProgressEl.textContent = gp.totalCount ? t("masteredProgress", { n: gp.masteredCount, total: gp.totalCount }) : "0 / 0";
+    gpUpdateDueNote();
+  }
+
+  function gpUpdateDueNote() {
+    const gp = state.grammarPractice;
+    if (!gpDueNoteEl) return;
+    if (!gp.srsOn) {
+      gpDueNoteEl.hidden = true;
+      return;
+    }
+    const { due, fresh } = gpDueCounts(gp.level, gp.lessons);
+    gpDueNoteEl.hidden = false;
+    gpDueNoteEl.textContent = t("gpDueNote", { due, fresh });
+  }
+
+  function gpResetCardUI() {
+    gpTagEl.hidden = true;
+    gpOptionsEl.hidden = true;
+    gpOptionsEl.innerHTML = "";
+    gpInputRowEl.hidden = true;
+    gpFieldEl.value = "";
+    gpFieldEl.disabled = false;
+    gpFieldEl.classList.remove("fg-input-correct", "fg-input-wrong");
+    gpFeedbackEl.hidden = true;
+    gpAnswerEl.hidden = true;
+    gpAnswerEl.textContent = "";
+    gpExplainEl.textContent = "";
+    gpVerdictEl.textContent = "";
+    gpVerdictEl.className = "gp-verdict";
+  }
+
+  function gpShowNext() {
+    const gp = state.grammarPractice;
+    gpResetCardUI();
+    if (!gp.queue.length) {
+      gp.current = null;
+      gp.answered = false;
+      if (gp.totalCount) gpPromptEl.textContent = t("allMastered");
+      else if (gp.srsOn && gpDueCounts(gp.level, gp.lessons).total) gpPromptEl.textContent = t("gpAllCaughtUp");
+      else gpPromptEl.textContent = t("gpNoQuestions");
+      gpSentenceEl.textContent = "";
+      gpHintEl.textContent = "";
+      gpUpdateProgress();
+      return;
+    }
+    const item = gp.queue.shift();
+    gp.current = item;
+    gp.answered = false;
+    gpTagEl.textContent = item.tag || "";
+    gpPromptEl.textContent = item.prompt || "";
+    gpSentenceEl.innerHTML = item.jp ? furiganaToHtml(item.jp) : "";
+    gpHintEl.textContent = item.en || "";
+    if (item.type === "choice") {
+      gpOptionsEl.hidden = false;
+      // Options are shuffled every time a question is shown. The source data
+      // keeps its authored order (which for the N3 questions is the
+      // textbook's own a/b/c order), but a fixed order would be learnable on
+      // its own — answer position must never be a hint.
+      const order = shuffle(item.options.map((_, i) => i));
+      item._correctPos = order.indexOf(item.correct);
+      order.forEach((srcIdx, pos) => {
+        const btn = document.createElement("button");
+        btn.className = "gp-option-btn";
+        btn.textContent = item.options[srcIdx];
+        btn.addEventListener("click", () => gpAnswer(srcIdx === item.correct, pos));
+        gpOptionsEl.appendChild(btn);
+      });
+    } else {
+      gpInputRowEl.hidden = false;
+      gpFieldEl.placeholder = t("gpPlaceholder");
+      setTimeout(() => gpFieldEl.focus(), 0);
+    }
+    gpUpdateProgress();
+  }
+
+  // Records the result against the twice-per-run rule shared with the vocab
+  // practice modes, then shows the explanation and waits for "Next".
+  function gpAnswer(isCorrect, chosenIdx) {
+    const gp = state.grammarPractice;
+    const item = gp.current;
+    if (!item || gp.answered) return;
+    gp.answered = true;
+
+    if (item.type === "choice") {
+      [...gpOptionsEl.children].forEach((b, i) => {
+        b.disabled = true;
+        if (i === item._correctPos) b.classList.add("correct");
+        else if (i === chosenIdx) b.classList.add("wrong");
+      });
+    } else {
+      gpFieldEl.disabled = true;
+      gpFieldEl.classList.add(isCorrect ? "fg-input-correct" : "fg-input-wrong");
+      if (!isCorrect) {
+        gpAnswerEl.hidden = false;
+        gpAnswerEl.textContent = `${t("gpAnswerLabel")} ${item.answers[0]}`;
+      }
+    }
+
+    gpTagEl.hidden = false;
+    gpVerdictEl.textContent = t(isCorrect ? "gpCorrect" : "gpWrong");
+    gpVerdictEl.className = `gp-verdict ${isCorrect ? "gp-verdict-correct" : "gp-verdict-wrong"}`;
+    gpExplainEl.textContent = item.explain || "";
+    gpFeedbackEl.hidden = false;
+    gpNextBtn.focus();
+
+    item.attempts += 1;
+    if (isCorrect) item.correctAttempts += 1;
+    // Schedule off the first answer only — the second pass this run is
+    // reinforcement, and counting it would let a card you just fumbled ride
+    // its immediate re-answer into a long interval.
+    if (item.attempts === 1) gpScheduleCard(item.qid, isCorrect);
+    if (item.attempts < 2) {
+      gp.queue.push(item);
+    } else {
+      if (item.correctAttempts === 2) gp.masteredCount += 1;
+      checkLessonComplete(gpMastery, gp.sessionItems, item.level, item.lesson);
+      gpRenderLessonChips(gp.level);
+    }
+    gpUpdateProgress();
+  }
+
+  function gpSubmitTyped() {
+    const gp = state.grammarPractice;
+    const item = gp.current;
+    if (!item || gp.answered || item.type !== "fill") return;
+    const given = gpNormalize(gpFieldEl.value);
+    if (!given) return;
+    gpAnswer(item.answers.some((a) => gpNormalize(a) === given));
+  }
+
+  function gpStartSession() {
+    const gp = state.grammarPractice;
+    const items = gpBuildDeck(gp.level, gp.lessons).map((q) => ({ ...q, attempts: 0, correctAttempts: 0 }));
+    gp.sessionItems = items;
+    gp.queue = gp.shuffleOn ? shuffle(items) : items.slice();
+    gp.totalCount = items.length;
+    gp.masteredCount = 0;
+    gp.current = null;
+    gpShowNext();
+  }
+
+  function gpRenderLessonChips(level) {
+    const lessonNums = gpLessonsFor(level);
+    if (!lessonNums.length) {
+      gpLessonChipsEl.innerHTML = "";
+      gpLessonChipsEl.hidden = true;
+      return;
+    }
+    gpLessonChipsEl.hidden = false;
+    const selected = state.grammarPractice.lessons;
+    const allActive = selected.length === 0;
+    const allChip = `<button class="chip lesson-chip${allActive ? " active" : ""}" data-lesson="all">${t("allLessons")}</button>`;
+    const lessonChips = lessonNums
+      .map((n) => {
+        const isActive = selected.includes(n);
+        const passedClass = gpMastery.isPassed(level, n) ? " chip-passed" : "";
+        return `<button class="chip lesson-chip${isActive ? " active" : ""}${passedClass}" data-lesson="${n}">${n}課</button>`;
+      })
+      .join("");
+    gpLessonChipsEl.innerHTML = allChip + lessonChips;
+    gpLessonChipsEl.querySelectorAll(".lesson-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const gp = state.grammarPractice;
+        if (chip.dataset.lesson === "all") {
+          gp.lessons = [];
+        } else {
+          const n = Number(chip.dataset.lesson);
+          const idx = gp.lessons.indexOf(n);
+          if (idx === -1) gp.lessons.push(n);
+          else gp.lessons.splice(idx, 1);
+          gp.lessons.sort((a, b) => a - b);
+        }
+        gpRenderLessonChips(level);
+        gpStartSession();
+      });
+    });
+  }
+
+  gpLevelChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      gpLevelChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      const gp = state.grammarPractice;
+      gp.level = chip.dataset.level;
+      gp.lessons = [];
+      gpRenderLessonChips(gp.level);
+      gpStartSession();
+    });
+  });
+
+  gpSubmitBtn.addEventListener("click", gpSubmitTyped);
+  gpFieldEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      gpSubmitTyped();
+    }
+  });
+  gpNextBtn.addEventListener("click", gpShowNext);
+
+  gpSrsToggleBtn.addEventListener("click", () => {
+    const gp = state.grammarPractice;
+    gp.srsOn = !gp.srsOn;
+    gpSrsToggleBtn.classList.toggle("active", gp.srsOn);
+    gpSrsToggleBtn.textContent = t(gp.srsOn ? "gpSrsOn" : "gpSrsOff");
+    try {
+      localStorage.setItem("jpstudy_gp_srs_mode_v1", gp.srsOn ? "1" : "0");
+    } catch (e) {
+      /* ignore */
+    }
+    gpStartSession();
+  });
+
+  gpShuffleToggleBtn.addEventListener("click", () => {
+    const gp = state.grammarPractice;
+    gp.shuffleOn = !gp.shuffleOn;
+    gpShuffleToggleBtn.classList.toggle("active", gp.shuffleOn);
+    gpShuffleToggleBtn.textContent = t(gp.shuffleOn ? "shuffleOn" : "shuffleOff");
+    if (gp.shuffleOn) gp.queue = shuffle(gp.queue);
+  });
+
+  document.getElementById("gp-skip").addEventListener("click", () => {
+    const gp = state.grammarPractice;
+    if (!gp.current) return;
+    // Requeue untouched: a skip shouldn't count as one of the two exposures.
+    gp.queue.push(gp.current);
+    gpShowNext();
+  });
+
+  document.getElementById("gp-reset-progress").addEventListener("click", () => {
+    if (!window.confirm("This clears your grammar-practice review schedule AND the green 'lesson passed' marks. Continue?")) return;
+    try {
+      localStorage.removeItem("jpstudy_gp_lesson_passed_v1");
+      localStorage.removeItem(GP_SRS_KEY);
+    } catch (e) {
+      /* ignore */
+    }
+    window.location.reload();
+  });
+
+  try {
+    if (localStorage.getItem("jpstudy_gp_srs_mode_v1") === "0") state.grammarPractice.srsOn = false;
+  } catch (e) {
+    /* ignore */
+  }
+  gpSrsToggleBtn.classList.toggle("active", state.grammarPractice.srsOn);
+  gpSrsToggleBtn.textContent = t(state.grammarPractice.srsOn ? "gpSrsOn" : "gpSrsOff");
+  gpRenderLessonChips(state.grammarPractice.level);
+  gpStartSession();
 
   // Turns "漢字[かんじ]" bracket notation into <ruby><rt> furigana — escape
   // first so any stray < > & in the source text can't leak into the markup.
