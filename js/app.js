@@ -74,11 +74,20 @@
   } catch (e) {
     progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
   }
-  // The study plan lives much further down this file, but a cloud snapshot can
-  // arrive before that code has run. These start as no-ops and are replaced by
-  // the real implementations when the timeline initialises.
-  let getPlanSnapshot = () => null;
-  let applyPlanSnapshot = () => {};
+  // Sections defined further down this file (lesson mastery, the review
+  // schedule, the study plan) register themselves here. A cloud snapshot can
+  // arrive before any of that code has run, so the list simply starts empty
+  // rather than each section needing its own late-bound hook.
+  const syncContributors = [];
+  // Set while a cloud snapshot is being applied, so restoring remote state
+  // doesn't immediately push the same thing straight back up.
+  let applyingRemote = false;
+  function pushSyncChange() {
+    if (applyingRemote) return;
+    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
+    }
+  }
 
   function getSyncSnapshot() {
     const snapshot = {
@@ -86,12 +95,7 @@
       grammar: JSON.parse(JSON.stringify(grammarProgressStore)),
       streak: JSON.parse(JSON.stringify(streakStore)),
     };
-    const planSnap = getPlanSnapshot();
-    if (planSnap) {
-      snapshot.plan = planSnap.plan;
-      snapshot.planDone = planSnap.planDone;
-      snapshot.planDaily = planSnap.planDaily;
-    }
+    syncContributors.forEach((c) => Object.assign(snapshot, c.get() || {}));
     return snapshot;
   }
 
@@ -109,7 +113,12 @@
       streakStore = snapshot.streak;
       try { localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore)); } catch (e) {}
     }
-    applyPlanSnapshot(snapshot);
+    applyingRemote = true;
+    try {
+      syncContributors.forEach((c) => c.apply(snapshot));
+    } finally {
+      applyingRemote = false;
+    }
 
     updateProgress();
     refreshWordList();
@@ -144,7 +153,7 @@
       if (
         data &&
         typeof data === "object" &&
-        ("vocab" in data || "grammar" in data || "streak" in data || "plan" in data || "planDone" in data || "planDaily" in data)
+        ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"].some((k) => k in data)
       ) {
         applySyncSnapshot(data);
         return;
@@ -355,6 +364,13 @@
     function key(level, lesson) {
       return `${level}::${lesson}`;
     }
+    function persist() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(store));
+      } catch (e) {
+        /* ignore */
+      }
+    }
     return {
       isPassed(level, lesson) {
         return !!store[key(level, lesson)];
@@ -363,12 +379,16 @@
         const k = key(level, lesson);
         if (store[k]) return false; // already marked — no need to re-save or re-celebrate
         store[k] = true;
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(store));
-        } catch (e) {
-          /* ignore */
-        }
+        persist();
+        pushSyncChange();
         return true;
+      },
+      all() {
+        return JSON.parse(JSON.stringify(store));
+      },
+      replace(next) {
+        store = next && typeof next === "object" ? next : {};
+        persist();
       },
     };
   }
@@ -380,6 +400,28 @@
   // this vocab lesson" signal, and grammar lessons are numbered separately
   // from vocab lessons, so mixing them would make the gold meaningless.
   const gpMastery = makeLessonMastery("jpstudy_gp_lesson_passed_v1");
+
+  // Lesson badges are progress like any other — a lesson cleared on your phone
+  // should be green on your laptop. Unioned on merge, so a pass is never lost.
+  syncContributors.push({
+    get: () => ({
+      mastery: { fc: fcMastery.all(), kw: kwMastery.all(), fg: fgMastery.all(), gp: gpMastery.all() },
+    }),
+    apply: (snapshot) => {
+      const m = snapshot && snapshot.mastery;
+      if (!m || typeof m !== "object") return;
+      if (m.fc) fcMastery.replace(m.fc);
+      if (m.kw) kwMastery.replace(m.kw);
+      if (m.fg) fgMastery.replace(m.fg);
+      if (m.gp) gpMastery.replace(m.gp);
+      // Repaint whichever chip rows are on screen so badges appear without a reload.
+      if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
+      if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);
+      if (state.furigana.level !== "all") fgRenderLessonChips(state.furigana.level);
+      gpRenderLessonChips(state.grammarPractice.level);
+      refreshWordList();
+    },
+  });
 
   function isFullyMastered(level, lesson) {
     return fcMastery.isPassed(level, lesson) && kwMastery.isPassed(level, lesson) && fgMastery.isPassed(level, lesson);
@@ -1423,7 +1465,19 @@ resetProgressBtn.addEventListener("click", () => {
     } catch (e) {
       /* ignore */
     }
+    pushSyncChange();
   }
+  // The review schedule follows you too, otherwise "due today" means something
+  // different on every device.
+  syncContributors.push({
+    get: () => ({ srs: JSON.parse(JSON.stringify(gpSrsStore)) }),
+    apply: (snapshot) => {
+      if (!snapshot || !snapshot.srs || typeof snapshot.srs !== "object") return;
+      gpSrsStore = snapshot.srs;
+      gpSaveSrs();
+    },
+  });
+
   function gpIsDue(qid, now) {
     const rec = gpSrsStore[qid];
     if (!rec) return true; // never seen — new cards are always fair game
@@ -2748,27 +2802,23 @@ resetProgressBtn.addEventListener("click", () => {
   } catch (e) {
     plan = { ...PLAN_DEFAULTS };
   }
-  // Set while a cloud snapshot is being applied, so restoring remote state
-  // doesn't immediately push the same thing straight back up.
-  let applyingRemotePlan = false;
-  function pushPlanChange() {
-    if (applyingRemotePlan) return;
-    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
-      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
-    }
-  }
-  function savePlan() {
-    // Stamped so two devices editing the pace can be resolved by recency
-    // rather than by whichever happened to write last.
-    plan.updatedAt = Date.now();
+  function persistPlan() {
     try {
       localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
     } catch (e) {
       /* ignore */
     }
-    pushPlanChange();
   }
-  savePlan(); // pins startDate on first ever load
+  // Only a real EDIT re-stamps updatedAt. Stamping on every page load would
+  // make this device's copy look newest on every visit, so a freshly-opened
+  // second device would win the settings merge with its untouched defaults
+  // and quietly overwrite the plan you actually set.
+  function savePlan() {
+    plan.updatedAt = Date.now();
+    persistPlan();
+    pushSyncChange();
+  }
+  persistPlan(); // pins startDate on first ever load, without claiming to be a fresh edit
 
   let planDone = {};
   try {
@@ -2782,7 +2832,7 @@ resetProgressBtn.addEventListener("click", () => {
     } catch (e) {
       /* ignore */
     }
-    pushPlanChange();
+    pushSyncChange();
   }
 
   let planDaily = {};
@@ -2797,7 +2847,7 @@ resetProgressBtn.addEventListener("click", () => {
     } catch (e) {
       /* ignore */
     }
-    pushPlanChange();
+    pushSyncChange();
   }
 
   // The queues are derived from the data files, not hard-coded, so adding a
@@ -3306,22 +3356,18 @@ resetProgressBtn.addEventListener("click", () => {
     renderTimeline();
   });
 
-  // Hand the plan to the cloud-sync layer (js/sync.js). Registered here rather
-  // than at the top of the file because everything it closes over is defined
-  // in this section.
-  getPlanSnapshot = () => ({
-    plan: JSON.parse(JSON.stringify(plan)),
-    planDone: JSON.parse(JSON.stringify(planDone)),
-    planDaily: JSON.parse(JSON.stringify(planDaily)),
-  });
-  applyPlanSnapshot = (snapshot) => {
-    if (!snapshot || typeof snapshot !== "object") return;
-    let touched = false;
-    applyingRemotePlan = true;
-    try {
+  syncContributors.push({
+    get: () => ({
+      plan: JSON.parse(JSON.stringify(plan)),
+      planDone: JSON.parse(JSON.stringify(planDone)),
+      planDaily: JSON.parse(JSON.stringify(planDaily)),
+    }),
+    apply: (snapshot) => {
+      if (!snapshot || typeof snapshot !== "object") return;
+      let touched = false;
       if (snapshot.plan && typeof snapshot.plan === "object") {
         plan = { ...PLAN_DEFAULTS, ...snapshot.plan };
-        try { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); } catch (e) {}
+        persistPlan();
         touched = true;
       }
       if (snapshot.planDone && typeof snapshot.planDone === "object") {
@@ -3334,11 +3380,9 @@ resetProgressBtn.addEventListener("click", () => {
         try { localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily)); } catch (e) {}
         touched = true;
       }
-    } finally {
-      applyingRemotePlan = false;
-    }
-    if (touched) renderTimeline();
-  };
+      if (touched) renderTimeline();
+    },
+  });
 
   renderTimeline();
 

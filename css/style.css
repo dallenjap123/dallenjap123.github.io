@@ -760,31 +760,20 @@ main {
 .shuffle-toggle.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
 
 /* A lesson chip that's been cleared for the current practice mode (all its
-   words cycled twice, zero mistakes, this session) shines green — same
-   --mastered color used everywhere else in the app for "done." */
-.lesson-chip.chip-passed {
-  background: linear-gradient(120deg, var(--mastered-bg), var(--mastered), var(--mastered-bg));
-  background-size: 200% 100%;
-  border-color: var(--mastered);
-  color: #fff;
-  animation: chipShineSweep 2.6s linear infinite;
-}
+   words cycled twice, zero mistakes, this session) turns solid green — the
+   same --mastered color used everywhere else in the app for "done." */
+.lesson-chip.chip-passed { background: var(--mastered); border-color: var(--mastered); color: #fff; }
 
 /* Word List's lesson chips get a golden shine once a lesson has cleared
    ALL THREE practice modes (flashcards + writing + furigana) — the full
    "you actually know this lesson" signal, one tier up from the single-mode
-   green above. */
+   green above. Solid gold rather than animated: it sits in a grid of up to
+   fifty chips, where anything moving is a distraction rather than a reward. */
 .lesson-chip.chip-golden {
-  background: linear-gradient(120deg, var(--learning-bg), var(--learning), var(--learning-bg));
-  background-size: 200% 100%;
+  background: var(--learning);
   border-color: var(--learning);
-  color: var(--ink);
+  color: #fff;
   font-weight: 700;
-  animation: chipShineSweep 2.6s linear infinite;
-}
-@keyframes chipShineSweep {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 .isolate-note {
   font-family: var(--font-ui);

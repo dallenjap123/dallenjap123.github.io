@@ -1,0 +1,419 @@
+diff --git a/README.md b/README.md
+index 5977c27..401ef76 100644
+--- a/README.md
++++ b/README.md
+@@ -23,8 +23,8 @@ A static site with three tabs — Home, Vocab and Grammar:
+ Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
+ word in a lesson exactly twice per run; clear a lesson with zero mistakes
+ across both passes and its lesson chip turns green for that mode. Once a
+-lesson is green in all three modes, its chip gets a golden shine in the
+-Word List — the "you actually know this lesson" signal.
++lesson is green in all three modes, its chip turns gold in the Word List —
++the "you actually know this lesson" signal. Both badges sync across devices.
+ 
+ **Grammar** has three views:
+ - **Reference** — browse patterns by level, with lesson numbers, usage
+@@ -212,7 +212,10 @@ per-section: completed lessons are unioned, so a lesson finished on any
+ device stays finished and the earlier completion date wins; the recurring
+ review-habit ticks are unioned per day; and the plan settings — dates and
+ pace — are a single coherent set, so the most recently edited copy wins
+-outright (`savePlan()` stamps `updatedAt` for exactly this).
++outright. `savePlan()` stamps `updatedAt` for that, and only a genuine edit
++stamps it: re-stamping on every page load would make whichever device you
++opened last look newest, letting an untouched second device overwrite the
++plan you actually set.
+ 
+ ## Word List search
+ 
+@@ -324,7 +327,15 @@ your phone and then opening the site on your laptop starts fresh.
+ Conjugation practice sessions are always local-only/per-session by design,
+ on every device, regardless of sync.
+ 
+-To sync your vocab progress across devices, this app can optionally use
++What syncs: vocab right/wrong stats, the green and gold lesson badges, the
++grammar review schedule, and the whole Home-tab study plan. Badges are
++unioned, so a lesson cleared on any device stays cleared. The review
++schedule keeps whichever copy is due *sooner* — that deliberately errs
++toward reviewing more rather than less, since taking the later date would
++throw away a lapse you'd recorded elsewhere, while an extra review costs
++nothing.
++
++To sync across devices, this app can optionally use
+ [Firebase](https://firebase.google.com/) (a free Google service) — Cloud
+ Firestore as the database, Google sign-in for auth. **This is entirely
+ optional** — until you set it up, the sign-in button and all sync code stay
+diff --git a/css/style.css b/css/style.css
+index 03f90c0..c88b140 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -760,31 +760,20 @@ main {
+ .shuffle-toggle.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+ 
+ /* A lesson chip that's been cleared for the current practice mode (all its
+-   words cycled twice, zero mistakes, this session) shines green — same
+-   --mastered color used everywhere else in the app for "done." */
+-.lesson-chip.chip-passed {
+-  background: linear-gradient(120deg, var(--mastered-bg), var(--mastered), var(--mastered-bg));
+-  background-size: 200% 100%;
+-  border-color: var(--mastered);
+-  color: #fff;
+-  animation: chipShineSweep 2.6s linear infinite;
+-}
++   words cycled twice, zero mistakes, this session) turns solid green — the
++   same --mastered color used everywhere else in the app for "done." */
++.lesson-chip.chip-passed { background: var(--mastered); border-color: var(--mastered); color: #fff; }
+ 
+ /* Word List's lesson chips get a golden shine once a lesson has cleared
+    ALL THREE practice modes (flashcards + writing + furigana) — the full
+    "you actually know this lesson" signal, one tier up from the single-mode
+-   green above. */
++   green above. Solid gold rather than animated: it sits in a grid of up to
++   fifty chips, where anything moving is a distraction rather than a reward. */
+ .lesson-chip.chip-golden {
+-  background: linear-gradient(120deg, var(--learning-bg), var(--learning), var(--learning-bg));
+-  background-size: 200% 100%;
++  background: var(--learning);
+   border-color: var(--learning);
+-  color: var(--ink);
++  color: #fff;
+   font-weight: 700;
+-  animation: chipShineSweep 2.6s linear infinite;
+-}
+-@keyframes chipShineSweep {
+-  0% { background-position: 200% 0; }
+-  100% { background-position: -200% 0; }
+ }
+ .isolate-note {
+   font-family: var(--font-ui);
+diff --git a/js/app.js b/js/app.js
+index f4d6921..39c6383 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -74,11 +74,20 @@
+   } catch (e) {
+     progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
+   }
+-  // The study plan lives much further down this file, but a cloud snapshot can
+-  // arrive before that code has run. These start as no-ops and are replaced by
+-  // the real implementations when the timeline initialises.
+-  let getPlanSnapshot = () => null;
+-  let applyPlanSnapshot = () => {};
++  // Sections defined further down this file (lesson mastery, the review
++  // schedule, the study plan) register themselves here. A cloud snapshot can
++  // arrive before any of that code has run, so the list simply starts empty
++  // rather than each section needing its own late-bound hook.
++  const syncContributors = [];
++  // Set while a cloud snapshot is being applied, so restoring remote state
++  // doesn't immediately push the same thing straight back up.
++  let applyingRemote = false;
++  function pushSyncChange() {
++    if (applyingRemote) return;
++    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
++      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
++    }
++  }
+ 
+   function getSyncSnapshot() {
+     const snapshot = {
+@@ -86,12 +95,7 @@
+       grammar: JSON.parse(JSON.stringify(grammarProgressStore)),
+       streak: JSON.parse(JSON.stringify(streakStore)),
+     };
+-    const planSnap = getPlanSnapshot();
+-    if (planSnap) {
+-      snapshot.plan = planSnap.plan;
+-      snapshot.planDone = planSnap.planDone;
+-      snapshot.planDaily = planSnap.planDaily;
+-    }
++    syncContributors.forEach((c) => Object.assign(snapshot, c.get() || {}));
+     return snapshot;
+   }
+ 
+@@ -109,7 +113,12 @@
+       streakStore = snapshot.streak;
+       try { localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore)); } catch (e) {}
+     }
+-    applyPlanSnapshot(snapshot);
++    applyingRemote = true;
++    try {
++      syncContributors.forEach((c) => c.apply(snapshot));
++    } finally {
++      applyingRemote = false;
++    }
+ 
+     updateProgress();
+     refreshWordList();
+@@ -144,7 +153,7 @@
+       if (
+         data &&
+         typeof data === "object" &&
+-        ("vocab" in data || "grammar" in data || "streak" in data || "plan" in data || "planDone" in data || "planDaily" in data)
++        ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"].some((k) => k in data)
+       ) {
+         applySyncSnapshot(data);
+         return;
+@@ -355,6 +364,13 @@
+     function key(level, lesson) {
+       return `${level}::${lesson}`;
+     }
++    function persist() {
++      try {
++        localStorage.setItem(storageKey, JSON.stringify(store));
++      } catch (e) {
++        /* ignore */
++      }
++    }
+     return {
+       isPassed(level, lesson) {
+         return !!store[key(level, lesson)];
+@@ -363,13 +379,17 @@
+         const k = key(level, lesson);
+         if (store[k]) return false; // already marked — no need to re-save or re-celebrate
+         store[k] = true;
+-        try {
+-          localStorage.setItem(storageKey, JSON.stringify(store));
+-        } catch (e) {
+-          /* ignore */
+-        }
++        persist();
++        pushSyncChange();
+         return true;
+       },
++      all() {
++        return JSON.parse(JSON.stringify(store));
++      },
++      replace(next) {
++        store = next && typeof next === "object" ? next : {};
++        persist();
++      },
+     };
+   }
+   const fcMastery = makeLessonMastery("jpstudy_fc_lesson_passed_v1");
+@@ -381,6 +401,28 @@
+   // from vocab lessons, so mixing them would make the gold meaningless.
+   const gpMastery = makeLessonMastery("jpstudy_gp_lesson_passed_v1");
+ 
++  // Lesson badges are progress like any other — a lesson cleared on your phone
++  // should be green on your laptop. Unioned on merge, so a pass is never lost.
++  syncContributors.push({
++    get: () => ({
++      mastery: { fc: fcMastery.all(), kw: kwMastery.all(), fg: fgMastery.all(), gp: gpMastery.all() },
++    }),
++    apply: (snapshot) => {
++      const m = snapshot && snapshot.mastery;
++      if (!m || typeof m !== "object") return;
++      if (m.fc) fcMastery.replace(m.fc);
++      if (m.kw) kwMastery.replace(m.kw);
++      if (m.fg) fgMastery.replace(m.fg);
++      if (m.gp) gpMastery.replace(m.gp);
++      // Repaint whichever chip rows are on screen so badges appear without a reload.
++      if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
++      if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);
++      if (state.furigana.level !== "all") fgRenderLessonChips(state.furigana.level);
++      gpRenderLessonChips(state.grammarPractice.level);
++      refreshWordList();
++    },
++  });
++
+   function isFullyMastered(level, lesson) {
+     return fcMastery.isPassed(level, lesson) && kwMastery.isPassed(level, lesson) && fgMastery.isPassed(level, lesson);
+   }
+@@ -1423,7 +1465,19 @@ resetProgressBtn.addEventListener("click", () => {
+     } catch (e) {
+       /* ignore */
+     }
++    pushSyncChange();
+   }
++  // The review schedule follows you too, otherwise "due today" means something
++  // different on every device.
++  syncContributors.push({
++    get: () => ({ srs: JSON.parse(JSON.stringify(gpSrsStore)) }),
++    apply: (snapshot) => {
++      if (!snapshot || !snapshot.srs || typeof snapshot.srs !== "object") return;
++      gpSrsStore = snapshot.srs;
++      gpSaveSrs();
++    },
++  });
++
+   function gpIsDue(qid, now) {
+     const rec = gpSrsStore[qid];
+     if (!rec) return true; // never seen — new cards are always fair game
+@@ -2748,27 +2802,23 @@ resetProgressBtn.addEventListener("click", () => {
+   } catch (e) {
+     plan = { ...PLAN_DEFAULTS };
+   }
+-  // Set while a cloud snapshot is being applied, so restoring remote state
+-  // doesn't immediately push the same thing straight back up.
+-  let applyingRemotePlan = false;
+-  function pushPlanChange() {
+-    if (applyingRemotePlan) return;
+-    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+-      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
+-    }
+-  }
+-  function savePlan() {
+-    // Stamped so two devices editing the pace can be resolved by recency
+-    // rather than by whichever happened to write last.
+-    plan.updatedAt = Date.now();
++  function persistPlan() {
+     try {
+       localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+     } catch (e) {
+       /* ignore */
+     }
+-    pushPlanChange();
+   }
+-  savePlan(); // pins startDate on first ever load
++  // Only a real EDIT re-stamps updatedAt. Stamping on every page load would
++  // make this device's copy look newest on every visit, so a freshly-opened
++  // second device would win the settings merge with its untouched defaults
++  // and quietly overwrite the plan you actually set.
++  function savePlan() {
++    plan.updatedAt = Date.now();
++    persistPlan();
++    pushSyncChange();
++  }
++  persistPlan(); // pins startDate on first ever load, without claiming to be a fresh edit
+ 
+   let planDone = {};
+   try {
+@@ -2782,7 +2832,7 @@ resetProgressBtn.addEventListener("click", () => {
+     } catch (e) {
+       /* ignore */
+     }
+-    pushPlanChange();
++    pushSyncChange();
+   }
+ 
+   let planDaily = {};
+@@ -2797,7 +2847,7 @@ resetProgressBtn.addEventListener("click", () => {
+     } catch (e) {
+       /* ignore */
+     }
+-    pushPlanChange();
++    pushSyncChange();
+   }
+ 
+   // The queues are derived from the data files, not hard-coded, so adding a
+@@ -3306,22 +3356,18 @@ resetProgressBtn.addEventListener("click", () => {
+     renderTimeline();
+   });
+ 
+-  // Hand the plan to the cloud-sync layer (js/sync.js). Registered here rather
+-  // than at the top of the file because everything it closes over is defined
+-  // in this section.
+-  getPlanSnapshot = () => ({
+-    plan: JSON.parse(JSON.stringify(plan)),
+-    planDone: JSON.parse(JSON.stringify(planDone)),
+-    planDaily: JSON.parse(JSON.stringify(planDaily)),
+-  });
+-  applyPlanSnapshot = (snapshot) => {
+-    if (!snapshot || typeof snapshot !== "object") return;
+-    let touched = false;
+-    applyingRemotePlan = true;
+-    try {
++  syncContributors.push({
++    get: () => ({
++      plan: JSON.parse(JSON.stringify(plan)),
++      planDone: JSON.parse(JSON.stringify(planDone)),
++      planDaily: JSON.parse(JSON.stringify(planDaily)),
++    }),
++    apply: (snapshot) => {
++      if (!snapshot || typeof snapshot !== "object") return;
++      let touched = false;
+       if (snapshot.plan && typeof snapshot.plan === "object") {
+         plan = { ...PLAN_DEFAULTS, ...snapshot.plan };
+-        try { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); } catch (e) {}
++        persistPlan();
+         touched = true;
+       }
+       if (snapshot.planDone && typeof snapshot.planDone === "object") {
+@@ -3334,11 +3380,9 @@ resetProgressBtn.addEventListener("click", () => {
+         try { localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily)); } catch (e) {}
+         touched = true;
+       }
+-    } finally {
+-      applyingRemotePlan = false;
+-    }
+-    if (touched) renderTimeline();
+-  };
++      if (touched) renderTimeline();
++    },
++  });
+ 
+   renderTimeline();
+ 
+diff --git a/js/sync.js b/js/sync.js
+index dbb1688..003faa0 100644
+--- a/js/sync.js
++++ b/js/sync.js
+@@ -209,7 +209,7 @@
+     return merged;
+   }
+ 
+-  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily"];
++  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"];
+ 
+   function normalizeSyncState(state) {
+     const empty = { vocab: {}, grammar: {}, streak: {}, plan: {}, planDone: {}, planDaily: {} };
+@@ -261,6 +261,34 @@
+     return (Number(r.updatedAt) || 0) > (Number(l.updatedAt) || 0) ? r : l;
+   }
+ 
++  // Lesson badges: a pass earned on any device is a pass. Straight union of
++  // the four per-mode maps, since a badge can only ever be earned, never
++  // revoked by normal use.
++  function mergeMastery(localM, remoteM) {
++    const out = {};
++    const modes = new Set(Object.keys(localM || {}).concat(Object.keys(remoteM || {})));
++    modes.forEach((mode) => {
++      out[mode] = { ...((localM || {})[mode] || {}), ...((remoteM || {})[mode] || {}) };
++    });
++    return out;
++  }
++
++  // Review schedule: per question, keep whichever copy is due SOONER. That
++  // deliberately errs toward reviewing more rather than less — if you lapsed a
++  // card on one device, taking the later due date would throw that lapse away,
++  // whereas an unnecessary extra review costs nothing.
++  function mergeSrs(localS, remoteS) {
++    const out = { ...(localS || {}) };
++    Object.keys(remoteS || {}).forEach((qid) => {
++      const a = out[qid];
++      const b = remoteS[qid];
++      if (!a) out[qid] = b;
++      else if (typeof b.due === "number" && typeof a.due === "number") out[qid] = b.due < a.due ? b : a;
++      else out[qid] = a;
++    });
++    return out;
++  }
++
+   function mergeSyncState(localState, remoteState) {
+     const local = normalizeSyncState(localState);
+     const remote = normalizeSyncState(remoteState);
+@@ -275,6 +303,8 @@
+       merged.streak = local.streak || {};
+     }
+ 
++    merged.mastery = mergeMastery(local.mastery, remote.mastery);
++    merged.srs = mergeSrs(local.srs, remote.srs);
+     merged.plan = mergePlanSettings(local.plan, remote.plan);
+     merged.planDone = mergePlanDone(local.planDone, remote.planDone);
+     merged.planDaily = mergePlanDaily(local.planDaily, remote.planDaily);
+@@ -408,7 +438,15 @@
+       const lastUid = localStorage.getItem("jpstudy_last_uid");
+       if (lastUid && lastUid !== user.uid) {
+         if (window.JPStudyProgress) {
+-          window.JPStudyProgress.set({ vocab: {}, grammar: {}, streak: { current: 0, longest: 0, lastDate: null } });
++          window.JPStudyProgress.set({
++            vocab: {},
++            grammar: {},
++            streak: { current: 0, longest: 0, lastDate: null },
++            mastery: { fc: {}, kw: {}, fg: {}, gp: {} },
++            srs: {},
++            planDone: {},
++            planDaily: {},
++          });
+         }
+       }
+       localStorage.setItem("jpstudy_last_uid", user.uid);

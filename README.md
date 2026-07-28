@@ -23,8 +23,8 @@ A static site with three tabs — Home, Vocab and Grammar:
 Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
 word in a lesson exactly twice per run; clear a lesson with zero mistakes
 across both passes and its lesson chip turns green for that mode. Once a
-lesson is green in all three modes, its chip gets a golden shine in the
-Word List — the "you actually know this lesson" signal.
+lesson is green in all three modes, its chip turns gold in the Word List —
+the "you actually know this lesson" signal. Both badges sync across devices.
 
 **Grammar** has three views:
 - **Reference** — browse patterns by level, with lesson numbers, usage
@@ -212,7 +212,10 @@ per-section: completed lessons are unioned, so a lesson finished on any
 device stays finished and the earlier completion date wins; the recurring
 review-habit ticks are unioned per day; and the plan settings — dates and
 pace — are a single coherent set, so the most recently edited copy wins
-outright (`savePlan()` stamps `updatedAt` for exactly this).
+outright. `savePlan()` stamps `updatedAt` for that, and only a genuine edit
+stamps it: re-stamping on every page load would make whichever device you
+opened last look newest, letting an untouched second device overwrite the
+plan you actually set.
 
 ## Word List search
 
@@ -324,7 +327,15 @@ your phone and then opening the site on your laptop starts fresh.
 Conjugation practice sessions are always local-only/per-session by design,
 on every device, regardless of sync.
 
-To sync your vocab progress across devices, this app can optionally use
+What syncs: vocab right/wrong stats, the green and gold lesson badges, the
+grammar review schedule, and the whole Home-tab study plan. Badges are
+unioned, so a lesson cleared on any device stays cleared. The review
+schedule keeps whichever copy is due *sooner* — that deliberately errs
+toward reviewing more rather than less, since taking the later date would
+throw away a lapse you'd recorded elsewhere, while an extra review costs
+nothing.
+
+To sync across devices, this app can optionally use
 [Firebase](https://firebase.google.com/) (a free Google service) — Cloud
 Firestore as the database, Google sign-in for auth. **This is entirely
 optional** — until you set it up, the sign-in button and all sync code stay

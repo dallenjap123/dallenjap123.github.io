@@ -209,7 +209,7 @@
     return merged;
   }
 
-  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily"];
+  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"];
 
   function normalizeSyncState(state) {
     const empty = { vocab: {}, grammar: {}, streak: {}, plan: {}, planDone: {}, planDaily: {} };
@@ -261,6 +261,34 @@
     return (Number(r.updatedAt) || 0) > (Number(l.updatedAt) || 0) ? r : l;
   }
 
+  // Lesson badges: a pass earned on any device is a pass. Straight union of
+  // the four per-mode maps, since a badge can only ever be earned, never
+  // revoked by normal use.
+  function mergeMastery(localM, remoteM) {
+    const out = {};
+    const modes = new Set(Object.keys(localM || {}).concat(Object.keys(remoteM || {})));
+    modes.forEach((mode) => {
+      out[mode] = { ...((localM || {})[mode] || {}), ...((remoteM || {})[mode] || {}) };
+    });
+    return out;
+  }
+
+  // Review schedule: per question, keep whichever copy is due SOONER. That
+  // deliberately errs toward reviewing more rather than less — if you lapsed a
+  // card on one device, taking the later due date would throw that lapse away,
+  // whereas an unnecessary extra review costs nothing.
+  function mergeSrs(localS, remoteS) {
+    const out = { ...(localS || {}) };
+    Object.keys(remoteS || {}).forEach((qid) => {
+      const a = out[qid];
+      const b = remoteS[qid];
+      if (!a) out[qid] = b;
+      else if (typeof b.due === "number" && typeof a.due === "number") out[qid] = b.due < a.due ? b : a;
+      else out[qid] = a;
+    });
+    return out;
+  }
+
   function mergeSyncState(localState, remoteState) {
     const local = normalizeSyncState(localState);
     const remote = normalizeSyncState(remoteState);
@@ -275,6 +303,8 @@
       merged.streak = local.streak || {};
     }
 
+    merged.mastery = mergeMastery(local.mastery, remote.mastery);
+    merged.srs = mergeSrs(local.srs, remote.srs);
     merged.plan = mergePlanSettings(local.plan, remote.plan);
     merged.planDone = mergePlanDone(local.planDone, remote.planDone);
     merged.planDaily = mergePlanDaily(local.planDaily, remote.planDaily);
@@ -408,7 +438,15 @@
       const lastUid = localStorage.getItem("jpstudy_last_uid");
       if (lastUid && lastUid !== user.uid) {
         if (window.JPStudyProgress) {
-          window.JPStudyProgress.set({ vocab: {}, grammar: {}, streak: { current: 0, longest: 0, lastDate: null } });
+          window.JPStudyProgress.set({
+            vocab: {},
+            grammar: {},
+            streak: { current: 0, longest: 0, lastDate: null },
+            mastery: { fc: {}, kw: {}, fg: {}, gp: {} },
+            srs: {},
+            planDone: {},
+            planDaily: {},
+          });
         }
       }
       localStorage.setItem("jpstudy_last_uid", user.uid);
