@@ -2882,8 +2882,11 @@ resetProgressBtn.addEventListener("click", () => {
   const tlDaysStudyEl = document.getElementById("tl-days-study");
   const tlExamDateEl = document.getElementById("tl-exam-date");
   const tlStudyDateEl = document.getElementById("tl-study-date");
-  const tlPhaseNameEl = document.getElementById("tl-phase-name");
-  const tlPhaseSubEl = document.getElementById("tl-phase-sub");
+  const tlQuotaNumEl = document.getElementById("tl-quota-num");
+  const tlQuotaSplitEl = document.getElementById("tl-quota-split");
+  const tlQuotaSubEl = document.getElementById("tl-quota-sub");
+  const tlQuotaCardEl = document.getElementById("tl-quota-card");
+  const tlMapEl = document.getElementById("tl-map");
   const tlTodayDateEl = document.getElementById("tl-today-date");
   const tlStatusEl = document.getElementById("tl-status");
   const tlTasksEl = document.getElementById("tl-tasks");
@@ -2895,7 +2898,6 @@ resetProgressBtn.addEventListener("click", () => {
   const tlVocabPaceEl = document.getElementById("tl-vocab-pace");
   const tlGrammarPaceEl = document.getElementById("tl-grammar-pace");
   const tlForecastEl = document.getElementById("tl-forecast");
-  const tlMilestonesEl = document.getElementById("tl-milestones");
   const tlWeekEl = document.getElementById("tl-week");
 
   function nextUndone(queue, n) {
@@ -2915,13 +2917,7 @@ resetProgressBtn.addEventListener("click", () => {
     tlDaysStudyEl.textContent = toStudyEnd >= 0 ? toStudyEnd : "0";
     tlExamDateEl.textContent = fmtDate(plan.examDate);
     tlStudyDateEl.textContent = fmtDate(plan.studyEnd);
-    tlPhaseNameEl.textContent = t(phase === "learn" ? "tlPhaseLearn" : phase === "review" ? "tlPhaseReview" : "tlPhaseDone");
-    tlPhaseSubEl.textContent =
-      phase === "learn"
-        ? t("tlPhaseLearnSub")
-        : phase === "review"
-        ? t("tlPhaseReviewSub")
-        : t("tlPhaseDoneSub");
+    renderQuotaCard(phase, today);
     tlTodayDateEl.textContent = fmtShort(today);
 
     const vDone = doneCount(vocabQueue);
@@ -2973,27 +2969,84 @@ resetProgressBtn.addEventListener("click", () => {
       tlForecastEl.className = "tl-forecast tl-warn";
     }
 
-    renderMilestones();
+    renderMap();
     renderTodayTasks(phase, today);
     renderWeek(phase, today);
   }
 
-  function renderMilestones() {
-    const rows = [
-      { date: plan.startDate, label: t("tlMsStart") },
-      { date: plan.studyEnd, label: t("tlMsStudyEnd") },
-      { date: addDaysISO(plan.studyEnd, 1), label: t("tlMsReviewStart") },
-      { date: "2026-11-01", label: t("tlMsMock") },
-      { date: addDaysISO(plan.examDate, -7), label: t("tlMsFinalWeek") },
-      { date: plan.examDate, label: t("tlMsExam") },
-    ];
+  // The third countdown cell reports the day's quota rather than the phase
+  // name, since "am I done for today" is the question you actually open this
+  // page to answer. Outside the learning phase there is no lesson quota, so it
+  // falls back to naming the phase.
+  function renderQuotaCard(phase, today) {
+    if (phase !== "learn") {
+      tlQuotaNumEl.textContent = t(phase === "review" ? "tlPhaseReview" : "tlPhaseDone");
+      tlQuotaSplitEl.textContent = "";
+      tlQuotaSubEl.textContent = t(phase === "review" ? "tlPhaseReviewSub" : "tlPhaseDoneSub");
+      tlQuotaCardEl.classList.remove("tl-quota-met", "tl-quota-over");
+      return;
+    }
+    const vT = doneTodayCount(vocabQueue, today);
+    const gT = doneTodayCount(grammarQueue, today);
+    const vQ = plan.vocabPerDay;
+    const gQ = plan.grammarPerDay;
+    const met = vT >= vQ && gT >= gQ;
+    // Surplus only counts once BOTH tracks are met — five vocab and no grammar
+    // is not "over quota", and badging it as such would celebrate skipping the
+    // track that actually sets the finish date.
+    const extra = met ? Math.max(0, vT - vQ) + Math.max(0, gT - gQ) : 0;
+    tlQuotaNumEl.textContent = `${vT + gT}`;
+    tlQuotaSplitEl.innerHTML =
+      `<span class="tl-qs${vT >= vQ ? " tl-qs-ok" : ""}">${t("tabVocab")} ${vT}/${vQ}</span>` +
+      `<span class="tl-qs${gT >= gQ ? " tl-qs-ok" : ""}">${t("tabGrammar")} ${gT}/${gQ}</span>`;
+    tlQuotaSubEl.textContent = extra > 0 ? t("tlQuotaOver", { n: extra }) : met ? t("tlQuotaDone") : t("tlQuotaRemaining", { n: vQ + gQ - vT - gT });
+    tlQuotaCardEl.classList.toggle("tl-quota-met", met && extra === 0);
+    tlQuotaCardEl.classList.toggle("tl-quota-over", extra > 0);
+  }
+
+  // One circle per lesson, grouped level → track. Clicking toggles it, which
+  // is also the only way to undo a lesson that isn't in today's checklist any
+  // more: turning a circle back to grey drops it into the queue again and the
+  // projected dates move out to match.
+  function renderMap() {
     const today = todayISO();
-    tlMilestonesEl.innerHTML = rows
-      .map((r) => {
-        const past = daysBetween(r.date, today) > 0;
-        return `<li class="tl-ms${past ? " tl-ms-past" : ""}"><span class="tl-ms-date">${fmtDate(r.date)}</span><span class="tl-ms-label">${r.label}</span></li>`;
-      })
-      .join("");
+    const sections = [];
+    PLAN_LEVELS.forEach((lvl) => {
+      const tracks = [
+        { kind: "vocab", label: t("tabVocab"), queue: vocabQueue.filter((x) => x.level === lvl) },
+        { kind: "grammar", label: t("tabGrammar"), queue: grammarQueue.filter((x) => x.level === lvl) },
+      ].filter((tr) => tr.queue.length);
+      if (!tracks.length) return;
+      const inner = tracks
+        .map((tr) => {
+          const done = tr.queue.filter(isTaskDone).length;
+          const dots = tr.queue
+            .map((task) => {
+              const isDone = isTaskDone(task);
+              const title =
+                task.kind === "vocab" ? vocabLessonTitle(task.level, task.lesson) : `${task.level} ${task.lesson}課`;
+              return `<button class="tl-dot${isDone ? " tl-dot-done" : ""}" data-key="${taskKey(task)}" title="${title}" aria-pressed="${isDone}">${task.lesson}</button>`;
+            })
+            .join("");
+          return `<div class="tl-track"><div class="tl-track-head"><span class="tl-track-name">${tr.label}</span><span class="tl-track-count">${done} / ${tr.queue.length}</span></div><div class="tl-dots">${dots}</div></div>`;
+        })
+        .join("");
+      sections.push(`<section class="tl-map-level"><h3 class="tl-map-level-title">${lvl}</h3>${inner}</section>`);
+    });
+    tlMapEl.innerHTML = sections.join("");
+    const byKey = {};
+    vocabQueue.concat(grammarQueue).forEach((task) => {
+      byKey[taskKey(task)] = task;
+    });
+    tlMapEl.querySelectorAll(".tl-dot").forEach((dot) => {
+      dot.addEventListener("click", () => {
+        const key = dot.dataset.key;
+        if (planDone[key]) delete planDone[key];
+        else planDone[key] = today;
+        savePlanDone();
+        renderTimeline();
+      });
+    });
   }
 
   function renderTodayTasks(phase, today) {
@@ -3096,6 +3149,14 @@ resetProgressBtn.addEventListener("click", () => {
       tlStatusEl.textContent = t("tlAfterExam");
       tlStatusEl.className = "tl-status tl-ok";
     }
+
+    // Required work first, then optional bonus rows, then finished rows struck
+    // through at the bottom. Sorting bonus above still-owed grammar would
+    // dangle an extra vocab lesson in front of you while the day's actual
+    // target was unmet. Array sort is stable, so vocab-then-grammar survives
+    // within each band.
+    const band = (it) => (it.done ? 2 : it.bonus ? 1 : 0);
+    items.sort((a, b) => band(a) - band(b));
 
     tlTasksEmptyEl.hidden = items.length > 0;
     items.forEach((it) => {

@@ -52,10 +52,11 @@
           <span class="tl-count-label" data-i18n="tlDaysToStudyEnd">days left to finish learning</span>
           <span class="tl-count-sub" id="tl-study-date"></span>
         </div>
-        <div class="tl-count-card">
-          <span class="tl-count-num" id="tl-phase-name">–</span>
-          <span class="tl-count-label" data-i18n="tlCurrentPhase">current phase</span>
-          <span class="tl-count-sub" id="tl-phase-sub"></span>
+        <div class="tl-count-card" id="tl-quota-card">
+          <span class="tl-count-num" id="tl-quota-num">–</span>
+          <span class="tl-count-label" data-i18n="tlQuotaLabel">done today</span>
+          <span class="tl-quota-split" id="tl-quota-split"></span>
+          <span class="tl-count-sub" id="tl-quota-sub"></span>
         </div>
       </div>
 
@@ -84,7 +85,7 @@
 
       <div class="tl-panel">
         <div class="tl-panel-head">
-          <h2 class="tl-h2" data-i18n="tlPlanHeading">The plan</h2>
+          <h2 class="tl-h2" data-i18n="tlMapHeading">Lesson map</h2>
           <button class="ghost-btn" id="tl-reschedule" data-i18n="tlReschedule">recalculate pace</button>
         </div>
         <div class="tl-pace-row">
@@ -98,7 +99,8 @@
           </label>
         </div>
         <p class="tl-forecast" id="tl-forecast"></p>
-        <ol class="tl-milestones" id="tl-milestones"></ol>
+        <p class="tl-map-hint" data-i18n="tlMapHint">Click any lesson to mark it done, or click a green one to undo it and put it back in the queue.</p>
+        <div class="tl-map" id="tl-map"></div>
       </div>
 
       <div class="tl-panel">

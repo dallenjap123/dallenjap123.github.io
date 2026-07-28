@@ -150,11 +150,18 @@ vocab + 2 grammar lessons a day. Change the dates in `PLAN_DEFAULTS` at the
 top of the timeline section in `js/app.js`; change the pace right on the
 page.
 
+The third countdown cell is the **daily quota**: how many lessons you've
+done today, split by track (`Vocab 3/3` · `Grammar 2/2`). It turns green
+once both are met and amber once you're past them, so "am I done for
+today" is answerable at a glance.
+
 **Today's checklist** is a strict daily quota you can actually finish.
-Lessons you ticked today stay on screen ticked, so the day closes out
-instead of endlessly refilling. Once the quota is met, a dashed **Bonus**
-row appears offering the next lesson — tick it and another appears, so
-going faster is always one click away.
+Lessons you ticked today stay on screen, struck through and sunk to the
+bottom of the list, so what's still owed is always on top. Once the quota
+is met, a dashed **Bonus** row appears offering the next lesson — tick it
+and another appears, so going faster is always one click away. Bonus rows
+sort below anything still required, so an optional extra never sits above
+work you still owe.
 
 Lessons are served in queue order rather than by calendar slot. That's
 deliberate: with a date-keyed plan, missing a few days strands you on
@@ -175,6 +182,13 @@ grammar (76 lessons at 2/day) runs about ten days past vocab (79 at 3/day),
 so extra grammar moves the headline date and extra vocab doesn't. Progress
 past target only counts as "ahead" once *both* tracks have hit their quota,
 for the same reason.
+
+The **lesson map** shows every lesson as a circle, grouped by level and
+then by track, green once done. Click any circle to mark it done; click a
+green one to undo it, which drops it back into the queue and pushes the
+projected dates back out. That's the only way to reach a lesson that isn't
+in today's checklist any more — useful for back-filling work you did
+elsewhere, or for undoing a mis-click from last week.
 
 **recalculate pace** spreads everything still undone evenly across the days
 that actually remain — the honest way to recover from a slipped week. Note

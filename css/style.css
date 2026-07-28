@@ -1581,24 +1581,6 @@ main {
 }
 .tl-forecast { font-family: var(--font-ui); font-size: var(--fs-xs); margin: 0 0 var(--space-4); }
 
-.tl-milestones { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
-.tl-ms { position: relative; padding: 0 0 var(--space-4) var(--space-5); font-family: var(--font-ui); font-size: var(--fs-xs); }
-.tl-ms:last-child { padding-bottom: 0; }
-.tl-ms::before {
-  content: "";
-  position: absolute;
-  left: -7px;
-  top: 4px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--indigo);
-  border: 2px solid var(--paper-alt);
-}
-.tl-ms-past::before { background: var(--mastered); }
-.tl-ms-past { opacity: 0.6; }
-.tl-ms-date { display: block; color: var(--ink-soft); font-size: var(--fs-2xs); }
-.tl-ms-label { display: block; color: var(--ink); }
 
 .tl-week { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
 .tl-week-row {
@@ -1626,3 +1608,60 @@ main {
    actual quota so it never reads as work you still owe. */
 .tl-badge-bonus { background: var(--learning); color: #fff; }
 .tl-task-bonus { border-style: dashed; }
+
+/* Quota cell: the day's target at a glance. Turns green once both tracks are
+   met and amber-ish once you're past it, so "am I done for today" is legible
+   without reading any numbers. */
+.tl-quota-split { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1); }
+.tl-qs {
+  font-family: var(--font-ui);
+  font-size: var(--fs-2xs);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+.tl-qs-ok { background: var(--mastered); color: #fff; }
+.tl-quota-met { border-color: var(--mastered); box-shadow: 0 0 0 3px var(--mastered-bg), var(--shadow-sm); }
+.tl-quota-met .tl-count-num { color: var(--mastered); }
+.tl-quota-over { border-color: var(--learning); box-shadow: 0 0 0 3px var(--learning-bg), var(--shadow-sm); }
+.tl-quota-over .tl-count-num { color: var(--learning); }
+
+/* Lesson map: one dot per lesson, green when done, click to toggle. */
+.tl-map-hint { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); margin: 0 0 var(--space-4); }
+.tl-map { display: flex; flex-direction: column; gap: var(--space-5); }
+.tl-map-level-title {
+  font-family: var(--font-jp);
+  font-size: 1rem;
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.tl-track { margin-bottom: var(--space-4); }
+.tl-track:last-child { margin-bottom: 0; }
+.tl-track-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-2); }
+.tl-track-name { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink); font-weight: 600; }
+.tl-track-count { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); }
+.tl-dots { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tl-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: var(--fs-2xs);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+}
+.tl-dot:hover { transform: translateY(-2px); border-color: var(--indigo); }
+.tl-dot-done { background: var(--mastered); border-color: var(--mastered); color: #fff; font-weight: 700; }
+
+@media (max-width: 560px) {
+  .tl-dot { width: 30px; height: 30px; }
+}

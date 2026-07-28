@@ -1,0 +1,419 @@
+diff --git a/README.md b/README.md
+index 9a215b4..d26e762 100644
+--- a/README.md
++++ b/README.md
+@@ -150,11 +150,18 @@ vocab + 2 grammar lessons a day. Change the dates in `PLAN_DEFAULTS` at the
+ top of the timeline section in `js/app.js`; change the pace right on the
+ page.
+ 
++The third countdown cell is the **daily quota**: how many lessons you've
++done today, split by track (`Vocab 3/3` · `Grammar 2/2`). It turns green
++once both are met and amber once you're past them, so "am I done for
++today" is answerable at a glance.
++
+ **Today's checklist** is a strict daily quota you can actually finish.
+-Lessons you ticked today stay on screen ticked, so the day closes out
+-instead of endlessly refilling. Once the quota is met, a dashed **Bonus**
+-row appears offering the next lesson — tick it and another appears, so
+-going faster is always one click away.
++Lessons you ticked today stay on screen, struck through and sunk to the
++bottom of the list, so what's still owed is always on top. Once the quota
++is met, a dashed **Bonus** row appears offering the next lesson — tick it
++and another appears, so going faster is always one click away. Bonus rows
++sort below anything still required, so an optional extra never sits above
++work you still owe.
+ 
+ Lessons are served in queue order rather than by calendar slot. That's
+ deliberate: with a date-keyed plan, missing a few days strands you on
+@@ -176,6 +183,13 @@ so extra grammar moves the headline date and extra vocab doesn't. Progress
+ past target only counts as "ahead" once *both* tracks have hit their quota,
+ for the same reason.
+ 
++The **lesson map** shows every lesson as a circle, grouped by level and
++then by track, green once done. Click any circle to mark it done; click a
++green one to undo it, which drops it back into the queue and pushes the
++projected dates back out. That's the only way to reach a lesson that isn't
++in today's checklist any more — useful for back-filling work you did
++elsewhere, or for undoing a mis-click from last week.
++
+ **recalculate pace** spreads everything still undone evenly across the days
+ that actually remain — the honest way to recover from a slipped week. Note
+ it can also slow you down if you're ahead, since it targets the deadline
+diff --git a/css/style.css b/css/style.css
+index 02e8887..d1573c8 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -1581,24 +1581,6 @@ main {
+ }
+ .tl-forecast { font-family: var(--font-ui); font-size: var(--fs-xs); margin: 0 0 var(--space-4); }
+ 
+-.tl-milestones { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+-.tl-ms { position: relative; padding: 0 0 var(--space-4) var(--space-5); font-family: var(--font-ui); font-size: var(--fs-xs); }
+-.tl-ms:last-child { padding-bottom: 0; }
+-.tl-ms::before {
+-  content: "";
+-  position: absolute;
+-  left: -7px;
+-  top: 4px;
+-  width: 12px;
+-  height: 12px;
+-  border-radius: 50%;
+-  background: var(--indigo);
+-  border: 2px solid var(--paper-alt);
+-}
+-.tl-ms-past::before { background: var(--mastered); }
+-.tl-ms-past { opacity: 0.6; }
+-.tl-ms-date { display: block; color: var(--ink-soft); font-size: var(--fs-2xs); }
+-.tl-ms-label { display: block; color: var(--ink); }
+ 
+ .tl-week { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+ .tl-week-row {
+@@ -1626,3 +1608,60 @@ main {
+    actual quota so it never reads as work you still owe. */
+ .tl-badge-bonus { background: var(--learning); color: #fff; }
+ .tl-task-bonus { border-style: dashed; }
++
++/* Quota cell: the day's target at a glance. Turns green once both tracks are
++   met and amber-ish once you're past it, so "am I done for today" is legible
++   without reading any numbers. */
++.tl-quota-split { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1); }
++.tl-qs {
++  font-family: var(--font-ui);
++  font-size: var(--fs-2xs);
++  padding: 1px var(--space-2);
++  border-radius: var(--radius-pill);
++  background: var(--paper-deep);
++  color: var(--ink);
++}
++.tl-qs-ok { background: var(--mastered); color: #fff; }
++.tl-quota-met { border-color: var(--mastered); box-shadow: 0 0 0 3px var(--mastered-bg), var(--shadow-sm); }
++.tl-quota-met .tl-count-num { color: var(--mastered); }
++.tl-quota-over { border-color: var(--learning); box-shadow: 0 0 0 3px var(--learning-bg), var(--shadow-sm); }
++.tl-quota-over .tl-count-num { color: var(--learning); }
++
++/* Lesson map: one dot per lesson, green when done, click to toggle. */
++.tl-map-hint { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); margin: 0 0 var(--space-4); }
++.tl-map { display: flex; flex-direction: column; gap: var(--space-5); }
++.tl-map-level-title {
++  font-family: var(--font-jp);
++  font-size: 1rem;
++  margin: 0 0 var(--space-3);
++  padding-bottom: var(--space-1);
++  border-bottom: 1px solid var(--line);
++  color: var(--ink);
++}
++.tl-track { margin-bottom: var(--space-4); }
++.tl-track:last-child { margin-bottom: 0; }
++.tl-track-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-2); }
++.tl-track-name { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--ink); font-weight: 600; }
++.tl-track-count { font-family: var(--font-ui); font-size: var(--fs-2xs); color: var(--ink-soft); }
++.tl-dots { display: flex; flex-wrap: wrap; gap: var(--space-2); }
++.tl-dot {
++  width: 34px;
++  height: 34px;
++  border-radius: 50%;
++  border: 1px solid var(--line);
++  background: var(--paper);
++  color: var(--ink-soft);
++  font-family: var(--font-ui);
++  font-size: var(--fs-2xs);
++  cursor: pointer;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
++}
++.tl-dot:hover { transform: translateY(-2px); border-color: var(--indigo); }
++.tl-dot-done { background: var(--mastered); border-color: var(--mastered); color: #fff; font-weight: 700; }
++
++@media (max-width: 560px) {
++  .tl-dot { width: 30px; height: 30px; }
++}
+diff --git a/index.html b/index.html
+index 15bf276..6806120 100644
+--- a/index.html
++++ b/index.html
+@@ -52,10 +52,11 @@
+           <span class="tl-count-label" data-i18n="tlDaysToStudyEnd">days left to finish learning</span>
+           <span class="tl-count-sub" id="tl-study-date"></span>
+         </div>
+-        <div class="tl-count-card">
+-          <span class="tl-count-num" id="tl-phase-name">–</span>
+-          <span class="tl-count-label" data-i18n="tlCurrentPhase">current phase</span>
+-          <span class="tl-count-sub" id="tl-phase-sub"></span>
++        <div class="tl-count-card" id="tl-quota-card">
++          <span class="tl-count-num" id="tl-quota-num">–</span>
++          <span class="tl-count-label" data-i18n="tlQuotaLabel">done today</span>
++          <span class="tl-quota-split" id="tl-quota-split"></span>
++          <span class="tl-count-sub" id="tl-quota-sub"></span>
+         </div>
+       </div>
+ 
+@@ -84,7 +85,7 @@
+ 
+       <div class="tl-panel">
+         <div class="tl-panel-head">
+-          <h2 class="tl-h2" data-i18n="tlPlanHeading">The plan</h2>
++          <h2 class="tl-h2" data-i18n="tlMapHeading">Lesson map</h2>
+           <button class="ghost-btn" id="tl-reschedule" data-i18n="tlReschedule">recalculate pace</button>
+         </div>
+         <div class="tl-pace-row">
+@@ -98,7 +99,8 @@
+           </label>
+         </div>
+         <p class="tl-forecast" id="tl-forecast"></p>
+-        <ol class="tl-milestones" id="tl-milestones"></ol>
++        <p class="tl-map-hint" data-i18n="tlMapHint">Click any lesson to mark it done, or click a green one to undo it and put it back in the queue.</p>
++        <div class="tl-map" id="tl-map"></div>
+       </div>
+ 
+       <div class="tl-panel">
+diff --git a/js/app.js b/js/app.js
+index d93a516..d2f64cc 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -2882,8 +2882,11 @@ resetProgressBtn.addEventListener("click", () => {
+   const tlDaysStudyEl = document.getElementById("tl-days-study");
+   const tlExamDateEl = document.getElementById("tl-exam-date");
+   const tlStudyDateEl = document.getElementById("tl-study-date");
+-  const tlPhaseNameEl = document.getElementById("tl-phase-name");
+-  const tlPhaseSubEl = document.getElementById("tl-phase-sub");
++  const tlQuotaNumEl = document.getElementById("tl-quota-num");
++  const tlQuotaSplitEl = document.getElementById("tl-quota-split");
++  const tlQuotaSubEl = document.getElementById("tl-quota-sub");
++  const tlQuotaCardEl = document.getElementById("tl-quota-card");
++  const tlMapEl = document.getElementById("tl-map");
+   const tlTodayDateEl = document.getElementById("tl-today-date");
+   const tlStatusEl = document.getElementById("tl-status");
+   const tlTasksEl = document.getElementById("tl-tasks");
+@@ -2895,7 +2898,6 @@ resetProgressBtn.addEventListener("click", () => {
+   const tlVocabPaceEl = document.getElementById("tl-vocab-pace");
+   const tlGrammarPaceEl = document.getElementById("tl-grammar-pace");
+   const tlForecastEl = document.getElementById("tl-forecast");
+-  const tlMilestonesEl = document.getElementById("tl-milestones");
+   const tlWeekEl = document.getElementById("tl-week");
+ 
+   function nextUndone(queue, n) {
+@@ -2915,13 +2917,7 @@ resetProgressBtn.addEventListener("click", () => {
+     tlDaysStudyEl.textContent = toStudyEnd >= 0 ? toStudyEnd : "0";
+     tlExamDateEl.textContent = fmtDate(plan.examDate);
+     tlStudyDateEl.textContent = fmtDate(plan.studyEnd);
+-    tlPhaseNameEl.textContent = t(phase === "learn" ? "tlPhaseLearn" : phase === "review" ? "tlPhaseReview" : "tlPhaseDone");
+-    tlPhaseSubEl.textContent =
+-      phase === "learn"
+-        ? t("tlPhaseLearnSub")
+-        : phase === "review"
+-        ? t("tlPhaseReviewSub")
+-        : t("tlPhaseDoneSub");
++    renderQuotaCard(phase, today);
+     tlTodayDateEl.textContent = fmtShort(today);
+ 
+     const vDone = doneCount(vocabQueue);
+@@ -2973,27 +2969,84 @@ resetProgressBtn.addEventListener("click", () => {
+       tlForecastEl.className = "tl-forecast tl-warn";
+     }
+ 
+-    renderMilestones();
++    renderMap();
+     renderTodayTasks(phase, today);
+     renderWeek(phase, today);
+   }
+ 
+-  function renderMilestones() {
+-    const rows = [
+-      { date: plan.startDate, label: t("tlMsStart") },
+-      { date: plan.studyEnd, label: t("tlMsStudyEnd") },
+-      { date: addDaysISO(plan.studyEnd, 1), label: t("tlMsReviewStart") },
+-      { date: "2026-11-01", label: t("tlMsMock") },
+-      { date: addDaysISO(plan.examDate, -7), label: t("tlMsFinalWeek") },
+-      { date: plan.examDate, label: t("tlMsExam") },
+-    ];
++  // The third countdown cell reports the day's quota rather than the phase
++  // name, since "am I done for today" is the question you actually open this
++  // page to answer. Outside the learning phase there is no lesson quota, so it
++  // falls back to naming the phase.
++  function renderQuotaCard(phase, today) {
++    if (phase !== "learn") {
++      tlQuotaNumEl.textContent = t(phase === "review" ? "tlPhaseReview" : "tlPhaseDone");
++      tlQuotaSplitEl.textContent = "";
++      tlQuotaSubEl.textContent = t(phase === "review" ? "tlPhaseReviewSub" : "tlPhaseDoneSub");
++      tlQuotaCardEl.classList.remove("tl-quota-met", "tl-quota-over");
++      return;
++    }
++    const vT = doneTodayCount(vocabQueue, today);
++    const gT = doneTodayCount(grammarQueue, today);
++    const vQ = plan.vocabPerDay;
++    const gQ = plan.grammarPerDay;
++    const met = vT >= vQ && gT >= gQ;
++    // Surplus only counts once BOTH tracks are met — five vocab and no grammar
++    // is not "over quota", and badging it as such would celebrate skipping the
++    // track that actually sets the finish date.
++    const extra = met ? Math.max(0, vT - vQ) + Math.max(0, gT - gQ) : 0;
++    tlQuotaNumEl.textContent = `${vT + gT}`;
++    tlQuotaSplitEl.innerHTML =
++      `<span class="tl-qs${vT >= vQ ? " tl-qs-ok" : ""}">${t("tabVocab")} ${vT}/${vQ}</span>` +
++      `<span class="tl-qs${gT >= gQ ? " tl-qs-ok" : ""}">${t("tabGrammar")} ${gT}/${gQ}</span>`;
++    tlQuotaSubEl.textContent = extra > 0 ? t("tlQuotaOver", { n: extra }) : met ? t("tlQuotaDone") : t("tlQuotaRemaining", { n: vQ + gQ - vT - gT });
++    tlQuotaCardEl.classList.toggle("tl-quota-met", met && extra === 0);
++    tlQuotaCardEl.classList.toggle("tl-quota-over", extra > 0);
++  }
++
++  // One circle per lesson, grouped level → track. Clicking toggles it, which
++  // is also the only way to undo a lesson that isn't in today's checklist any
++  // more: turning a circle back to grey drops it into the queue again and the
++  // projected dates move out to match.
++  function renderMap() {
+     const today = todayISO();
+-    tlMilestonesEl.innerHTML = rows
+-      .map((r) => {
+-        const past = daysBetween(r.date, today) > 0;
+-        return `<li class="tl-ms${past ? " tl-ms-past" : ""}"><span class="tl-ms-date">${fmtDate(r.date)}</span><span class="tl-ms-label">${r.label}</span></li>`;
+-      })
+-      .join("");
++    const sections = [];
++    PLAN_LEVELS.forEach((lvl) => {
++      const tracks = [
++        { kind: "vocab", label: t("tabVocab"), queue: vocabQueue.filter((x) => x.level === lvl) },
++        { kind: "grammar", label: t("tabGrammar"), queue: grammarQueue.filter((x) => x.level === lvl) },
++      ].filter((tr) => tr.queue.length);
++      if (!tracks.length) return;
++      const inner = tracks
++        .map((tr) => {
++          const done = tr.queue.filter(isTaskDone).length;
++          const dots = tr.queue
++            .map((task) => {
++              const isDone = isTaskDone(task);
++              const title =
++                task.kind === "vocab" ? vocabLessonTitle(task.level, task.lesson) : `${task.level} ${task.lesson}課`;
++              return `<button class="tl-dot${isDone ? " tl-dot-done" : ""}" data-key="${taskKey(task)}" title="${title}" aria-pressed="${isDone}">${task.lesson}</button>`;
++            })
++            .join("");
++          return `<div class="tl-track"><div class="tl-track-head"><span class="tl-track-name">${tr.label}</span><span class="tl-track-count">${done} / ${tr.queue.length}</span></div><div class="tl-dots">${dots}</div></div>`;
++        })
++        .join("");
++      sections.push(`<section class="tl-map-level"><h3 class="tl-map-level-title">${lvl}</h3>${inner}</section>`);
++    });
++    tlMapEl.innerHTML = sections.join("");
++    const byKey = {};
++    vocabQueue.concat(grammarQueue).forEach((task) => {
++      byKey[taskKey(task)] = task;
++    });
++    tlMapEl.querySelectorAll(".tl-dot").forEach((dot) => {
++      dot.addEventListener("click", () => {
++        const key = dot.dataset.key;
++        if (planDone[key]) delete planDone[key];
++        else planDone[key] = today;
++        savePlanDone();
++        renderTimeline();
++      });
++    });
+   }
+ 
+   function renderTodayTasks(phase, today) {
+@@ -3097,6 +3150,14 @@ resetProgressBtn.addEventListener("click", () => {
+       tlStatusEl.className = "tl-status tl-ok";
+     }
+ 
++    // Required work first, then optional bonus rows, then finished rows struck
++    // through at the bottom. Sorting bonus above still-owed grammar would
++    // dangle an extra vocab lesson in front of you while the day's actual
++    // target was unmet. Array sort is stable, so vocab-then-grammar survives
++    // within each band.
++    const band = (it) => (it.done ? 2 : it.bonus ? 1 : 0);
++    items.sort((a, b) => band(a) - band(b));
++
+     tlTasksEmptyEl.hidden = items.length > 0;
+     items.forEach((it) => {
+       const li = document.createElement("li");
+diff --git a/js/data/i18n.js b/js/data/i18n.js
+index fc1b14f..ce36bd9 100644
+--- a/js/data/i18n.js
++++ b/js/data/i18n.js
+@@ -13,9 +13,6 @@ window.I18N = {
+     tabHome: "Home",
+     tlDaysToExam: "days to the exam",
+     tlDaysToStudyEnd: "days left to finish learning",
+-    tlCurrentPhase: "current phase",
+-    tlPhaseLearn: "Learn",
+-    tlPhaseLearnSub: "new lessons every day",
+     tlPhaseReview: "Review",
+     tlPhaseReviewSub: "no new material — consolidate",
+     tlPhaseDone: "Done",
+@@ -28,6 +25,12 @@ window.I18N = {
+     tlQuotaMetShort: "✓ target met",
+     tlAhead: "🔥 {v} vocab + {g} grammar today — {n} past target. Every extra lesson pulls the finish date in.",
+     tlBonus: "Bonus",
++    tlQuotaLabel: "lessons done today",
++    tlQuotaRemaining: "{n} still to go today",
++    tlQuotaDone: "✓ daily quota met",
++    tlQuotaOver: "🔥 {n} over quota — finish date pulled in",
++    tlMapHeading: "Lesson map",
++    tlMapHint: "Click any lesson to mark it done, or click a green one to undo it and put it back in the queue.",
+     tlBehind: "You're {n} lesson(s) behind the pace — either catch up today or hit “recalculate pace”.",
+     tlReviewStatus: "Review phase — these repeat every day.",
+     tlAfterExam: "The exam date has passed. お疲れさま！",
+@@ -36,7 +39,6 @@ window.I18N = {
+     tlLessonsDone: "{done} / {total} lessons done",
+     tlVocabTaskMeta: "{n} words · flashcards, then writing & furigana",
+     tlGrammarTaskMeta: "{n} pattern(s) · read the reference, then practise",
+-    tlPlanHeading: "The plan",
+     tlReschedule: "recalculate pace",
+     tlVocabPerDay: "vocab lessons / day",
+     tlGrammarPerDay: "grammar lessons / day",
+@@ -50,12 +52,6 @@ window.I18N = {
+     tlHabitWeak: "Drill weak words (flashcards → practice weak words)",
+     tlHabitFurigana: "One furigana round",
+     tlHabitWriting: "One writing round",
+-    tlMsStart: "Plan starts",
+-    tlMsStudyEnd: "All lessons learned",
+-    tlMsReviewStart: "Review phase begins",
+-    tlMsMock: "Start timed mock tests",
+-    tlMsFinalWeek: "Final week — light review only",
+-    tlMsExam: "JLPT exam day",
+     tlReset: "reset the whole plan",
+     tabVocab: "Vocab",
+     tabFlashcards: "Flashcards",
+@@ -151,9 +147,6 @@ window.I18N = {
+     tabHome: "ホーム",
+     tlDaysToExam: "試験まであと",
+     tlDaysToStudyEnd: "学習完了まであと",
+-    tlCurrentPhase: "現在の段階",
+-    tlPhaseLearn: "学習",
+-    tlPhaseLearnSub: "毎日新しい課を進めます",
+     tlPhaseReview: "復習",
+     tlPhaseReviewSub: "新しい内容はなし。定着させる時期です",
+     tlPhaseDone: "終了",
+@@ -166,6 +159,12 @@ window.I18N = {
+     tlQuotaMetShort: "✓ 目標達成",
+     tlAhead: "🔥 今日は単語 {v} 課・文法 {g} 課。目標より {n} 課多いので、終了予定日が早まります。",
+     tlBonus: "ボーナス",
++    tlQuotaLabel: "今日終わった課",
++    tlQuotaRemaining: "今日はあと {n} 課",
++    tlQuotaDone: "✓ 今日のノルマ達成",
++    tlQuotaOver: "🔥 ノルマより {n} 課多い — 終了予定日が早まりました",
++    tlMapHeading: "学習マップ",
++    tlMapHint: "課をクリックすると完了になります。緑の課をもう一度クリックすると取り消され、リストに戻ります。",
+     tlBehind: "予定より {n} 課おくれています。今日取り返すか、「ペースを計算し直す」を押してください。",
+     tlReviewStatus: "復習期間 — これらは毎日くり返します。",
+     tlAfterExam: "試験日は過ぎました。お疲れさま！",
+@@ -174,7 +173,6 @@ window.I18N = {
+     tlLessonsDone: "{done} ／ {total} 課 完了",
+     tlVocabTaskMeta: "{n} 語 ・ 単語カード → 書き取り・読み方",
+     tlGrammarTaskMeta: "{n} 項目 ・ 一覧を読んでから練習",
+-    tlPlanHeading: "学習計画",
+     tlReschedule: "ペースを計算し直す",
+     tlVocabPerDay: "1日の単語の課",
+     tlGrammarPerDay: "1日の文法の課",
+@@ -188,12 +186,6 @@ window.I18N = {
+     tlHabitWeak: "苦手な単語を練習する（単語カード→苦手な単語）",
+     tlHabitFurigana: "読み方を1セット",
+     tlHabitWriting: "書き取りを1セット",
+-    tlMsStart: "計画スタート",
+-    tlMsStudyEnd: "全課の学習を終える",
+-    tlMsReviewStart: "復習期間の開始",
+-    tlMsMock: "時間を計った模擬試験を開始",
+-    tlMsFinalWeek: "最終週 — 軽い復習のみ",
+-    tlMsExam: "JLPT 試験日",
+     tlReset: "計画をすべてリセット",
+     tabVocab: "単語",
+     tabFlashcards: "単語カード",
