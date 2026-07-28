@@ -150,12 +150,31 @@ vocab + 2 grammar lessons a day. Change the dates in `PLAN_DEFAULTS` at the
 top of the timeline section in `js/app.js`; change the pace right on the
 page.
 
-**Today's checklist** shows the next undone lessons, not whatever the
-calendar says today's slot was. That's deliberate: with a date-keyed plan,
-missing a few days strands you on lessons you'd never open again. Here you
-always get the next chunk, and how far behind you are is reported
-separately above the list. Tick items off, or click one to jump straight
-into that lesson in Flashcards or Grammar Practice.
+**Today's checklist** is a strict daily quota you can actually finish.
+Lessons you ticked today stay on screen ticked, so the day closes out
+instead of endlessly refilling. Once the quota is met, a dashed **Bonus**
+row appears offering the next lesson — tick it and another appears, so
+going faster is always one click away.
+
+Lessons are served in queue order rather than by calendar slot. That's
+deliberate: with a date-keyed plan, missing a few days strands you on
+lessons you'd never open again. Here you always get the next chunk, and
+how far behind you are is reported separately above the list. Tick items
+off, or click one to jump straight into that lesson in Flashcards or
+Grammar Practice.
+
+**Doing extra pulls the finish date in.** Completions are stored with the
+date they happened, so the plan knows how much of today's quota is already
+spent. Do a fourth vocab lesson and tomorrow starts one lesson further
+along, every later day shifts up, and the projected finish moves earlier —
+a full extra day's worth buys exactly one day.
+
+The forecast reports **both tracks separately** and names which one sets
+the overall date. They rarely finish together: with the default pace,
+grammar (76 lessons at 2/day) runs about ten days past vocab (79 at 3/day),
+so extra grammar moves the headline date and extra vocab doesn't. Progress
+past target only counts as "ahead" once *both* tracks have hit their quota,
+for the same reason.
 
 **recalculate pace** spreads everything still undone evenly across the days
 that actually remain — the honest way to recover from a slipped week. Note

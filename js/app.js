@@ -2786,7 +2786,39 @@ resetProgressBtn.addEventListener("click", () => {
   const vocabQueue = buildVocabQueue();
   const grammarQueue = buildGrammarQueue();
   const taskKey = (t) => `${t.kind}:${t.level}:${t.lesson}`;
+  // planDone stores the ISO date a lesson was ticked, not just true, so the
+  // plan can tell "finished today's three" from "finished three at some point".
+  // Older saves used a bare true; those stay done, they just don't count
+  // toward today's quota (which is the safe direction to be wrong in).
   const isTaskDone = (t) => !!planDone[taskKey(t)];
+  const doneOn = (t) => {
+    const v = planDone[taskKey(t)];
+    return typeof v === "string" ? v : null;
+  };
+  const doneTodayCount = (queue, today) => queue.filter((t) => doneOn(t) === today).length;
+
+  // Everything still to do, and how much of today's quota is already spent.
+  // Doing a fourth lesson today doesn't just tick a box — it shortens the
+  // queue, so tomorrow starts one lesson further along and the finish date
+  // moves in by a day for every full extra day's worth you get through.
+  function projectDays(queueLeft, perDay, doneToday, dayCount) {
+    const out = [];
+    let i = Math.max(0, 0);
+    const todayQuota = Math.max(0, perDay - doneToday);
+    out.push(queueLeft.slice(0, todayQuota));
+    i = todayQuota;
+    for (let d = 1; d < dayCount; d++) {
+      out.push(queueLeft.slice(i, i + perDay));
+      i += perDay;
+    }
+    return out;
+  }
+  function finishDateFor(leftCount, perDay, doneToday, today) {
+    if (leftCount <= 0) return today;
+    const todayQuota = Math.max(0, perDay - doneToday);
+    if (leftCount <= todayQuota) return today;
+    return addDaysISO(today, Math.ceil((leftCount - todayQuota) / Math.max(1, perDay)));
+  }
 
   function vocabLessonTitle(level, lesson) {
     const titles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
@@ -2904,20 +2936,31 @@ resetProgressBtn.addEventListener("click", () => {
     tlVocabPaceEl.value = plan.vocabPerDay;
     tlGrammarPaceEl.value = plan.grammarPerDay;
 
-    // Forecast: at the current pace, when does each track finish?
+    // Forecast: at the current pace, when does each track finish? Today's
+    // already-completed lessons are discounted from today's quota, so getting
+    // ahead pulls the date in instead of just emptying the list sooner.
     const vLeft = vTotal - vDone;
     const gLeft = gTotal - gDone;
-    const vDays = Math.ceil(vLeft / Math.max(1, plan.vocabPerDay));
-    const gDays = Math.ceil(gLeft / Math.max(1, plan.grammarPerDay));
-    const vFinish = addDaysISO(today, Math.max(0, vDays - 1));
-    const gFinish = addDaysISO(today, Math.max(0, gDays - 1));
+    const vToday = doneTodayCount(vocabQueue, today);
+    const gToday = doneTodayCount(grammarQueue, today);
+    const vFinish = finishDateFor(vLeft, plan.vocabPerDay, vToday, today);
+    const gFinish = finishDateFor(gLeft, plan.grammarPerDay, gToday, today);
     const worstFinish = daysBetween(vFinish, gFinish) > 0 ? gFinish : vFinish;
     const slack = daysBetween(worstFinish, plan.studyEnd);
     if (!vLeft && !gLeft) {
       tlForecastEl.textContent = t("tlForecastComplete");
       tlForecastEl.className = "tl-forecast tl-ok";
     } else if (slack >= 0) {
-      tlForecastEl.textContent = t("tlForecastOk", { date: fmtDate(worstFinish), slack });
+      // Report both tracks, not just the worst. They finish on different days,
+      // and knowing WHICH one sets the overall date is the difference between
+      // usefully pushing grammar and pointlessly grinding extra vocab.
+      tlForecastEl.textContent = t("tlForecastOk", {
+        date: fmtDate(worstFinish),
+        slack,
+        vdate: fmtDate(vFinish),
+        gdate: fmtDate(gFinish),
+        limiter: t(daysBetween(vFinish, gFinish) > 0 ? "tabGrammar" : "tabVocab"),
+      });
       tlForecastEl.className = "tl-forecast tl-ok";
     } else {
       const daysLeft = Math.max(1, toStudyEnd + 1);
@@ -2958,11 +3001,26 @@ resetProgressBtn.addEventListener("click", () => {
     let items = [];
 
     if (phase === "learn") {
-      const v = nextUndone(vocabQueue, plan.vocabPerDay);
-      const g = nextUndone(grammarQueue, plan.grammarPerDay);
-      items = v.concat(g).map((task) => ({
+      // Today's row set = what you already ticked today (kept on screen so the
+      // day can actually be finished) + enough new lessons to fill the quota +
+      // one optional bonus once the quota is met, so getting ahead is always
+      // one click away rather than needing the pace changed.
+      function slotsFor(queue, perDay) {
+        const doneToday = queue.filter((x) => doneOn(x) === today);
+        const quotaLeft = Math.max(0, perDay - doneToday.length);
+        const upcoming = nextUndone(queue, quotaLeft || 1);
+        const rows = doneToday.concat(upcoming.slice(0, quotaLeft));
+        const bonus = quotaLeft === 0 && upcoming.length ? [upcoming[0]] : [];
+        return { rows, bonus };
+      }
+      const vs = slotsFor(vocabQueue, plan.vocabPerDay);
+      const gs = slotsFor(grammarQueue, plan.grammarPerDay);
+      const ordered = vs.rows.concat(vs.bonus).concat(gs.rows).concat(gs.bonus);
+      const bonusKeys = new Set(vs.bonus.concat(gs.bonus).map(taskKey));
+      items = ordered.map((task) => ({
         key: taskKey(task),
         done: isTaskDone(task),
+        bonus: bonusKeys.has(taskKey(task)),
         title:
           task.kind === "vocab"
             ? vocabLessonTitle(task.level, task.lesson)
@@ -2971,11 +3029,11 @@ resetProgressBtn.addEventListener("click", () => {
           task.kind === "vocab"
             ? t("tlVocabTaskMeta", { n: vocabWordCount(task.level, task.lesson) })
             : t("tlGrammarTaskMeta", { n: grammarPatternCount(task.level, task.lesson) }),
-        badge: t(task.kind === "vocab" ? "tabVocab" : "tabGrammar"),
-        badgeKind: task.kind,
+        badge: bonusKeys.has(taskKey(task)) ? t("tlBonus") : t(task.kind === "vocab" ? "tabVocab" : "tabGrammar"),
+        badgeKind: bonusKeys.has(taskKey(task)) ? "bonus" : task.kind,
         toggle: () => {
           if (planDone[taskKey(task)]) delete planDone[taskKey(task)];
-          else planDone[taskKey(task)] = true;
+          else planDone[taskKey(task)] = today;
           savePlanDone();
           renderTimeline();
         },
@@ -2989,11 +3047,29 @@ resetProgressBtn.addEventListener("click", () => {
       const expectedV = Math.min(vocabQueue.length, elapsed * plan.vocabPerDay);
       const expectedG = Math.min(grammarQueue.length, elapsed * plan.grammarPerDay);
       const behind = expectedV - doneCount(vocabQueue) + (expectedG - doneCount(grammarQueue));
+      const vT = doneTodayCount(vocabQueue, today);
+      const gT = doneTodayCount(grammarQueue, today);
+      const quotaMet = vT >= plan.vocabPerDay && gT >= plan.grammarPerDay;
+      // Surplus only counts once BOTH tracks have hit their target. Racing
+      // ahead on vocab while grammar sits untouched isn't being ahead, and
+      // saying so would point you at the track that isn't the constraint.
+      const ahead = quotaMet
+        ? Math.max(0, vT - plan.vocabPerDay) + Math.max(0, gT - plan.grammarPerDay)
+        : 0;
       if (behind > 0) {
         tlStatusEl.textContent = t("tlBehind", { n: behind });
         tlStatusEl.className = "tl-status tl-warn";
+      } else if (ahead > 0) {
+        tlStatusEl.textContent = t("tlAhead", { n: ahead, v: vT, g: gT });
+        tlStatusEl.className = "tl-status tl-ok";
+      } else if (quotaMet) {
+        tlStatusEl.textContent = t("tlQuotaMet");
+        tlStatusEl.className = "tl-status tl-ok";
       } else {
-        tlStatusEl.textContent = t("tlOnTrack");
+        tlStatusEl.textContent = t("tlTodayQuota", {
+          v: Math.max(0, plan.vocabPerDay - vT),
+          g: Math.max(0, plan.grammarPerDay - gT),
+        });
         tlStatusEl.className = "tl-status tl-ok";
       }
     } else if (phase === "review") {
@@ -3024,7 +3100,7 @@ resetProgressBtn.addEventListener("click", () => {
     tlTasksEmptyEl.hidden = items.length > 0;
     items.forEach((it) => {
       const li = document.createElement("li");
-      li.className = `tl-task${it.done ? " tl-task-done" : ""}`;
+      li.className = `tl-task${it.done ? " tl-task-done" : ""}${it.bonus ? " tl-task-bonus" : ""}`;
       const box = document.createElement("button");
       box.className = "tl-check";
       box.setAttribute("aria-pressed", it.done ? "true" : "false");
@@ -3047,14 +3123,23 @@ resetProgressBtn.addEventListener("click", () => {
   function renderWeek(phase, today) {
     const rows = [];
     if (phase === "learn") {
+      // The projection starts from what's actually left and from how much of
+      // today's quota is already spent, so a day where you did extra shifts
+      // every following day up rather than leaving a stale calendar behind.
       const vLeftQ = vocabQueue.filter((t2) => !isTaskDone(t2));
       const gLeftQ = grammarQueue.filter((t2) => !isTaskDone(t2));
+      const vDays = projectDays(vLeftQ, plan.vocabPerDay, doneTodayCount(vocabQueue, today), 7);
+      const gDays = projectDays(gLeftQ, plan.grammarPerDay, doneTodayCount(grammarQueue, today), 7);
       for (let i = 0; i < 7; i++) {
         const iso = addDaysISO(today, i);
         if (daysBetween(iso, plan.studyEnd) < 0) break;
-        const v = vLeftQ.slice(i * plan.vocabPerDay, (i + 1) * plan.vocabPerDay);
-        const g = gLeftQ.slice(i * plan.grammarPerDay, (i + 1) * plan.grammarPerDay);
-        if (!v.length && !g.length) break;
+        const v = vDays[i] || [];
+        const g = gDays[i] || [];
+        if (!v.length && !g.length) {
+          if (i === 0) rows.push({ iso, text: t("tlQuotaMetShort"), today: true });
+          else break;
+          continue;
+        }
         const parts = [];
         if (v.length) parts.push(`${t("tabVocab")} ${v.map((x) => `${x.level} ${x.lesson}課`).join(", ")}`);
         if (g.length) parts.push(`${t("tabGrammar")} ${g.map((x) => `${x.level} ${x.lesson}課`).join(", ")}`);

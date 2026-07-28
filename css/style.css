@@ -1620,3 +1620,9 @@ main {
   .tl-week-row { flex-direction: column; gap: 2px; }
   .tl-week-date { flex: none; }
 }
+
+/* A bonus row is the "you've already hit today's target" slot — present so
+   getting ahead is one click away, but visually quieter than the day's
+   actual quota so it never reads as work you still owe. */
+.tl-badge-bonus { background: var(--learning); color: #fff; }
+.tl-task-bonus { border-style: dashed; }
