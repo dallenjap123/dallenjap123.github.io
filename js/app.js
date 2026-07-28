@@ -2580,6 +2580,9 @@ resetProgressBtn.addEventListener("click", () => {
       if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
       if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);
       if (state.furigana.level !== "all") fgRenderLessonChips(state.furigana.level);
+      // The timeline builds its text in JS rather than from data-i18n
+      // attributes, so applyTranslations() alone can't reach it.
+      renderTimeline();
     });
   });
 
@@ -2659,6 +2662,457 @@ resetProgressBtn.addEventListener("click", () => {
       syncSettingsToggleUI();
     });
   }
+
+  // ---------- home: study timeline ----------
+  // A two-phase plan built backwards from the exam date. Phase 1 "learn"
+  // walks every vocab and grammar lesson once at a chosen daily pace; phase 2
+  // "review" starts the day after the learning deadline and is recurring
+  // habits rather than new material.
+  //
+  // The daily checklist deliberately shows the NEXT undone lessons rather than
+  // whatever the calendar says you should have done on this exact date. Miss a
+  // few days and a date-keyed plan strands you on lessons you'll never open
+  // again; this way you always get the next chunk, and "how far behind am I"
+  // is reported separately instead of being baked into the list.
+  const PLAN_KEY = "jpstudy_plan_v1";
+  const PLAN_DONE_KEY = "jpstudy_plan_done_v1";
+  const PLAN_DAILY_KEY = "jpstudy_plan_daily_v1";
+  const PLAN_DEFAULTS = {
+    startDate: todayISO(),
+    studyEnd: "2026-09-30",
+    examDate: "2026-12-06",
+    vocabPerDay: 3,
+    grammarPerDay: 2,
+  };
+
+  function todayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  // Dates are handled as local midnight rather than through Date.parse on the
+  // bare ISO string, which JS reads as UTC and would shift the day for anyone
+  // west of Greenwich.
+  function parseISO(iso) {
+    const [y, m, d] = String(iso).split("-").map(Number);
+    return new Date(y, (m || 1) - 1, d || 1);
+  }
+  function daysBetween(aISO, bISO) {
+    return Math.round((parseISO(bISO) - parseISO(aISO)) / 86400000);
+  }
+  function addDaysISO(iso, n) {
+    const d = parseISO(iso);
+    d.setDate(d.getDate() + n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  function fmtDate(iso) {
+    const d = parseISO(iso);
+    return d.toLocaleDateString(currentLang === "ja" ? "ja-JP" : "en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+  function fmtShort(iso) {
+    const d = parseISO(iso);
+    return d.toLocaleDateString(currentLang === "ja" ? "ja-JP" : "en-GB", { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  let plan = { ...PLAN_DEFAULTS };
+  try {
+    const saved = JSON.parse(localStorage.getItem(PLAN_KEY) || "null");
+    if (saved) plan = { ...PLAN_DEFAULTS, ...saved };
+  } catch (e) {
+    plan = { ...PLAN_DEFAULTS };
+  }
+  function savePlan() {
+    try {
+      localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  savePlan(); // pins startDate on first ever load
+
+  let planDone = {};
+  try {
+    planDone = JSON.parse(localStorage.getItem(PLAN_DONE_KEY) || "{}");
+  } catch (e) {
+    planDone = {};
+  }
+  function savePlanDone() {
+    try {
+      localStorage.setItem(PLAN_DONE_KEY, JSON.stringify(planDone));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  let planDaily = {};
+  try {
+    planDaily = JSON.parse(localStorage.getItem(PLAN_DAILY_KEY) || "{}");
+  } catch (e) {
+    planDaily = {};
+  }
+  function savePlanDaily() {
+    try {
+      localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  // The queues are derived from the data files, not hard-coded, so adding a
+  // lesson to vocab-data.js or grammar-practice-data.js lengthens the plan
+  // automatically instead of silently falling outside it.
+  const PLAN_LEVELS = ["N4", "N3"];
+  function buildVocabQueue() {
+    const data = window.VOCAB_DATA || {};
+    const out = [];
+    PLAN_LEVELS.forEach((lvl) => {
+      const nums = [...new Set((data[lvl] || []).map((i) => i.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+      nums.forEach((n) => out.push({ kind: "vocab", level: lvl, lesson: n }));
+    });
+    return out;
+  }
+  function buildGrammarQueue() {
+    const data = window.GRAMMAR_DATA || {};
+    const out = [];
+    PLAN_LEVELS.forEach((lvl) => {
+      const nums = [...new Set((data[lvl] || []).map((i) => i.lesson).filter((n) => n !== undefined))].sort((a, b) => a - b);
+      nums.forEach((n) => out.push({ kind: "grammar", level: lvl, lesson: n }));
+    });
+    return out;
+  }
+  const vocabQueue = buildVocabQueue();
+  const grammarQueue = buildGrammarQueue();
+  const taskKey = (t) => `${t.kind}:${t.level}:${t.lesson}`;
+  const isTaskDone = (t) => !!planDone[taskKey(t)];
+
+  function vocabLessonTitle(level, lesson) {
+    const titles = (window.VOCAB_LESSONS && window.VOCAB_LESSONS[level]) || {};
+    return titles[lesson] ? `${level} ${lesson}課 ${titles[lesson]}` : `${level} ${lesson}課`;
+  }
+  function vocabWordCount(level, lesson) {
+    return ((window.VOCAB_DATA || {})[level] || []).filter((i) => i.lesson === lesson).length;
+  }
+  function grammarPatternCount(level, lesson) {
+    return ((window.GRAMMAR_DATA || {})[level] || []).filter((i) => i.lesson === lesson).length;
+  }
+
+  function planPhase(iso) {
+    if (daysBetween(iso, plan.studyEnd) >= 0) return "learn";
+    if (daysBetween(iso, plan.examDate) >= 0) return "review";
+    return "done";
+  }
+
+  // Review-phase habits repeat daily, so they're keyed by date rather than by
+  // lesson the way phase-1 tasks are.
+  const REVIEW_HABITS = [
+    { id: "srs", i18n: "tlHabitSrs", go: () => goTo("grammar", "grammarpractice") },
+    { id: "weak", i18n: "tlHabitWeak", go: () => goTo("vocab", "flashcards") },
+    { id: "furigana", i18n: "tlHabitFurigana", go: () => goTo("vocab", "furigana") },
+    { id: "writing", i18n: "tlHabitWriting", go: () => goTo("vocab", "kanjiwrite") },
+  ];
+
+  function goTo(view, subview) {
+    const tab = document.querySelector(`.tab[data-view="${view}"]`);
+    if (tab) tab.click();
+    if (subview) {
+      const btn = document.querySelector(`#${view}-subnav .subnav-btn[data-subview="${subview}"]`);
+      if (btn) btn.click();
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Jumps straight into one lesson: switches tab + subview, then sets the
+  // level/lesson selection directly rather than synthesising chip clicks,
+  // since the chips toggle and would otherwise need clearing first.
+  function openLesson(task) {
+    if (task.kind === "vocab") {
+      goTo("vocab", "flashcards");
+      state.flashcards.level = task.level;
+      state.flashcards.lessons = [task.lesson];
+      state.flashcards.isolateMode = false;
+      fcLevelChips.forEach((c) => c.classList.toggle("active", c.dataset.level === task.level));
+      renderLessonChips(task.level);
+      startSession();
+    } else {
+      goTo("grammar", "grammarpractice");
+      state.grammarPractice.level = task.level;
+      state.grammarPractice.lessons = [task.lesson];
+      gpLevelChips.forEach((c) => c.classList.toggle("active", c.dataset.level === task.level));
+      gpRenderLessonChips(task.level);
+      gpStartSession();
+    }
+  }
+
+  const tlDaysExamEl = document.getElementById("tl-days-exam");
+  const tlDaysStudyEl = document.getElementById("tl-days-study");
+  const tlExamDateEl = document.getElementById("tl-exam-date");
+  const tlStudyDateEl = document.getElementById("tl-study-date");
+  const tlPhaseNameEl = document.getElementById("tl-phase-name");
+  const tlPhaseSubEl = document.getElementById("tl-phase-sub");
+  const tlTodayDateEl = document.getElementById("tl-today-date");
+  const tlStatusEl = document.getElementById("tl-status");
+  const tlTasksEl = document.getElementById("tl-tasks");
+  const tlTasksEmptyEl = document.getElementById("tl-tasks-empty");
+  const tlVocabBarEl = document.getElementById("tl-vocab-bar");
+  const tlVocabLabelEl = document.getElementById("tl-vocab-label");
+  const tlGrammarBarEl = document.getElementById("tl-grammar-bar");
+  const tlGrammarLabelEl = document.getElementById("tl-grammar-label");
+  const tlVocabPaceEl = document.getElementById("tl-vocab-pace");
+  const tlGrammarPaceEl = document.getElementById("tl-grammar-pace");
+  const tlForecastEl = document.getElementById("tl-forecast");
+  const tlMilestonesEl = document.getElementById("tl-milestones");
+  const tlWeekEl = document.getElementById("tl-week");
+
+  function nextUndone(queue, n) {
+    return queue.filter((t) => !isTaskDone(t)).slice(0, n);
+  }
+  function doneCount(queue) {
+    return queue.filter(isTaskDone).length;
+  }
+
+  function renderTimeline() {
+    const today = todayISO();
+    const phase = planPhase(today);
+
+    const toExam = daysBetween(today, plan.examDate);
+    const toStudyEnd = daysBetween(today, plan.studyEnd);
+    tlDaysExamEl.textContent = toExam >= 0 ? toExam : "—";
+    tlDaysStudyEl.textContent = toStudyEnd >= 0 ? toStudyEnd : "0";
+    tlExamDateEl.textContent = fmtDate(plan.examDate);
+    tlStudyDateEl.textContent = fmtDate(plan.studyEnd);
+    tlPhaseNameEl.textContent = t(phase === "learn" ? "tlPhaseLearn" : phase === "review" ? "tlPhaseReview" : "tlPhaseDone");
+    tlPhaseSubEl.textContent =
+      phase === "learn"
+        ? t("tlPhaseLearnSub")
+        : phase === "review"
+        ? t("tlPhaseReviewSub")
+        : t("tlPhaseDoneSub");
+    tlTodayDateEl.textContent = fmtShort(today);
+
+    const vDone = doneCount(vocabQueue);
+    const gDone = doneCount(grammarQueue);
+    const vTotal = vocabQueue.length;
+    const gTotal = grammarQueue.length;
+    tlVocabBarEl.style.width = vTotal ? `${Math.round((vDone / vTotal) * 100)}%` : "0%";
+    tlGrammarBarEl.style.width = gTotal ? `${Math.round((gDone / gTotal) * 100)}%` : "0%";
+    tlVocabLabelEl.textContent = t("tlLessonsDone", { done: vDone, total: vTotal });
+    tlGrammarLabelEl.textContent = t("tlLessonsDone", { done: gDone, total: gTotal });
+
+    tlVocabPaceEl.value = plan.vocabPerDay;
+    tlGrammarPaceEl.value = plan.grammarPerDay;
+
+    // Forecast: at the current pace, when does each track finish?
+    const vLeft = vTotal - vDone;
+    const gLeft = gTotal - gDone;
+    const vDays = Math.ceil(vLeft / Math.max(1, plan.vocabPerDay));
+    const gDays = Math.ceil(gLeft / Math.max(1, plan.grammarPerDay));
+    const vFinish = addDaysISO(today, Math.max(0, vDays - 1));
+    const gFinish = addDaysISO(today, Math.max(0, gDays - 1));
+    const worstFinish = daysBetween(vFinish, gFinish) > 0 ? gFinish : vFinish;
+    const slack = daysBetween(worstFinish, plan.studyEnd);
+    if (!vLeft && !gLeft) {
+      tlForecastEl.textContent = t("tlForecastComplete");
+      tlForecastEl.className = "tl-forecast tl-ok";
+    } else if (slack >= 0) {
+      tlForecastEl.textContent = t("tlForecastOk", { date: fmtDate(worstFinish), slack });
+      tlForecastEl.className = "tl-forecast tl-ok";
+    } else {
+      const daysLeft = Math.max(1, toStudyEnd + 1);
+      tlForecastEl.textContent = t("tlForecastLate", {
+        date: fmtDate(worstFinish),
+        over: -slack,
+        v: Math.ceil(vLeft / daysLeft),
+        g: Math.ceil(gLeft / daysLeft),
+      });
+      tlForecastEl.className = "tl-forecast tl-warn";
+    }
+
+    renderMilestones();
+    renderTodayTasks(phase, today);
+    renderWeek(phase, today);
+  }
+
+  function renderMilestones() {
+    const rows = [
+      { date: plan.startDate, label: t("tlMsStart") },
+      { date: plan.studyEnd, label: t("tlMsStudyEnd") },
+      { date: addDaysISO(plan.studyEnd, 1), label: t("tlMsReviewStart") },
+      { date: "2026-11-01", label: t("tlMsMock") },
+      { date: addDaysISO(plan.examDate, -7), label: t("tlMsFinalWeek") },
+      { date: plan.examDate, label: t("tlMsExam") },
+    ];
+    const today = todayISO();
+    tlMilestonesEl.innerHTML = rows
+      .map((r) => {
+        const past = daysBetween(r.date, today) > 0;
+        return `<li class="tl-ms${past ? " tl-ms-past" : ""}"><span class="tl-ms-date">${fmtDate(r.date)}</span><span class="tl-ms-label">${r.label}</span></li>`;
+      })
+      .join("");
+  }
+
+  function renderTodayTasks(phase, today) {
+    tlTasksEl.innerHTML = "";
+    let items = [];
+
+    if (phase === "learn") {
+      const v = nextUndone(vocabQueue, plan.vocabPerDay);
+      const g = nextUndone(grammarQueue, plan.grammarPerDay);
+      items = v.concat(g).map((task) => ({
+        key: taskKey(task),
+        done: isTaskDone(task),
+        title:
+          task.kind === "vocab"
+            ? vocabLessonTitle(task.level, task.lesson)
+            : `${task.level} ${task.lesson}課`,
+        meta:
+          task.kind === "vocab"
+            ? t("tlVocabTaskMeta", { n: vocabWordCount(task.level, task.lesson) })
+            : t("tlGrammarTaskMeta", { n: grammarPatternCount(task.level, task.lesson) }),
+        badge: t(task.kind === "vocab" ? "tabVocab" : "tabGrammar"),
+        badgeKind: task.kind,
+        toggle: () => {
+          if (planDone[taskKey(task)]) delete planDone[taskKey(task)];
+          else planDone[taskKey(task)] = true;
+          savePlanDone();
+          renderTimeline();
+        },
+        open: () => openLesson(task),
+      }));
+      // Expected-vs-actual, reported separately from the list itself. Only
+      // days that have FULLY passed count toward what's expected — today's
+      // batch isn't overdue until tomorrow, so a fresh plan opened on day one
+      // must not greet you as already behind.
+      const elapsed = Math.max(0, daysBetween(plan.startDate, today));
+      const expectedV = Math.min(vocabQueue.length, elapsed * plan.vocabPerDay);
+      const expectedG = Math.min(grammarQueue.length, elapsed * plan.grammarPerDay);
+      const behind = expectedV - doneCount(vocabQueue) + (expectedG - doneCount(grammarQueue));
+      if (behind > 0) {
+        tlStatusEl.textContent = t("tlBehind", { n: behind });
+        tlStatusEl.className = "tl-status tl-warn";
+      } else {
+        tlStatusEl.textContent = t("tlOnTrack");
+        tlStatusEl.className = "tl-status tl-ok";
+      }
+    } else if (phase === "review") {
+      const day = planDaily[today] || {};
+      items = REVIEW_HABITS.map((h) => ({
+        key: h.id,
+        done: !!day[h.id],
+        title: t(h.i18n),
+        meta: "",
+        badge: t("tlPhaseReview"),
+        badgeKind: "review",
+        toggle: () => {
+          const d = planDaily[today] || (planDaily[today] = {});
+          if (d[h.id]) delete d[h.id];
+          else d[h.id] = true;
+          savePlanDaily();
+          renderTimeline();
+        },
+        open: h.go,
+      }));
+      tlStatusEl.textContent = t("tlReviewStatus");
+      tlStatusEl.className = "tl-status tl-ok";
+    } else {
+      tlStatusEl.textContent = t("tlAfterExam");
+      tlStatusEl.className = "tl-status tl-ok";
+    }
+
+    tlTasksEmptyEl.hidden = items.length > 0;
+    items.forEach((it) => {
+      const li = document.createElement("li");
+      li.className = `tl-task${it.done ? " tl-task-done" : ""}`;
+      const box = document.createElement("button");
+      box.className = "tl-check";
+      box.setAttribute("aria-pressed", it.done ? "true" : "false");
+      box.textContent = it.done ? "✓" : "";
+      box.addEventListener("click", it.toggle);
+      const body = document.createElement("button");
+      body.className = "tl-task-body";
+      body.innerHTML = `<span class="tl-task-title">${it.title}</span>${it.meta ? `<span class="tl-task-meta">${it.meta}</span>` : ""}`;
+      body.addEventListener("click", it.open);
+      const badge = document.createElement("span");
+      badge.className = `tl-badge tl-badge-${it.badgeKind}`;
+      badge.textContent = it.badge;
+      li.appendChild(box);
+      li.appendChild(body);
+      li.appendChild(badge);
+      tlTasksEl.appendChild(li);
+    });
+  }
+
+  function renderWeek(phase, today) {
+    const rows = [];
+    if (phase === "learn") {
+      const vLeftQ = vocabQueue.filter((t2) => !isTaskDone(t2));
+      const gLeftQ = grammarQueue.filter((t2) => !isTaskDone(t2));
+      for (let i = 0; i < 7; i++) {
+        const iso = addDaysISO(today, i);
+        if (daysBetween(iso, plan.studyEnd) < 0) break;
+        const v = vLeftQ.slice(i * plan.vocabPerDay, (i + 1) * plan.vocabPerDay);
+        const g = gLeftQ.slice(i * plan.grammarPerDay, (i + 1) * plan.grammarPerDay);
+        if (!v.length && !g.length) break;
+        const parts = [];
+        if (v.length) parts.push(`${t("tabVocab")} ${v.map((x) => `${x.level} ${x.lesson}課`).join(", ")}`);
+        if (g.length) parts.push(`${t("tabGrammar")} ${g.map((x) => `${x.level} ${x.lesson}課`).join(", ")}`);
+        rows.push({ iso, text: parts.join(" · "), today: i === 0 });
+      }
+    } else {
+      for (let i = 0; i < 7; i++) {
+        const iso = addDaysISO(today, i);
+        if (daysBetween(iso, plan.examDate) < 0) break;
+        rows.push({ iso, text: t("tlReviewDayLine"), today: i === 0 });
+      }
+    }
+    tlWeekEl.innerHTML = rows.length
+      ? rows
+          .map(
+            (r) =>
+              `<li class="tl-week-row${r.today ? " tl-week-today" : ""}"><span class="tl-week-date">${fmtShort(r.iso)}</span><span class="tl-week-text">${r.text}</span></li>`
+          )
+          .join("")
+      : `<li class="tl-week-row"><span class="tl-week-text">${t("tlNothingScheduled")}</span></li>`;
+  }
+
+  [tlVocabPaceEl, tlGrammarPaceEl].forEach((input) => {
+    input.addEventListener("change", () => {
+      const v = Math.max(1, Math.min(20, Number(tlVocabPaceEl.value) || 1));
+      const g = Math.max(1, Math.min(20, Number(tlGrammarPaceEl.value) || 1));
+      plan.vocabPerDay = v;
+      plan.grammarPerDay = g;
+      savePlan();
+      renderTimeline();
+    });
+  });
+
+  // Spreads whatever is still undone across the days that are actually left,
+  // which is the only honest way to recover from a slipped week.
+  document.getElementById("tl-reschedule").addEventListener("click", () => {
+    const today = todayISO();
+    const daysLeft = Math.max(1, daysBetween(today, plan.studyEnd) + 1);
+    const vLeft = vocabQueue.length - doneCount(vocabQueue);
+    const gLeft = grammarQueue.length - doneCount(grammarQueue);
+    plan.vocabPerDay = Math.max(1, Math.ceil(vLeft / daysLeft));
+    plan.grammarPerDay = Math.max(1, Math.ceil(gLeft / daysLeft));
+    savePlan();
+    renderTimeline();
+  });
+
+  document.getElementById("tl-reset").addEventListener("click", () => {
+    if (!window.confirm("This clears every tick on your study plan and restarts it from today. Continue?")) return;
+    planDone = {};
+    planDaily = {};
+    savePlanDone();
+    savePlanDaily();
+    plan = { ...PLAN_DEFAULTS, startDate: todayISO() };
+    savePlan();
+    renderTimeline();
+  });
+
+  renderTimeline();
 
   applyTranslations();
 })();

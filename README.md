@@ -1,6 +1,9 @@
 # 日本語ノート — Japanese Study Site
 
-A static site with two tabs, Vocab and Grammar:
+A static site with three tabs — Home, Vocab and Grammar:
+
+**Home** is a study timeline built backwards from your exam date. See
+"Study timeline" below.
 
 **Vocab** has four modes, all filterable by JLPT level and lesson:
 - **Word List** — browse by lesson (click a lesson chip instead of
@@ -131,6 +134,37 @@ restricting Pages access to your org. If you want this genuinely private for
 free, the more reliable route is Cloudflare Pages + Cloudflare Zero Trust
 Access (free for up to 50 users), which puts a login in front of the whole
 site. Otherwise, an unlisted GitHub Pages URL is "private by obscurity" only.
+
+## Study timeline
+
+The Home tab turns the exam date into a day-by-day plan. It has two phases:
+
+- **Learn** (from when you first open it until the learning deadline) —
+  walks every vocab and grammar lesson once, at a pace you set.
+- **Review** (deadline+1 until exam day) — no new material, just four
+  recurring daily habits: clear due grammar reviews, drill weak words, one
+  furigana round, one writing round.
+
+Defaults are a 6 December exam, all lessons learned by 30 September, at 3
+vocab + 2 grammar lessons a day. Change the dates in `PLAN_DEFAULTS` at the
+top of the timeline section in `js/app.js`; change the pace right on the
+page.
+
+**Today's checklist** shows the next undone lessons, not whatever the
+calendar says today's slot was. That's deliberate: with a date-keyed plan,
+missing a few days strands you on lessons you'd never open again. Here you
+always get the next chunk, and how far behind you are is reported
+separately above the list. Tick items off, or click one to jump straight
+into that lesson in Flashcards or Grammar Practice.
+
+**recalculate pace** spreads everything still undone evenly across the days
+that actually remain — the honest way to recover from a slipped week. Note
+it can also slow you down if you're ahead, since it targets the deadline
+exactly.
+
+The lesson queues are read from the data files, so adding lessons to
+`vocab-data.js` or `grammar-data.js` extends the plan automatically. All
+plan state is per-browser `localStorage` and is not covered by cloud sync.
 
 ## Word List search
 
