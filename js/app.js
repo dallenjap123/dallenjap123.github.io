@@ -410,10 +410,15 @@
     apply: (snapshot) => {
       const m = snapshot && snapshot.mastery;
       if (!m || typeof m !== "object") return;
+      // Repainting the chip rows is cheap but visible, so skip it entirely
+      // when the incoming badges match what's already here.
+      const before = JSON.stringify([fcMastery.all(), kwMastery.all(), fgMastery.all(), gpMastery.all()]);
       if (m.fc) fcMastery.replace(m.fc);
       if (m.kw) kwMastery.replace(m.kw);
       if (m.fg) fgMastery.replace(m.fg);
       if (m.gp) gpMastery.replace(m.gp);
+      const after = JSON.stringify([fcMastery.all(), kwMastery.all(), fgMastery.all(), gpMastery.all()]);
+      if (before === after) return;
       // Repaint whichever chip rows are on screen so badges appear without a reload.
       if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
       if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);

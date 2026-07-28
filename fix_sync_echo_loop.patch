@@ -1,0 +1,57 @@
+diff --git a/js/app.js b/js/app.js
+index 39c6383..3da3c32 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -410,10 +410,15 @@
+     apply: (snapshot) => {
+       const m = snapshot && snapshot.mastery;
+       if (!m || typeof m !== "object") return;
++      // Repainting the chip rows is cheap but visible, so skip it entirely
++      // when the incoming badges match what's already here.
++      const before = JSON.stringify([fcMastery.all(), kwMastery.all(), fgMastery.all(), gpMastery.all()]);
+       if (m.fc) fcMastery.replace(m.fc);
+       if (m.kw) kwMastery.replace(m.kw);
+       if (m.fg) fgMastery.replace(m.fg);
+       if (m.gp) gpMastery.replace(m.gp);
++      const after = JSON.stringify([fcMastery.all(), kwMastery.all(), fgMastery.all(), gpMastery.all()]);
++      if (before === after) return;
+       // Repaint whichever chip rows are on screen so badges appear without a reload.
+       if (state.flashcards.level !== "all") renderLessonChips(state.flashcards.level);
+       if (state.kanjiWrite.level !== "all") kwRenderLessonChips(state.kanjiWrite.level);
+diff --git a/js/sync.js b/js/sync.js
+index 003faa0..021a84e 100644
+--- a/js/sync.js
++++ b/js/sync.js
+@@ -289,6 +289,23 @@
+     return out;
+   }
+ 
++  // Key insertion order must never decide whether we push. mergeSyncState and
++  // normalizeSyncState build the same sections in different orders, so a plain
++  // JSON.stringify comparison reported identical states as different — which
++  // pushed, which fired another snapshot, which pushed again, forever.
++  function stableStringify(value) {
++    if (value === null || typeof value !== "object") return JSON.stringify(value);
++    if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
++    return (
++      "{" +
++      Object.keys(value)
++        .sort()
++        .map((k) => JSON.stringify(k) + ":" + stableStringify(value[k]))
++        .join(",") +
++      "}"
++    );
++  }
++
+   function mergeSyncState(localState, remoteState) {
+     const local = normalizeSyncState(localState);
+     const remote = normalizeSyncState(remoteState);
+@@ -418,7 +435,7 @@
+         // device before ever signing in), push the merge back — but only
+         // when it actually adds something, to avoid an echo loop of
+         // pointless identical writes on every snapshot.
+-        if (JSON.stringify(merged) !== JSON.stringify(normalizeSyncState(remote))) {
++        if (stableStringify(merged) !== stableStringify(normalizeSyncState(remote))) {
+           pushToCloud(merged);
+         }
+       },

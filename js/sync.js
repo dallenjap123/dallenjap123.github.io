@@ -289,6 +289,23 @@
     return out;
   }
 
+  // Key insertion order must never decide whether we push. mergeSyncState and
+  // normalizeSyncState build the same sections in different orders, so a plain
+  // JSON.stringify comparison reported identical states as different — which
+  // pushed, which fired another snapshot, which pushed again, forever.
+  function stableStringify(value) {
+    if (value === null || typeof value !== "object") return JSON.stringify(value);
+    if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+    return (
+      "{" +
+      Object.keys(value)
+        .sort()
+        .map((k) => JSON.stringify(k) + ":" + stableStringify(value[k]))
+        .join(",") +
+      "}"
+    );
+  }
+
   function mergeSyncState(localState, remoteState) {
     const local = normalizeSyncState(localState);
     const remote = normalizeSyncState(remoteState);
@@ -418,7 +435,7 @@
         // device before ever signing in), push the merge back — but only
         // when it actually adds something, to avoid an echo loop of
         // pointless identical writes on every snapshot.
-        if (JSON.stringify(merged) !== JSON.stringify(normalizeSyncState(remote))) {
+        if (stableStringify(merged) !== stableStringify(normalizeSyncState(remote))) {
           pushToCloud(merged);
         }
       },
