@@ -1,0 +1,444 @@
+diff --git a/README.md b/README.md
+index 401ef76..fc5d023 100644
+--- a/README.md
++++ b/README.md
+@@ -18,7 +18,13 @@ A static site with three tabs — Home, Vocab and Grammar:
+ - **Writing** — recall and draw a word's kanji from its reading/meaning on
+   a touch-friendly canvas, then reveal to self-grade.
+ - **Furigana** — recall and type a word's reading from its kanji, auto-graded
+-  against the word's own reading (no self-honesty needed here)!
++  against the word's own reading (no self-honesty needed here)! The English
++  meaning is deliberately not shown, so the kanji is the only cue.
++
++Writing and Furigana are **clean-run** modes: a single wrong answer restarts
++the run from the beginning. The miss is still banked as a weak word first,
++so "practice weak words" keeps learning from these modes even though the
++item never finishes its second pass.
+ 
+ Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
+ word in a lesson exactly twice per run; clear a lesson with zero mistakes
+@@ -208,9 +214,13 @@ The lesson queues are read from the data files, so adding lessons to
+ 
+ Plan state **syncs across devices** along with the rest of your progress
+ once you sign in (see "Optional: sync progress across devices"). Merging is
+-per-section: completed lessons are unioned, so a lesson finished on any
+-device stays finished and the earlier completion date wins; the recurring
+-review-habit ticks are unioned per day; and the plan settings — dates and
++per-section: completed lessons and review-habit ticks use per-key
++last-write-wins against an edit timestamp recorded whenever you tick *or
++un-tick* something. A plain union can only ever express "done", so
++un-ticking a lesson was resurrected by the next snapshot; stamps let a fresh
++deletion beat a stale completion, while two devices completing different
++lessons still both survive because different keys never compete. The plan
++settings — dates and
+ pace — are a single coherent set, so the most recently edited copy wins
+ outright. `savePlan()` stamps `updatedAt` for that, and only a genuine edit
+ stamps it: re-stamping on every page load would make whichever device you
+diff --git a/css/style.css b/css/style.css
+index c88b140..04155d4 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -1671,3 +1671,16 @@ main {
+ .tl-finish-ok .tl-count-num { color: var(--mastered); }
+ .tl-finish-late { border-color: var(--seal); box-shadow: 0 0 0 3px var(--seal-bg), var(--shadow-sm); }
+ .tl-finish-late .tl-count-num { color: var(--seal); }
++
++/* Writing and furigana demand a clean run: one miss and the session restarts.
++   Without a word of explanation that just looks like the app lost your place. */
++.run-reset-note {
++  font-family: var(--font-ui);
++  font-size: var(--fs-xs);
++  color: var(--seal);
++  background: var(--seal-bg);
++  border-radius: var(--radius-md);
++  padding: var(--space-2) var(--space-3);
++  margin: var(--space-3) 0 0;
++  text-align: center;
++}
+diff --git a/index.html b/index.html
+index 55e95ff..abddb7c 100644
+--- a/index.html
++++ b/index.html
+@@ -217,6 +217,7 @@
+             <button class="kw-canvas-clear" id="kw-clear" aria-label="clear drawing" data-i18n-aria="kwClear" title="clear">↺</button>
+           </div>
+ 
++          <p class="run-reset-note" id="kw-reset-note" hidden data-i18n="runReset">✗ one wrong — the run restarts from the beginning.</p>
+           <div class="kw-answer" id="kw-answer" hidden>
+             <span class="kw-answer-word" id="kw-answer-word"></span>
+             <span class="kw-answer-reading" id="kw-answer-reading"></span>
+@@ -261,13 +262,13 @@
+         <div class="fg-stage">
+           <p class="fg-hint" data-i18n="fgHint">type the reading for this word in hiragana, then submit</p>
+           <p class="fg-word" id="fg-word"></p>
+-          <p class="fg-meaning" id="fg-meaning"></p>
+ 
+           <div class="fg-input-row">
+             <input type="text" id="fg-field" autocomplete="off" spellcheck="false" data-i18n-placeholder="fgPlaceholder" placeholder="type the reading in hiragana">
+             <button class="ghost-btn btn-primary" id="fg-submit" data-i18n="submit">Submit</button>
+           </div>
+ 
++          <p class="run-reset-note" id="fg-reset-note" hidden data-i18n="runReset">✗ one wrong — the run restarts from the beginning.</p>
+           <div class="fg-answer" id="fg-answer" hidden>
+             <span class="fg-answer-word" id="fg-answer-word"></span>
+           </div>
+diff --git a/js/app.js b/js/app.js
+index 3da3c32..8e3e898 100644
+--- a/js/app.js
++++ b/js/app.js
+@@ -866,6 +866,7 @@ resetProgressBtn.addEventListener("click", () => {
+   const kwCtx = kwCanvas.getContext("2d");
+   const kwClearBtn = document.getElementById("kw-clear");
+   const kwRevealBtn = document.getElementById("kw-reveal");
++  const kwResetNoteEl = document.getElementById("kw-reset-note");
+   const kwAnswerEl = document.getElementById("kw-answer");
+   const kwAnswerWordEl = document.getElementById("kw-answer-word");
+   const kwAnswerReadingEl = document.getElementById("kw-answer-reading");
+@@ -964,6 +965,7 @@ resetProgressBtn.addEventListener("click", () => {
+   }
+   function kwStartSession() {
+     const kw = state.kanjiWrite;
++    kwResetNoteEl.hidden = true;
+     const items = kwBuildDeck(kw.level, kw.lessons, kw.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
+     kw.sessionItems = items;
+     kw.queue = kw.shuffleOn ? shuffle(items) : items.slice();
+@@ -1070,14 +1072,22 @@ resetProgressBtn.addEventListener("click", () => {
+     const kw = state.kanjiWrite;
+     const item = kw.current;
+     if (!item || !kw.revealed) return;
++    kwResetNoteEl.hidden = true;
++    // Same rule as furigana: one miss and the run starts over, but the miss
++    // is banked as a weak word first.
++    if (!isCorrect) {
++      recordKwResult(item, false);
++      kwStartSession();
++      kwResetNoteEl.hidden = false;
++      return;
++    }
+     item.attempts += 1;
+-    if (isCorrect) item.correctAttempts += 1;
++    item.correctAttempts += 1;
+     if (item.attempts < 2) {
+       kw.queue.push(item);
+     } else {
+-      const masteredThisSitting = item.correctAttempts === 2;
+-      recordKwResult(item, masteredThisSitting);
+-      if (masteredThisSitting) kw.masteredCount += 1;
++      recordKwResult(item, true);
++      kw.masteredCount += 1;
+       if (!kw.isolateMode) {
+         checkLessonComplete(kwMastery, kw.sessionItems, item.level, item.lesson);
+         kwRenderLessonChips(kw.level);
+@@ -1157,7 +1167,7 @@ resetProgressBtn.addEventListener("click", () => {
+   const fgIsolateNoteEl = document.getElementById("fg-isolate-note");
+   const fgResetProgressBtn = document.getElementById("fg-reset-progress");
+   const fgWordEl = document.getElementById("fg-word");
+-  const fgMeaningEl = document.getElementById("fg-meaning");
++  const fgResetNoteEl = document.getElementById("fg-reset-note");
+   const fgFieldEl = document.getElementById("fg-field");
+   const fgSubmitBtn = document.getElementById("fg-submit");
+   const fgAnswerEl = document.getElementById("fg-answer");
+@@ -1183,18 +1193,17 @@ resetProgressBtn.addEventListener("click", () => {
+     if (!fg.queue.length) {
+       fg.current = null;
+       fgWordEl.textContent = fgEmptyText();
+-      fgMeaningEl.textContent = "";
+       fgUpdateProgress();
+       return;
+     }
+     fg.current = fg.queue.shift();
+     fgWordEl.textContent = fg.current.word;
+-    fgMeaningEl.textContent = fg.current.meaning;
+     fgUpdateProgress();
+     setTimeout(() => fgFieldEl.focus(), 0);
+   }
+   function fgStartSession() {
+     const fg = state.furigana;
++    fgResetNoteEl.hidden = true;
+     const items = fgBuildDeck(fg.level, fg.lessons, fg.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
+     fg.sessionItems = items;
+     fg.queue = fg.shuffleOn ? shuffle(items) : items.slice();
+@@ -1288,6 +1297,7 @@ resetProgressBtn.addEventListener("click", () => {
+     const item = fg.current;
+     if (!item || fg.submitted) return;
+     fg.submitted = true;
++    fgResetNoteEl.hidden = true;
+     const isCorrect = normalizeReading(fgFieldEl.value) === normalizeReading(item.reading);
+     fgFieldEl.classList.add(isCorrect ? "fg-input-correct" : "fg-input-wrong");
+     fgFieldEl.disabled = true;
+@@ -1295,20 +1305,30 @@ resetProgressBtn.addEventListener("click", () => {
+       fgAnswerEl.hidden = false;
+       fgAnswerWordEl.textContent = item.reading;
+     }
++    // A single miss ends the run. The word is still recorded as weak first —
++    // otherwise it would never reach a second attempt, and the weak-word
++    // drill would quietly stop learning anything from these modes.
++    if (!isCorrect) {
++      recordFgResult(item, false);
++      setTimeout(() => {
++        fgStartSession();
++        fgResetNoteEl.hidden = false;
++      }, 1500);
++      return;
++    }
+     item.attempts += 1;
+-    if (isCorrect) item.correctAttempts += 1;
++    item.correctAttempts += 1;
+     if (item.attempts < 2) {
+       fg.queue.push(item);
+     } else {
+-      const masteredThisSitting = item.correctAttempts === 2;
+-      recordFgResult(item, masteredThisSitting);
+-      if (masteredThisSitting) fg.masteredCount += 1;
++      recordFgResult(item, true);
++      fg.masteredCount += 1;
+       if (!fg.isolateMode) {
+         checkLessonComplete(fgMastery, fg.sessionItems, item.level, item.lesson);
+         fgRenderLessonChips(fg.level);
+       }
+     }
+-    setTimeout(fgShowNext, isCorrect ? 350 : 1500);
++    setTimeout(fgShowNext, 350);
+   }
+   fgSubmitBtn.addEventListener("click", fgSubmit);
+   fgFieldEl.addEventListener("keydown", (e) => {
+@@ -2840,6 +2860,32 @@ resetProgressBtn.addEventListener("click", () => {
+     pushSyncChange();
+   }
+ 
++  // A union merge can say "done" but has no way to say "un-done", so
++  // un-ticking a lesson was immediately resurrected by the next cloud
++  // snapshot. These record WHEN each key last changed — set or cleared — so
++  // the merge can tell a fresh deletion from a stale completion.
++  const PLAN_EDITS_KEY = "jpstudy_plan_edits_v1";
++  let planEdits = { done: {}, daily: {} };
++  try {
++    const saved = JSON.parse(localStorage.getItem(PLAN_EDITS_KEY) || "null");
++    if (saved && typeof saved === "object") {
++      planEdits = { done: saved.done || {}, daily: saved.daily || {} };
++    }
++  } catch (e) {
++    planEdits = { done: {}, daily: {} };
++  }
++  function savePlanEdits() {
++    try {
++      localStorage.setItem(PLAN_EDITS_KEY, JSON.stringify(planEdits));
++    } catch (e) {
++      /* ignore */
++    }
++  }
++  function markPlanEdit(kind, key) {
++    planEdits[kind][key] = Date.now();
++    savePlanEdits();
++  }
++
+   let planDaily = {};
+   try {
+     planDaily = JSON.parse(localStorage.getItem(PLAN_DAILY_KEY) || "{}");
+@@ -3146,6 +3192,7 @@ resetProgressBtn.addEventListener("click", () => {
+         const key = dot.dataset.key;
+         if (planDone[key]) delete planDone[key];
+         else planDone[key] = today;
++        markPlanEdit("done", key);
+         savePlanDone();
+         renderTimeline();
+       });
+@@ -3188,8 +3235,10 @@ resetProgressBtn.addEventListener("click", () => {
+         badge: bonusKeys.has(taskKey(task)) ? t("tlBonus") : t(task.kind === "vocab" ? "tabVocab" : "tabGrammar"),
+         badgeKind: bonusKeys.has(taskKey(task)) ? "bonus" : task.kind,
+         toggle: () => {
+-          if (planDone[taskKey(task)]) delete planDone[taskKey(task)];
+-          else planDone[taskKey(task)] = today;
++          const k = taskKey(task);
++          if (planDone[k]) delete planDone[k];
++          else planDone[k] = today;
++          markPlanEdit("done", k);
+           savePlanDone();
+           renderTimeline();
+         },
+@@ -3241,6 +3290,7 @@ resetProgressBtn.addEventListener("click", () => {
+           const d = planDaily[today] || (planDaily[today] = {});
+           if (d[h.id]) delete d[h.id];
+           else d[h.id] = true;
++          markPlanEdit("daily", `${today}::${h.id}`);
+           savePlanDaily();
+           renderTimeline();
+         },
+@@ -3354,8 +3404,10 @@ resetProgressBtn.addEventListener("click", () => {
+     if (!window.confirm("This clears every tick on your study plan and restarts it from today. Continue?")) return;
+     planDone = {};
+     planDaily = {};
++    planEdits = { done: {}, daily: {} };
+     savePlanDone();
+     savePlanDaily();
++    savePlanEdits();
+     plan = { ...PLAN_DEFAULTS, startDate: todayISO() };
+     savePlan();
+     renderTimeline();
+@@ -3366,6 +3418,7 @@ resetProgressBtn.addEventListener("click", () => {
+       plan: JSON.parse(JSON.stringify(plan)),
+       planDone: JSON.parse(JSON.stringify(planDone)),
+       planDaily: JSON.parse(JSON.stringify(planDaily)),
++      planEdits: JSON.parse(JSON.stringify(planEdits)),
+     }),
+     apply: (snapshot) => {
+       if (!snapshot || typeof snapshot !== "object") return;
+@@ -3385,6 +3438,10 @@ resetProgressBtn.addEventListener("click", () => {
+         try { localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily)); } catch (e) {}
+         touched = true;
+       }
++      if (snapshot.planEdits && typeof snapshot.planEdits === "object") {
++        planEdits = { done: snapshot.planEdits.done || {}, daily: snapshot.planEdits.daily || {} };
++        savePlanEdits();
++      }
+       if (touched) renderTimeline();
+     },
+   });
+diff --git a/js/data/i18n.js b/js/data/i18n.js
+index 49a85ca..6051a82 100644
+--- a/js/data/i18n.js
++++ b/js/data/i18n.js
+@@ -72,6 +72,7 @@ window.I18N = {
+     kwHint: "write the kanji for this word from memory, then reveal to check",
+     kwClear: "clear drawing",
+     fgHint: "type the reading for this word in hiragana, then submit",
++    runReset: "✗ one wrong — the run restarts from the beginning.",
+     fgPlaceholder: "type the reading in hiragana",
+     submit: "Submit",
+     resetProgress: "reset progress",
+@@ -207,6 +208,7 @@ window.I18N = {
+     kwHint: "この単語の漢字を思い出して書いてください。書き終えたら答えを見て確認しましょう",
+     kwClear: "描いた文字を消す",
+     fgHint: "この単語の読み方をひらがなで入力してから送信してください",
++    runReset: "✗ 1問まちがえたので、最初からやり直しです。",
+     fgPlaceholder: "読み方をひらがなで入力",
+     submit: "送信",
+     resetProgress: "進捗をリセット",
+diff --git a/js/sync.js b/js/sync.js
+index 021a84e..8edfa64 100644
+--- a/js/sync.js
++++ b/js/sync.js
+@@ -209,7 +209,7 @@
+     return merged;
+   }
+ 
+-  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"];
++  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "planEdits", "mastery", "srs"];
+ 
+   function normalizeSyncState(state) {
+     const empty = { vocab: {}, grammar: {}, streak: {}, plan: {}, planDone: {}, planDaily: {} };
+@@ -223,29 +223,66 @@
+     return out;
+   }
+ 
+-  // A lesson finished on ANY device is finished. Union rather than
+-  // last-write-wins, since dropping a completion would silently put work back
+-  // in the queue that was genuinely done. Where both sides have a date, the
+-  // earlier one wins — that's when it was first completed.
+-  function mergePlanDone(localMap, remoteMap) {
+-    const out = { ...(localMap || {}) };
+-    Object.keys(remoteMap || {}).forEach((k) => {
+-      const a = out[k];
+-      const b = remoteMap[k];
+-      if (!a) out[k] = b;
+-      else if (typeof a === "string" && typeof b === "string") out[k] = a < b ? a : b;
+-      else out[k] = typeof a === "string" ? a : b;
++  // Per-key last-write-wins, using the edit stamps app.js records whenever a
++  // lesson is ticked OR un-ticked. A plain union could only ever say "done",
++  // so un-ticking a lesson was undone again by the next snapshot; comparing
++  // stamps lets a fresh deletion beat a stale completion while two devices
++  // completing DIFFERENT lessons still both survive (different keys never
++  // compete). Unstamped keys are legacy data and lose to anything stamped.
++  function mergeStamped(localMap, remoteMap, localAt, remoteAt) {
++    const out = {};
++    const keys = new Set(
++      Object.keys(localMap || {})
++        .concat(Object.keys(remoteMap || {}))
++        .concat(Object.keys(localAt || {}))
++        .concat(Object.keys(remoteAt || {}))
++    );
++    keys.forEach((k) => {
++      const lt = Number((localAt || {})[k]) || 0;
++      const rt = Number((remoteAt || {})[k]) || 0;
++      // On a tie prefer whichever side actually holds the key, so legacy
++      // documents with no stamps at all still behave like the old union.
++      const winner = rt > lt ? remoteMap : lt > rt ? localMap : (localMap || {})[k] !== undefined ? localMap : remoteMap;
++      const v = (winner || {})[k];
++      if (v !== undefined) out[k] = v;
+     });
+     return out;
+   }
+ 
+-  // Recurring review habits are keyed by date, then by habit id. Ticking a
+-  // habit on either device counts.
+-  function mergePlanDaily(localMap, remoteMap) {
++  function mergeEditStamps(localAt, remoteAt) {
++    const out = { ...(localAt || {}) };
++    Object.keys(remoteAt || {}).forEach((k) => {
++      out[k] = Math.max(Number(out[k]) || 0, Number(remoteAt[k]) || 0);
++    });
++    return out;
++  }
++
++  function mergePlanEdits(l, r) {
++    return {
++      done: mergeEditStamps((l || {}).done, (r || {}).done),
++      daily: mergeEditStamps((l || {}).daily, (r || {}).daily),
++    };
++  }
++
++  // Habits are date -> habit id -> true. Flattened to "date::habit" so the
++  // same stamped last-write-wins applies, since these can be un-ticked too.
++  function mergePlanDaily(localMap, remoteMap, localAt, remoteAt) {
++    const flat = (m) => {
++      const out = {};
++      Object.keys(m || {}).forEach((d) => {
++        Object.keys(m[d] || {}).forEach((h) => {
++          if (m[d][h]) out[d + "::" + h] = true;
++        });
++      });
++      return out;
++    };
++    const merged = mergeStamped(flat(localMap), flat(remoteMap), localAt, remoteAt);
+     const out = {};
+-    const dates = new Set(Object.keys(localMap || {}).concat(Object.keys(remoteMap || {})));
+-    dates.forEach((d) => {
+-      out[d] = { ...((localMap || {})[d] || {}), ...((remoteMap || {})[d] || {}) };
++    Object.keys(merged).forEach((k) => {
++      const i = k.indexOf("::");
++      const d = k.slice(0, i);
++      const h = k.slice(i + 2);
++      (out[d] || (out[d] = {}))[h] = true;
+     });
+     return out;
+   }
+@@ -323,8 +360,19 @@
+     merged.mastery = mergeMastery(local.mastery, remote.mastery);
+     merged.srs = mergeSrs(local.srs, remote.srs);
+     merged.plan = mergePlanSettings(local.plan, remote.plan);
+-    merged.planDone = mergePlanDone(local.planDone, remote.planDone);
+-    merged.planDaily = mergePlanDaily(local.planDaily, remote.planDaily);
++    merged.planEdits = mergePlanEdits(local.planEdits, remote.planEdits);
++    merged.planDone = mergeStamped(
++      local.planDone,
++      remote.planDone,
++      (local.planEdits || {}).done,
++      (remote.planEdits || {}).done
++    );
++    merged.planDaily = mergePlanDaily(
++      local.planDaily,
++      remote.planDaily,
++      (local.planEdits || {}).daily,
++      (remote.planEdits || {}).daily
++    );
+ 
+     return merged;
+   }
+@@ -463,6 +511,7 @@
+             srs: {},
+             planDone: {},
+             planDaily: {},
++            planEdits: { done: {}, daily: {} },
+           });
+         }
+       }

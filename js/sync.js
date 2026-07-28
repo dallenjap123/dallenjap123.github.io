@@ -209,7 +209,7 @@
     return merged;
   }
 
-  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "mastery", "srs"];
+  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily", "planEdits", "mastery", "srs"];
 
   function normalizeSyncState(state) {
     const empty = { vocab: {}, grammar: {}, streak: {}, plan: {}, planDone: {}, planDaily: {} };
@@ -223,29 +223,66 @@
     return out;
   }
 
-  // A lesson finished on ANY device is finished. Union rather than
-  // last-write-wins, since dropping a completion would silently put work back
-  // in the queue that was genuinely done. Where both sides have a date, the
-  // earlier one wins — that's when it was first completed.
-  function mergePlanDone(localMap, remoteMap) {
-    const out = { ...(localMap || {}) };
-    Object.keys(remoteMap || {}).forEach((k) => {
-      const a = out[k];
-      const b = remoteMap[k];
-      if (!a) out[k] = b;
-      else if (typeof a === "string" && typeof b === "string") out[k] = a < b ? a : b;
-      else out[k] = typeof a === "string" ? a : b;
+  // Per-key last-write-wins, using the edit stamps app.js records whenever a
+  // lesson is ticked OR un-ticked. A plain union could only ever say "done",
+  // so un-ticking a lesson was undone again by the next snapshot; comparing
+  // stamps lets a fresh deletion beat a stale completion while two devices
+  // completing DIFFERENT lessons still both survive (different keys never
+  // compete). Unstamped keys are legacy data and lose to anything stamped.
+  function mergeStamped(localMap, remoteMap, localAt, remoteAt) {
+    const out = {};
+    const keys = new Set(
+      Object.keys(localMap || {})
+        .concat(Object.keys(remoteMap || {}))
+        .concat(Object.keys(localAt || {}))
+        .concat(Object.keys(remoteAt || {}))
+    );
+    keys.forEach((k) => {
+      const lt = Number((localAt || {})[k]) || 0;
+      const rt = Number((remoteAt || {})[k]) || 0;
+      // On a tie prefer whichever side actually holds the key, so legacy
+      // documents with no stamps at all still behave like the old union.
+      const winner = rt > lt ? remoteMap : lt > rt ? localMap : (localMap || {})[k] !== undefined ? localMap : remoteMap;
+      const v = (winner || {})[k];
+      if (v !== undefined) out[k] = v;
     });
     return out;
   }
 
-  // Recurring review habits are keyed by date, then by habit id. Ticking a
-  // habit on either device counts.
-  function mergePlanDaily(localMap, remoteMap) {
+  function mergeEditStamps(localAt, remoteAt) {
+    const out = { ...(localAt || {}) };
+    Object.keys(remoteAt || {}).forEach((k) => {
+      out[k] = Math.max(Number(out[k]) || 0, Number(remoteAt[k]) || 0);
+    });
+    return out;
+  }
+
+  function mergePlanEdits(l, r) {
+    return {
+      done: mergeEditStamps((l || {}).done, (r || {}).done),
+      daily: mergeEditStamps((l || {}).daily, (r || {}).daily),
+    };
+  }
+
+  // Habits are date -> habit id -> true. Flattened to "date::habit" so the
+  // same stamped last-write-wins applies, since these can be un-ticked too.
+  function mergePlanDaily(localMap, remoteMap, localAt, remoteAt) {
+    const flat = (m) => {
+      const out = {};
+      Object.keys(m || {}).forEach((d) => {
+        Object.keys(m[d] || {}).forEach((h) => {
+          if (m[d][h]) out[d + "::" + h] = true;
+        });
+      });
+      return out;
+    };
+    const merged = mergeStamped(flat(localMap), flat(remoteMap), localAt, remoteAt);
     const out = {};
-    const dates = new Set(Object.keys(localMap || {}).concat(Object.keys(remoteMap || {})));
-    dates.forEach((d) => {
-      out[d] = { ...((localMap || {})[d] || {}), ...((remoteMap || {})[d] || {}) };
+    Object.keys(merged).forEach((k) => {
+      const i = k.indexOf("::");
+      const d = k.slice(0, i);
+      const h = k.slice(i + 2);
+      (out[d] || (out[d] = {}))[h] = true;
     });
     return out;
   }
@@ -323,8 +360,19 @@
     merged.mastery = mergeMastery(local.mastery, remote.mastery);
     merged.srs = mergeSrs(local.srs, remote.srs);
     merged.plan = mergePlanSettings(local.plan, remote.plan);
-    merged.planDone = mergePlanDone(local.planDone, remote.planDone);
-    merged.planDaily = mergePlanDaily(local.planDaily, remote.planDaily);
+    merged.planEdits = mergePlanEdits(local.planEdits, remote.planEdits);
+    merged.planDone = mergeStamped(
+      local.planDone,
+      remote.planDone,
+      (local.planEdits || {}).done,
+      (remote.planEdits || {}).done
+    );
+    merged.planDaily = mergePlanDaily(
+      local.planDaily,
+      remote.planDaily,
+      (local.planEdits || {}).daily,
+      (remote.planEdits || {}).daily
+    );
 
     return merged;
   }
@@ -463,6 +511,7 @@
             srs: {},
             planDone: {},
             planDaily: {},
+            planEdits: { done: {}, daily: {} },
           });
         }
       }

@@ -18,7 +18,13 @@ A static site with three tabs — Home, Vocab and Grammar:
 - **Writing** — recall and draw a word's kanji from its reading/meaning on
   a touch-friendly canvas, then reveal to self-grade.
 - **Furigana** — recall and type a word's reading from its kanji, auto-graded
-  against the word's own reading (no self-honesty needed here)!
+  against the word's own reading (no self-honesty needed here)! The English
+  meaning is deliberately not shown, so the kanji is the only cue.
+
+Writing and Furigana are **clean-run** modes: a single wrong answer restarts
+the run from the beginning. The miss is still banked as a weak word first,
+so "practice weak words" keeps learning from these modes even though the
+item never finishes its second pass.
 
 Each of the three practice modes (Flashcards/Writing/Furigana) cycles every
 word in a lesson exactly twice per run; clear a lesson with zero mistakes
@@ -208,9 +214,13 @@ The lesson queues are read from the data files, so adding lessons to
 
 Plan state **syncs across devices** along with the rest of your progress
 once you sign in (see "Optional: sync progress across devices"). Merging is
-per-section: completed lessons are unioned, so a lesson finished on any
-device stays finished and the earlier completion date wins; the recurring
-review-habit ticks are unioned per day; and the plan settings — dates and
+per-section: completed lessons and review-habit ticks use per-key
+last-write-wins against an edit timestamp recorded whenever you tick *or
+un-tick* something. A plain union can only ever express "done", so
+un-ticking a lesson was resurrected by the next snapshot; stamps let a fresh
+deletion beat a stale completion, while two devices completing different
+lessons still both survive because different keys never compete. The plan
+settings — dates and
 pace — are a single coherent set, so the most recently edited copy wins
 outright. `savePlan()` stamps `updatedAt` for that, and only a genuine edit
 stamps it: re-stamping on every page load would make whichever device you

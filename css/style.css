@@ -1671,3 +1671,16 @@ main {
 .tl-finish-ok .tl-count-num { color: var(--mastered); }
 .tl-finish-late { border-color: var(--seal); box-shadow: 0 0 0 3px var(--seal-bg), var(--shadow-sm); }
 .tl-finish-late .tl-count-num { color: var(--seal); }
+
+/* Writing and furigana demand a clean run: one miss and the session restarts.
+   Without a word of explanation that just looks like the app lost your place. */
+.run-reset-note {
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  color: var(--seal);
+  background: var(--seal-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-3) 0 0;
+  text-align: center;
+}

@@ -217,6 +217,7 @@
             <button class="kw-canvas-clear" id="kw-clear" aria-label="clear drawing" data-i18n-aria="kwClear" title="clear">↺</button>
           </div>
 
+          <p class="run-reset-note" id="kw-reset-note" hidden data-i18n="runReset">✗ one wrong — the run restarts from the beginning.</p>
           <div class="kw-answer" id="kw-answer" hidden>
             <span class="kw-answer-word" id="kw-answer-word"></span>
             <span class="kw-answer-reading" id="kw-answer-reading"></span>
@@ -261,13 +262,13 @@
         <div class="fg-stage">
           <p class="fg-hint" data-i18n="fgHint">type the reading for this word in hiragana, then submit</p>
           <p class="fg-word" id="fg-word"></p>
-          <p class="fg-meaning" id="fg-meaning"></p>
 
           <div class="fg-input-row">
             <input type="text" id="fg-field" autocomplete="off" spellcheck="false" data-i18n-placeholder="fgPlaceholder" placeholder="type the reading in hiragana">
             <button class="ghost-btn btn-primary" id="fg-submit" data-i18n="submit">Submit</button>
           </div>
 
+          <p class="run-reset-note" id="fg-reset-note" hidden data-i18n="runReset">✗ one wrong — the run restarts from the beginning.</p>
           <div class="fg-answer" id="fg-answer" hidden>
             <span class="fg-answer-word" id="fg-answer-word"></span>
           </div>

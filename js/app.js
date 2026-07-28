@@ -866,6 +866,7 @@ resetProgressBtn.addEventListener("click", () => {
   const kwCtx = kwCanvas.getContext("2d");
   const kwClearBtn = document.getElementById("kw-clear");
   const kwRevealBtn = document.getElementById("kw-reveal");
+  const kwResetNoteEl = document.getElementById("kw-reset-note");
   const kwAnswerEl = document.getElementById("kw-answer");
   const kwAnswerWordEl = document.getElementById("kw-answer-word");
   const kwAnswerReadingEl = document.getElementById("kw-answer-reading");
@@ -964,6 +965,7 @@ resetProgressBtn.addEventListener("click", () => {
   }
   function kwStartSession() {
     const kw = state.kanjiWrite;
+    kwResetNoteEl.hidden = true;
     const items = kwBuildDeck(kw.level, kw.lessons, kw.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
     kw.sessionItems = items;
     kw.queue = kw.shuffleOn ? shuffle(items) : items.slice();
@@ -1070,14 +1072,22 @@ resetProgressBtn.addEventListener("click", () => {
     const kw = state.kanjiWrite;
     const item = kw.current;
     if (!item || !kw.revealed) return;
+    kwResetNoteEl.hidden = true;
+    // Same rule as furigana: one miss and the run starts over, but the miss
+    // is banked as a weak word first.
+    if (!isCorrect) {
+      recordKwResult(item, false);
+      kwStartSession();
+      kwResetNoteEl.hidden = false;
+      return;
+    }
     item.attempts += 1;
-    if (isCorrect) item.correctAttempts += 1;
+    item.correctAttempts += 1;
     if (item.attempts < 2) {
       kw.queue.push(item);
     } else {
-      const masteredThisSitting = item.correctAttempts === 2;
-      recordKwResult(item, masteredThisSitting);
-      if (masteredThisSitting) kw.masteredCount += 1;
+      recordKwResult(item, true);
+      kw.masteredCount += 1;
       if (!kw.isolateMode) {
         checkLessonComplete(kwMastery, kw.sessionItems, item.level, item.lesson);
         kwRenderLessonChips(kw.level);
@@ -1157,7 +1167,7 @@ resetProgressBtn.addEventListener("click", () => {
   const fgIsolateNoteEl = document.getElementById("fg-isolate-note");
   const fgResetProgressBtn = document.getElementById("fg-reset-progress");
   const fgWordEl = document.getElementById("fg-word");
-  const fgMeaningEl = document.getElementById("fg-meaning");
+  const fgResetNoteEl = document.getElementById("fg-reset-note");
   const fgFieldEl = document.getElementById("fg-field");
   const fgSubmitBtn = document.getElementById("fg-submit");
   const fgAnswerEl = document.getElementById("fg-answer");
@@ -1183,18 +1193,17 @@ resetProgressBtn.addEventListener("click", () => {
     if (!fg.queue.length) {
       fg.current = null;
       fgWordEl.textContent = fgEmptyText();
-      fgMeaningEl.textContent = "";
       fgUpdateProgress();
       return;
     }
     fg.current = fg.queue.shift();
     fgWordEl.textContent = fg.current.word;
-    fgMeaningEl.textContent = fg.current.meaning;
     fgUpdateProgress();
     setTimeout(() => fgFieldEl.focus(), 0);
   }
   function fgStartSession() {
     const fg = state.furigana;
+    fgResetNoteEl.hidden = true;
     const items = fgBuildDeck(fg.level, fg.lessons, fg.isolateMode).map((item) => ({ ...item, attempts: 0, correctAttempts: 0 }));
     fg.sessionItems = items;
     fg.queue = fg.shuffleOn ? shuffle(items) : items.slice();
@@ -1288,6 +1297,7 @@ resetProgressBtn.addEventListener("click", () => {
     const item = fg.current;
     if (!item || fg.submitted) return;
     fg.submitted = true;
+    fgResetNoteEl.hidden = true;
     const isCorrect = normalizeReading(fgFieldEl.value) === normalizeReading(item.reading);
     fgFieldEl.classList.add(isCorrect ? "fg-input-correct" : "fg-input-wrong");
     fgFieldEl.disabled = true;
@@ -1295,20 +1305,30 @@ resetProgressBtn.addEventListener("click", () => {
       fgAnswerEl.hidden = false;
       fgAnswerWordEl.textContent = item.reading;
     }
+    // A single miss ends the run. The word is still recorded as weak first —
+    // otherwise it would never reach a second attempt, and the weak-word
+    // drill would quietly stop learning anything from these modes.
+    if (!isCorrect) {
+      recordFgResult(item, false);
+      setTimeout(() => {
+        fgStartSession();
+        fgResetNoteEl.hidden = false;
+      }, 1500);
+      return;
+    }
     item.attempts += 1;
-    if (isCorrect) item.correctAttempts += 1;
+    item.correctAttempts += 1;
     if (item.attempts < 2) {
       fg.queue.push(item);
     } else {
-      const masteredThisSitting = item.correctAttempts === 2;
-      recordFgResult(item, masteredThisSitting);
-      if (masteredThisSitting) fg.masteredCount += 1;
+      recordFgResult(item, true);
+      fg.masteredCount += 1;
       if (!fg.isolateMode) {
         checkLessonComplete(fgMastery, fg.sessionItems, item.level, item.lesson);
         fgRenderLessonChips(fg.level);
       }
     }
-    setTimeout(fgShowNext, isCorrect ? 350 : 1500);
+    setTimeout(fgShowNext, 350);
   }
   fgSubmitBtn.addEventListener("click", fgSubmit);
   fgFieldEl.addEventListener("keydown", (e) => {
@@ -2840,6 +2860,32 @@ resetProgressBtn.addEventListener("click", () => {
     pushSyncChange();
   }
 
+  // A union merge can say "done" but has no way to say "un-done", so
+  // un-ticking a lesson was immediately resurrected by the next cloud
+  // snapshot. These record WHEN each key last changed — set or cleared — so
+  // the merge can tell a fresh deletion from a stale completion.
+  const PLAN_EDITS_KEY = "jpstudy_plan_edits_v1";
+  let planEdits = { done: {}, daily: {} };
+  try {
+    const saved = JSON.parse(localStorage.getItem(PLAN_EDITS_KEY) || "null");
+    if (saved && typeof saved === "object") {
+      planEdits = { done: saved.done || {}, daily: saved.daily || {} };
+    }
+  } catch (e) {
+    planEdits = { done: {}, daily: {} };
+  }
+  function savePlanEdits() {
+    try {
+      localStorage.setItem(PLAN_EDITS_KEY, JSON.stringify(planEdits));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  function markPlanEdit(kind, key) {
+    planEdits[kind][key] = Date.now();
+    savePlanEdits();
+  }
+
   let planDaily = {};
   try {
     planDaily = JSON.parse(localStorage.getItem(PLAN_DAILY_KEY) || "{}");
@@ -3146,6 +3192,7 @@ resetProgressBtn.addEventListener("click", () => {
         const key = dot.dataset.key;
         if (planDone[key]) delete planDone[key];
         else planDone[key] = today;
+        markPlanEdit("done", key);
         savePlanDone();
         renderTimeline();
       });
@@ -3188,8 +3235,10 @@ resetProgressBtn.addEventListener("click", () => {
         badge: bonusKeys.has(taskKey(task)) ? t("tlBonus") : t(task.kind === "vocab" ? "tabVocab" : "tabGrammar"),
         badgeKind: bonusKeys.has(taskKey(task)) ? "bonus" : task.kind,
         toggle: () => {
-          if (planDone[taskKey(task)]) delete planDone[taskKey(task)];
-          else planDone[taskKey(task)] = today;
+          const k = taskKey(task);
+          if (planDone[k]) delete planDone[k];
+          else planDone[k] = today;
+          markPlanEdit("done", k);
           savePlanDone();
           renderTimeline();
         },
@@ -3241,6 +3290,7 @@ resetProgressBtn.addEventListener("click", () => {
           const d = planDaily[today] || (planDaily[today] = {});
           if (d[h.id]) delete d[h.id];
           else d[h.id] = true;
+          markPlanEdit("daily", `${today}::${h.id}`);
           savePlanDaily();
           renderTimeline();
         },
@@ -3354,8 +3404,10 @@ resetProgressBtn.addEventListener("click", () => {
     if (!window.confirm("This clears every tick on your study plan and restarts it from today. Continue?")) return;
     planDone = {};
     planDaily = {};
+    planEdits = { done: {}, daily: {} };
     savePlanDone();
     savePlanDaily();
+    savePlanEdits();
     plan = { ...PLAN_DEFAULTS, startDate: todayISO() };
     savePlan();
     renderTimeline();
@@ -3366,6 +3418,7 @@ resetProgressBtn.addEventListener("click", () => {
       plan: JSON.parse(JSON.stringify(plan)),
       planDone: JSON.parse(JSON.stringify(planDone)),
       planDaily: JSON.parse(JSON.stringify(planDaily)),
+      planEdits: JSON.parse(JSON.stringify(planEdits)),
     }),
     apply: (snapshot) => {
       if (!snapshot || typeof snapshot !== "object") return;
@@ -3384,6 +3437,10 @@ resetProgressBtn.addEventListener("click", () => {
         planDaily = snapshot.planDaily;
         try { localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily)); } catch (e) {}
         touched = true;
+      }
+      if (snapshot.planEdits && typeof snapshot.planEdits === "object") {
+        planEdits = { done: snapshot.planEdits.done || {}, daily: snapshot.planEdits.daily || {} };
+        savePlanEdits();
       }
       if (touched) renderTimeline();
     },
