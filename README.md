@@ -150,10 +150,18 @@ vocab + 2 grammar lessons a day. Change the dates in `PLAN_DEFAULTS` at the
 top of the timeline section in `js/app.js`; change the pace right on the
 page.
 
-The third countdown cell is the **daily quota**: how many lessons you've
-done today, split by track (`Vocab 3/3` · `Grammar 2/2`). It turns green
-once both are met and amber once you're past them, so "am I done for
-today" is answerable at a glance.
+The middle cell is the **projected finish**: each track's own completion
+date plus the overall one, with the later track highlighted since that's
+the only one where extra work moves the headline date. The third cell is
+the **daily quota**: how many lessons you've done today, split by track
+(`Vocab 3/3` · `Grammar 2/2`), green once both are met and amber once
+you're past them.
+
+Everything resets at **local midnight** — the quota returns to zero and
+yesterday's struck-through rows leave the list (they stay done; they're
+just no longer today's). An open tab notices the rollover on its own,
+via a one-minute timer plus a check when the window regains focus, so a
+laptop woken the next morning shows the new day rather than yesterday's.
 
 **Today's checklist** is a strict daily quota you can actually finish.
 Lessons you ticked today stay on screen, struck through and sunk to the
@@ -196,8 +204,15 @@ it can also slow you down if you're ahead, since it targets the deadline
 exactly.
 
 The lesson queues are read from the data files, so adding lessons to
-`vocab-data.js` or `grammar-data.js` extends the plan automatically. All
-plan state is per-browser `localStorage` and is not covered by cloud sync.
+`vocab-data.js` or `grammar-data.js` extends the plan automatically.
+
+Plan state **syncs across devices** along with the rest of your progress
+once you sign in (see "Optional: sync progress across devices"). Merging is
+per-section: completed lessons are unioned, so a lesson finished on any
+device stays finished and the earlier completion date wins; the recurring
+review-habit ticks are unioned per day; and the plan settings — dates and
+pace — are a single coherent set, so the most recently edited copy wins
+outright (`savePlan()` stamps `updatedAt` for exactly this).
 
 ## Word List search
 
@@ -303,9 +318,8 @@ Lessons with no questions yet simply don't show a chip.
 
 ## Optional: sync progress across devices
 
-By default, all progress (your vocab right/wrong stats — the same numbers
-behind the Word List and weak-word highlighting) lives in your browser's
-`localStorage`. That means it's **per-browser, per-device** — studying on
+By default, all progress (your vocab right/wrong stats, plus your Home-tab
+study plan) lives in your browser's `localStorage`. That means it's **per-browser, per-device** — studying on
 your phone and then opening the site on your laptop starts fresh.
 Conjugation practice sessions are always local-only/per-session by design,
 on every device, regardless of sync.

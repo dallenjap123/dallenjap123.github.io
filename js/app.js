@@ -74,12 +74,25 @@
   } catch (e) {
     progressStore = {}; // storage unavailable (private browsing etc.) — just won't persist
   }
+  // The study plan lives much further down this file, but a cloud snapshot can
+  // arrive before that code has run. These start as no-ops and are replaced by
+  // the real implementations when the timeline initialises.
+  let getPlanSnapshot = () => null;
+  let applyPlanSnapshot = () => {};
+
   function getSyncSnapshot() {
-    return {
+    const snapshot = {
       vocab: JSON.parse(JSON.stringify(progressStore)),
       grammar: JSON.parse(JSON.stringify(grammarProgressStore)),
       streak: JSON.parse(JSON.stringify(streakStore)),
     };
+    const planSnap = getPlanSnapshot();
+    if (planSnap) {
+      snapshot.plan = planSnap.plan;
+      snapshot.planDone = planSnap.planDone;
+      snapshot.planDaily = planSnap.planDaily;
+    }
+    return snapshot;
   }
 
   function applySyncSnapshot(snapshot) {
@@ -96,7 +109,8 @@
       streakStore = snapshot.streak;
       try { localStorage.setItem(STREAK_KEY, JSON.stringify(streakStore)); } catch (e) {}
     }
-    
+    applyPlanSnapshot(snapshot);
+
     updateProgress();
     refreshWordList();
     if (state.flashcards.current) renderFace(state.flashcards.current);
@@ -127,7 +141,11 @@
       return getSyncSnapshot();
     },
     set(data) {
-      if (data && typeof data === "object" && ("vocab" in data || "grammar" in data || "streak" in data)) {
+      if (
+        data &&
+        typeof data === "object" &&
+        ("vocab" in data || "grammar" in data || "streak" in data || "plan" in data || "planDone" in data || "planDaily" in data)
+      ) {
         applySyncSnapshot(data);
         return;
       }
@@ -2712,6 +2730,12 @@ resetProgressBtn.addEventListener("click", () => {
       year: "numeric",
     });
   }
+  // Day + month only — the projection tile is tight, and the year is always
+  // obvious from the countdown next to it.
+  function fmtDateShort(iso) {
+    const d = parseISO(iso);
+    return d.toLocaleDateString(currentLang === "ja" ? "ja-JP" : "en-GB", { day: "numeric", month: "short" });
+  }
   function fmtShort(iso) {
     const d = parseISO(iso);
     return d.toLocaleDateString(currentLang === "ja" ? "ja-JP" : "en-GB", { weekday: "short", day: "numeric", month: "short" });
@@ -2724,12 +2748,25 @@ resetProgressBtn.addEventListener("click", () => {
   } catch (e) {
     plan = { ...PLAN_DEFAULTS };
   }
+  // Set while a cloud snapshot is being applied, so restoring remote state
+  // doesn't immediately push the same thing straight back up.
+  let applyingRemotePlan = false;
+  function pushPlanChange() {
+    if (applyingRemotePlan) return;
+    if (window.JPStudyProgress && typeof window.JPStudyProgress.onLocalChange === "function") {
+      window.JPStudyProgress.onLocalChange(getSyncSnapshot());
+    }
+  }
   function savePlan() {
+    // Stamped so two devices editing the pace can be resolved by recency
+    // rather than by whichever happened to write last.
+    plan.updatedAt = Date.now();
     try {
       localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
     } catch (e) {
       /* ignore */
     }
+    pushPlanChange();
   }
   savePlan(); // pins startDate on first ever load
 
@@ -2745,6 +2782,7 @@ resetProgressBtn.addEventListener("click", () => {
     } catch (e) {
       /* ignore */
     }
+    pushPlanChange();
   }
 
   let planDaily = {};
@@ -2759,6 +2797,7 @@ resetProgressBtn.addEventListener("click", () => {
     } catch (e) {
       /* ignore */
     }
+    pushPlanChange();
   }
 
   // The queues are derived from the data files, not hard-coded, so adding a
@@ -2879,9 +2918,11 @@ resetProgressBtn.addEventListener("click", () => {
   }
 
   const tlDaysExamEl = document.getElementById("tl-days-exam");
-  const tlDaysStudyEl = document.getElementById("tl-days-study");
   const tlExamDateEl = document.getElementById("tl-exam-date");
-  const tlStudyDateEl = document.getElementById("tl-study-date");
+  const tlFinishWorstEl = document.getElementById("tl-finish-worst");
+  const tlFinishSplitEl = document.getElementById("tl-finish-split");
+  const tlFinishSubEl = document.getElementById("tl-finish-sub");
+  const tlFinishCardEl = document.getElementById("tl-finish-card");
   const tlQuotaNumEl = document.getElementById("tl-quota-num");
   const tlQuotaSplitEl = document.getElementById("tl-quota-split");
   const tlQuotaSubEl = document.getElementById("tl-quota-sub");
@@ -2914,9 +2955,7 @@ resetProgressBtn.addEventListener("click", () => {
     const toExam = daysBetween(today, plan.examDate);
     const toStudyEnd = daysBetween(today, plan.studyEnd);
     tlDaysExamEl.textContent = toExam >= 0 ? toExam : "—";
-    tlDaysStudyEl.textContent = toStudyEnd >= 0 ? toStudyEnd : "0";
     tlExamDateEl.textContent = fmtDate(plan.examDate);
-    tlStudyDateEl.textContent = fmtDate(plan.studyEnd);
     renderQuotaCard(phase, today);
     tlTodayDateEl.textContent = fmtShort(today);
 
@@ -2943,23 +2982,30 @@ resetProgressBtn.addEventListener("click", () => {
     const gFinish = finishDateFor(gLeft, plan.grammarPerDay, gToday, today);
     const worstFinish = daysBetween(vFinish, gFinish) > 0 ? gFinish : vFinish;
     const slack = daysBetween(worstFinish, plan.studyEnd);
-    if (!vLeft && !gLeft) {
-      tlForecastEl.textContent = t("tlForecastComplete");
-      tlForecastEl.className = "tl-forecast tl-ok";
-    } else if (slack >= 0) {
-      // Report both tracks, not just the worst. They finish on different days,
-      // and knowing WHICH one sets the overall date is the difference between
-      // usefully pushing grammar and pointlessly grinding extra vocab.
-      tlForecastEl.textContent = t("tlForecastOk", {
-        date: fmtDate(worstFinish),
-        slack,
-        vdate: fmtDate(vFinish),
-        gdate: fmtDate(gFinish),
-        limiter: t(daysBetween(vFinish, gFinish) > 0 ? "tabGrammar" : "tabVocab"),
-      });
-      tlForecastEl.className = "tl-forecast tl-ok";
-    } else {
+    // The middle tile carries the projection now: each track's own date, plus
+    // the overall one and how it sits against the deadline. Both dates are
+    // shown because the tracks don't finish together, and only the later one
+    // can be moved by working harder.
+    const allDone = !vLeft && !gLeft;
+    const limiterIsGrammar = daysBetween(vFinish, gFinish) > 0;
+    tlFinishWorstEl.textContent = allDone ? "🎉" : fmtDateShort(worstFinish);
+    tlFinishSplitEl.innerHTML = allDone
+      ? ""
+      : `<span class="tl-fs${!limiterIsGrammar ? " tl-fs-limit" : ""}">${t("tabVocab")} ${vLeft ? fmtDateShort(vFinish) : "✓"}</span>` +
+        `<span class="tl-fs${limiterIsGrammar ? " tl-fs-limit" : ""}">${t("tabGrammar")} ${gLeft ? fmtDateShort(gFinish) : "✓"}</span>`;
+    tlFinishSubEl.textContent = allDone
+      ? t("tlForecastComplete")
+      : slack >= 0
+      ? t("tlFinishSlack", { slack, deadline: fmtDateShort(plan.studyEnd) })
+      : t("tlFinishLate", { over: -slack, deadline: fmtDateShort(plan.studyEnd) });
+    tlFinishCardEl.classList.toggle("tl-finish-late", !allDone && slack < 0);
+    tlFinishCardEl.classList.toggle("tl-finish-ok", allDone || slack >= 0);
+
+    // The panel line is kept only for the case the tile can't express: what
+    // pace you'd actually need to get back on time.
+    if (!allDone && slack < 0) {
       const daysLeft = Math.max(1, toStudyEnd + 1);
+      tlForecastEl.hidden = false;
       tlForecastEl.textContent = t("tlForecastLate", {
         date: fmtDate(worstFinish),
         over: -slack,
@@ -2967,6 +3013,8 @@ resetProgressBtn.addEventListener("click", () => {
         g: Math.ceil(gLeft / daysLeft),
       });
       tlForecastEl.className = "tl-forecast tl-warn";
+    } else {
+      tlForecastEl.hidden = true;
     }
 
     renderMap();
@@ -3258,7 +3306,59 @@ resetProgressBtn.addEventListener("click", () => {
     renderTimeline();
   });
 
+  // Hand the plan to the cloud-sync layer (js/sync.js). Registered here rather
+  // than at the top of the file because everything it closes over is defined
+  // in this section.
+  getPlanSnapshot = () => ({
+    plan: JSON.parse(JSON.stringify(plan)),
+    planDone: JSON.parse(JSON.stringify(planDone)),
+    planDaily: JSON.parse(JSON.stringify(planDaily)),
+  });
+  applyPlanSnapshot = (snapshot) => {
+    if (!snapshot || typeof snapshot !== "object") return;
+    let touched = false;
+    applyingRemotePlan = true;
+    try {
+      if (snapshot.plan && typeof snapshot.plan === "object") {
+        plan = { ...PLAN_DEFAULTS, ...snapshot.plan };
+        try { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); } catch (e) {}
+        touched = true;
+      }
+      if (snapshot.planDone && typeof snapshot.planDone === "object") {
+        planDone = snapshot.planDone;
+        try { localStorage.setItem(PLAN_DONE_KEY, JSON.stringify(planDone)); } catch (e) {}
+        touched = true;
+      }
+      if (snapshot.planDaily && typeof snapshot.planDaily === "object") {
+        planDaily = snapshot.planDaily;
+        try { localStorage.setItem(PLAN_DAILY_KEY, JSON.stringify(planDaily)); } catch (e) {}
+        touched = true;
+      }
+    } finally {
+      applyingRemotePlan = false;
+    }
+    if (touched) renderTimeline();
+  };
+
   renderTimeline();
+
+  // "Today" is only recomputed when something re-renders, so a tab left open
+  // overnight would keep showing yesterday's quota and yesterday's ticked-off
+  // rows. Watch for the date changing and refresh when it does — on a timer
+  // for a tab that's genuinely just sitting there, and on focus/visibility for
+  // the far more common case of a laptop being woken the next morning.
+  let lastSeenDay = todayISO();
+  function refreshIfDayChanged() {
+    const now = todayISO();
+    if (now === lastSeenDay) return;
+    lastSeenDay = now;
+    renderTimeline();
+  }
+  setInterval(refreshIfDayChanged, 60000);
+  window.addEventListener("focus", refreshIfDayChanged);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshIfDayChanged();
+  });
 
   applyTranslations();
 })();

@@ -209,18 +209,56 @@
     return merged;
   }
 
+  const SYNC_SECTIONS = ["vocab", "grammar", "streak", "plan", "planDone", "planDaily"];
+
   function normalizeSyncState(state) {
-    if (!state || typeof state !== "object") {
-      return { vocab: {}, grammar: {}, streak: {} };
-    }
-    if (!("vocab" in state) && !("grammar" in state) && !("streak" in state)) {
-      return { vocab: state, grammar: {}, streak: {} };
-    }
-    return {
-      vocab: state.vocab && typeof state.vocab === "object" ? state.vocab : {},
-      grammar: state.grammar && typeof state.grammar === "object" ? state.grammar : {},
-      streak: state.streak && typeof state.streak === "object" ? state.streak : {},
-    };
+    const empty = { vocab: {}, grammar: {}, streak: {}, plan: {}, planDone: {}, planDaily: {} };
+    if (!state || typeof state !== "object") return empty;
+    // A very old document was just the bare vocab map.
+    if (!SYNC_SECTIONS.some((k) => k in state)) return { ...empty, vocab: state };
+    const out = {};
+    SYNC_SECTIONS.forEach((k) => {
+      out[k] = state[k] && typeof state[k] === "object" ? state[k] : {};
+    });
+    return out;
+  }
+
+  // A lesson finished on ANY device is finished. Union rather than
+  // last-write-wins, since dropping a completion would silently put work back
+  // in the queue that was genuinely done. Where both sides have a date, the
+  // earlier one wins — that's when it was first completed.
+  function mergePlanDone(localMap, remoteMap) {
+    const out = { ...(localMap || {}) };
+    Object.keys(remoteMap || {}).forEach((k) => {
+      const a = out[k];
+      const b = remoteMap[k];
+      if (!a) out[k] = b;
+      else if (typeof a === "string" && typeof b === "string") out[k] = a < b ? a : b;
+      else out[k] = typeof a === "string" ? a : b;
+    });
+    return out;
+  }
+
+  // Recurring review habits are keyed by date, then by habit id. Ticking a
+  // habit on either device counts.
+  function mergePlanDaily(localMap, remoteMap) {
+    const out = {};
+    const dates = new Set(Object.keys(localMap || {}).concat(Object.keys(remoteMap || {})));
+    dates.forEach((d) => {
+      out[d] = { ...((localMap || {})[d] || {}), ...((remoteMap || {})[d] || {}) };
+    });
+    return out;
+  }
+
+  // Plan settings (dates, pace) are a single coherent set rather than a map,
+  // so the newest edit wins outright. savePlan() stamps updatedAt for exactly
+  // this; a document written before that existed has no stamp and loses.
+  function mergePlanSettings(localPlan, remotePlan) {
+    const l = localPlan && typeof localPlan === "object" ? localPlan : {};
+    const r = remotePlan && typeof remotePlan === "object" ? remotePlan : {};
+    if (!Object.keys(r).length) return l;
+    if (!Object.keys(l).length) return r;
+    return (Number(r.updatedAt) || 0) > (Number(l.updatedAt) || 0) ? r : l;
   }
 
   function mergeSyncState(localState, remoteState) {
@@ -236,6 +274,10 @@
     } else {
       merged.streak = local.streak || {};
     }
+
+    merged.plan = mergePlanSettings(local.plan, remote.plan);
+    merged.planDone = mergePlanDone(local.planDone, remote.planDone);
+    merged.planDaily = mergePlanDaily(local.planDaily, remote.planDaily);
 
     return merged;
   }

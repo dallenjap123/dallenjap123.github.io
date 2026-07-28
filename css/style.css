@@ -1665,3 +1665,20 @@ main {
 @media (max-width: 560px) {
   .tl-dot { width: 30px; height: 30px; }
 }
+
+/* Projection tile: each track's own date side by side, with the one that
+   sets the overall finish highlighted — that's the only track where extra
+   work actually moves the headline date. */
+.tl-finish-split { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1); }
+.tl-fs {
+  font-family: var(--font-ui);
+  font-size: var(--fs-2xs);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+.tl-fs-limit { background: var(--indigo); color: #fff; font-weight: 600; }
+.tl-finish-ok .tl-count-num { color: var(--mastered); }
+.tl-finish-late { border-color: var(--seal); box-shadow: 0 0 0 3px var(--seal-bg), var(--shadow-sm); }
+.tl-finish-late .tl-count-num { color: var(--seal); }
