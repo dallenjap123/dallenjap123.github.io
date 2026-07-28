@@ -1,0 +1,73 @@
+diff --git a/js/sync.js b/js/sync.js
+index 8edfa64..0c67cc6 100644
+--- a/js/sync.js
++++ b/js/sync.js
+@@ -240,9 +240,27 @@
+     keys.forEach((k) => {
+       const lt = Number((localAt || {})[k]) || 0;
+       const rt = Number((remoteAt || {})[k]) || 0;
+-      // On a tie prefer whichever side actually holds the key, so legacy
+-      // documents with no stamps at all still behave like the old union.
+-      const winner = rt > lt ? remoteMap : lt > rt ? localMap : (localMap || {})[k] !== undefined ? localMap : remoteMap;
++      const isStamped = (localAt || {})[k] !== undefined || (remoteAt || {})[k] !== undefined;
++      let winner;
++      if (rt > lt) winner = remoteMap;
++      else if (lt > rt) winner = localMap;
++      else if (isStamped) {
++        // Equal stamps on a key somebody deliberately edited means we are
++        // seeing our own write come back. If either side lacks the key, that
++        // absence IS the edit, so absence has to win — preferring the side
++        // that still holds it is exactly what resurrected un-ticked lessons.
++        // Two devices editing the same key in the same millisecond is not a
++        // real scenario; if both still hold it, nothing was deleted anyway.
++        winner =
++          (localMap || {})[k] === undefined
++            ? localMap
++            : (remoteMap || {})[k] === undefined
++            ? remoteMap
++            : localMap;
++      } else {
++        // No stamps at all: legacy data, behave like the old union.
++        winner = (localMap || {})[k] !== undefined ? localMap : remoteMap;
++      }
+       const v = (winner || {})[k];
+       if (v !== undefined) out[k] = v;
+     });
+@@ -384,7 +402,15 @@
+   function doPush(data) {
+     const user = auth.currentUser;
+     if (!user) return Promise.reject(new Error("not signed in"));
+-    return docRef(user.uid).set({ state: normalizeSyncState(data), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
++    // NOT { merge: true }. Firestore merges nested maps key by key, so a
++    // lesson removed from planDone locally was never removed in the cloud —
++    // the old key survived every push and came straight back on the next
++    // snapshot. We always write the complete state, so replacing the document
++    // is both correct and the only way a deletion can propagate.
++    return docRef(user.uid).set({
++      state: normalizeSyncState(data),
++      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
++    });
+   }
+   function pushToCloud(data) {
+     if (!auth.currentUser) return;
+@@ -530,7 +556,19 @@
+       const lastUid = localStorage.getItem("jpstudy_last_uid");
+       if (lastUid) {
+         if (window.JPStudyProgress) {
+-          window.JPStudyProgress.set({ vocab: {}, grammar: {}, streak: { current: 0, longest: 0, lastDate: null } });
++          // Everything, not just the vocab stats — signing out should not
++          // leave the previous account's badges, schedule or study plan
++          // sitting there for whoever signs in next.
++          window.JPStudyProgress.set({
++            vocab: {},
++            grammar: {},
++            streak: { current: 0, longest: 0, lastDate: null },
++            mastery: { fc: {}, kw: {}, fg: {}, gp: {} },
++            srs: {},
++            planDone: {},
++            planDaily: {},
++            planEdits: { done: {}, daily: {} },
++          });
+         }
+         localStorage.removeItem("jpstudy_last_uid");
+         window.location.reload(); // Instantly clears the screen
